@@ -3,6 +3,7 @@ package searchclient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Random;
 
 public class State
@@ -96,6 +97,8 @@ public class State
         {
             Action action = jointAction[agent];
             char box;
+            int boxRow;
+            int boxCol;
 
             switch (action.type)
             {
@@ -106,6 +109,36 @@ public class State
                     this.agentRows[agent] += action.agentRowDelta;
                     this.agentCols[agent] += action.agentColDelta;
                     break;
+                    
+                case Pull:
+                	this.agentRows[agent] += action.agentRowDelta;
+                	this.agentCols[agent] += action.agentColDelta;
+                	
+                	boxRow = this.agentRows[agent] + action.boxRowDelta;
+                	boxCol = this.agentCols[agent] + action.boxColDelta;
+   
+                	box = this.boxes[boxRow][boxCol];
+                	
+                	
+                	this.boxes[boxRow][boxCol] = 0;
+                	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
+                	
+                	break;
+                	
+                case Push:
+                    this.agentRows[agent] += action.agentRowDelta;
+                    this.agentCols[agent] += action.agentColDelta;
+                    
+                    boxRow = this.agentRows[agent] - action.boxRowDelta;
+                	boxCol = this.agentCols[agent] - action.boxColDelta;
+   
+                	box = this.boxes[boxRow][boxCol];
+                	
+                	
+                	this.boxes[boxRow][boxCol] = 0;
+                	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
+                    break;
+                	
             }
         }
     }
@@ -221,13 +254,116 @@ public class State
                 destinationRow = agentRow + action.agentRowDelta;
                 destinationCol = agentCol + action.agentColDelta;
                 return this.cellIsFree(destinationRow, destinationCol);
+                
+            case Push:
+            	destinationRow = agentRow + action.agentRowDelta;
+            	destinationCol = agentCol + action.agentColDelta;
+         
+            	if(!this.cellIsFree(destinationRow, destinationCol)) {
+            		return false;
+            	}
+            	
+            	
+            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
+            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
+            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
+            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
+            		return false;
+            	}
+            	
+            	boxRow = this.agentRows[agent] - action.boxRowDelta;
+            	boxCol = this.agentCols[agent] - action.boxColDelta;
+
+            	box = this.boxes[boxRow][boxCol];
+            	
+            	int boxColorIndexForPush = box - 'A';
+            	
+            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
+            		return false;
+            	}
+            	
+            	
+            	System.out.println(agentRow + " " + agentCol);
+            	
+            	for (int i = 0; i < this.boxes.length; i++) {
+            		 
+                    // Loop through all elements of current row
+                    for (int j = 0; j < this.boxes[i].length; j++)
+                    	
+                        System.out.print((int)this.boxes[i][j] + " " );
+                    System.out.println("");
+            	}
+            	
+            	//if there is a wall or there is a box
+            	if(this.walls[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] || !(this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] == 0)) {
+            		return false;
+            	}
+            	
+            	
+                if(!this.boxColors[boxColorIndexForPush].equals(agentColor) ) {
+                	return false;
+                }
+            	
+            	this.boxes[boxRow][boxCol] = 0;
+            	this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] = box;
+            	
+            	
+            case Pull:
+            	destinationRow = agentRow + action.agentRowDelta;
+            	destinationCol = agentCol + action.agentColDelta;
+            	if(!this.cellIsFree(destinationRow, destinationCol)) {
+            		return false;
+            	}
+            	
+            	
+            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
+            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
+            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
+            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
+            		return false;
+            	}
+            	
+            	boxRow = this.agentRows[agent] - action.boxRowDelta;
+            	boxCol = this.agentCols[agent] - action.boxColDelta;
+
+            	box = this.boxes[boxRow][boxCol];
+            	
+            	int boxColorIndexForPull = box - 'A';
+            	
+            	
+            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
+            		return false;
+            	}
+            	
+            	
+            	
+            	//if there is a wall or there is a box
+            	if(this.walls[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] || !(this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] == 0)) {
+            		return false;
+            	}
+            	
+                if(!this.boxColors[boxColorIndexForPull].equals(agentColor)) {
+                	return false;
+                }
+                
+            	
+            	this.boxes[boxRow][boxCol] = 0;
+            	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
 
         }
 
         // Unreachable:
         return false;
     }
-
+    
+    public static boolean isBoxAndAgentSameColor(char box, Color agentColor) {
+        if (box == 0) {
+            return false;
+        }
+        int colorNumber = Character.getNumericValue(box) - 10;
+        return boxColors[colorNumber % boxColors.length] == agentColor;
+    }
+    
     private boolean isConflicting(Action[] jointAction)
     {
         int numAgents = this.agentRows.length;
@@ -236,6 +372,8 @@ public class State
         int[] destinationCols = new int[numAgents]; // column of new cell to become occupied by action
         int[] boxRows = new int[numAgents]; // current row of box moved by action
         int[] boxCols = new int[numAgents]; // current column of box moved by action
+        int[] destinationBoxRows = new int[numAgents]; // destination row of box moved by action
+        int[] destinationBoxCols = new int[numAgents]; // destination column of box moved by action
 
         // Collect cells to be occupied and boxes to be moved
         for (int agent = 0; agent < numAgents; ++agent)
@@ -256,7 +394,11 @@ public class State
                     destinationCols[agent] = agentCol + action.agentColDelta;
                     boxRows[agent] = agentRow; // Distinct dummy value
                     boxCols[agent] = agentCol; // Distinct dummy value
+                    destinationBoxRows[agent] = agentRow + action.agentRowDelta;
+                    destinationBoxCols[agent] = agentCol + action.agentColDelta;
                     break;
+                    
+                    
            }
         }
 
