@@ -12,10 +12,7 @@ public abstract class Heuristic
 
     public int h(State s)
     {
-    	Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals);
-    	System.err.println("d=" );
-    	System.err.println(d.calculate());
-        return d.calculate();
+        return 0;
     }
 
     public abstract int f(State s);
@@ -85,7 +82,6 @@ class HeuristicGreedy
     {
         return this.h(s);
     }
-
 
     @Override
     public String toString()

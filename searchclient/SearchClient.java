@@ -133,10 +133,10 @@ public class SearchClient
         System.err.println("SearchClient initializing. I am sending this using the error output stream.");
 
         // Send client name to server.
-        System.err.println("SearchClient");
+        System.out.println("SearchClient");
 
         // We can also print comments to stdout by prefixing with a #.
-        System.err.println("#This is a comment.");
+        System.out.println("#This is a comment.");
 
         // Parse the level.
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.US_ASCII));
@@ -212,13 +212,13 @@ public class SearchClient
 
             for (Action[] jointAction : plan)
             {
-                System.err.print(jointAction[0].name);
+                System.out.print(jointAction[0].name);
                 for (int action = 1; action < jointAction.length; ++action)
                 {
-                    System.err.print("|");
-                    System.err.print(jointAction[action].name);
+                    System.out.print("|");
+                    System.out.print(jointAction[action].name);
                 }
-                System.err.println();
+                System.out.println();
                 // We must read the server's response to not fill up the stdin buffer and block the server.
                 serverMessages.readLine();
             }
