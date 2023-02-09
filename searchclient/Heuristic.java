@@ -13,8 +13,8 @@ public abstract class Heuristic
     public int h(State s)
     {
     	Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals);
-    	System.out.println("d=" );
-    	System.out.println(d.calculate());
+    	System.err.println("d=" );
+    	System.err.println(d.calculate());
         return d.calculate();
     }
 

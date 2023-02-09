@@ -1,5 +1,4 @@
 package searchclient;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -8,7 +7,7 @@ public class GraphSearch {
 
     public static Action[][] search(State initialState, Frontier frontier)
     {
-        boolean outputFixedSolution = false;
+        boolean outputFixedSolution = true;
 
         if (outputFixedSolution) {
             //Part 1:
@@ -19,6 +18,16 @@ public class GraphSearch {
                 {Action.MoveS},
                 {Action.MoveE},
                 {Action.MoveE},
+                {Action.MoveE},
+                {Action.MoveE},
+                {Action.MoveE},
+                {Action.MoveE},
+                {Action.MoveS},
+                {Action.MoveS},
+                {Action.MoveE},
+                {Action.MoveE},
+                {Action.MoveE},
+                {Action.MoveS},
                 {Action.MoveS},
             };
         } else {
@@ -41,30 +50,36 @@ public class GraphSearch {
 
             frontier.add(initialState);
             HashSet<State> expanded = new HashSet<>();
-
             while (true) {
-            	if(frontier.isEmpty()) {
-            		return null;
-            	}
-            	State s = frontier.pop();
-            	if(s.isGoalState()) {
-            		return s.extractPlan();
-            	}
-            	expanded.add(s);
-            	
-            	for (State t : s.getExpandedStates()) {
-            		if(!frontier.contains(t) && !expanded.contains(t)) {
-            			frontier.add(t);
-            		}
-					
-				}
-
                 //Print a status message every 10000 iteration
                 if (++iterations % 10000 == 0) {
                     printSearchStatus(expanded, frontier);
                 }
 
-                //Your code here... Don't forget to print out the stats when a solution has been found (see above)
+                if(initialState.isGoalState()) {
+                    printSearchStatus(expanded, frontier);
+                    return initialState.extractPlan();
+                }
+                expanded.add(initialState);
+
+                while(!frontier.isEmpty()) {
+                    if (++iterations % 10000 == 0) {
+                        printSearchStatus(expanded, frontier);
+                    }
+
+                    State node = frontier.pop();
+                    for (State child : node.getExpandedStates()) {
+                        if(child.isGoalState()){
+                            printSearchStatus(expanded, frontier);
+                            return child.extractPlan();
+                        }
+                        if(!expanded.contains(child)) {
+                            expanded.add(child);
+                            frontier.add(child);
+                        }
+                    }
+                }
+                return null;
             }
         }
     }
