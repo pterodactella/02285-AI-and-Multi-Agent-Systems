@@ -356,13 +356,6 @@ public class State
         return false;
     }
     
-    public static boolean isBoxAndAgentSameColor(char box, Color agentColor) {
-        if (box == 0) {
-            return false;
-        }
-        int colorNumber = Character.getNumericValue(box) - 10;
-        return boxColors[colorNumber % boxColors.length] == agentColor;
-    }
     
     private boolean isConflicting(Action[] jointAction)
     {
