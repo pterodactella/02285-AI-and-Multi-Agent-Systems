@@ -17,7 +17,7 @@ public abstract class Distances {
 		
 //		for (HashMap.Entry<Character, int[]> set :
 //            this.coordinates.entrySet()) {
-//			System.err.println(set.getKey() + " = "
+//			System.out.println(set.getKey() + " = "
 //                    + Arrays.toString(set.getValue()));
 //       }
 	}

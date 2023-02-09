@@ -20,16 +20,6 @@ public class GraphSearch {
                 {Action.MoveE},
                 {Action.MoveE},
                 {Action.MoveS},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveS},
-                {Action.MoveS},
             };
         } else {
             //Part 2:
@@ -53,7 +43,7 @@ public class GraphSearch {
             HashSet<State> expanded = new HashSet<>();
 
             while (true) {
-                if(frontier.isEmpty()) {
+            	if(frontier.isEmpty()) {
             		return null;
             	}
             	State s = frontier.pop();
@@ -61,23 +51,26 @@ public class GraphSearch {
             		return s.extractPlan();
             	}
             	expanded.add(s);
-
+            	
             	for (State t : s.getExpandedStates()) {
             		if(!frontier.contains(t) && !expanded.contains(t)) {
             			frontier.add(t);
             		}
-
+					
 				}
 
                 //Print a status message every 10000 iteration
                 if (++iterations % 10000 == 0) {
                     printSearchStatus(expanded, frontier);
                 }
+
+                //Your code here... Don't forget to print out the stats when a solution has been found (see above)
             }
         }
     }
 
-    private static long startTime = System.nanoTime();
+
+	private static long startTime = System.nanoTime();
 
     private static void printSearchStatus(HashSet<State> expanded, Frontier frontier)
     {

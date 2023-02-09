@@ -2,6 +2,8 @@ package searchclient;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Stack;
 
 public interface Frontier
 {
@@ -62,34 +64,40 @@ class FrontierBFS
 class FrontierDFS
         implements Frontier
 {
+    private final  Stack<State> stack = new Stack<>();
+    private final  HashSet<State> set = new HashSet<>(65536);
+    
     @Override
     public void add(State state)
     {
-        throw new NotImplementedException();
+        this.stack.add(state);
+        this.set.add(state);
     }
 
     @Override
     public State pop()
     {
-        throw new NotImplementedException();
+        State n = this.stack.pop();
+        this.set.remove(n);
+        return n;
     }
 
     @Override
     public boolean isEmpty()
     {
-        throw new NotImplementedException();
+    	return this.stack.isEmpty();
     }
 
     @Override
     public int size()
     {
-        throw new NotImplementedException();
+    	return this.stack.size();
     }
 
     @Override
     public boolean contains(State state)
     {
-        throw new NotImplementedException();
+    	return this.set.contains(state);
     }
 
     @Override
@@ -103,40 +111,47 @@ class FrontierBestFirst
         implements Frontier
 {
     private Heuristic heuristic;
+    private final  PriorityQueue<State> priorityQueue;
+    private final  HashSet<State> set;
 
     public FrontierBestFirst(Heuristic h)
     {
         this.heuristic = h;
+        this.priorityQueue = new PriorityQueue<State>(this.heuristic);
+        this.set = new HashSet<State>(65536);
     }
 
     @Override
     public void add(State state)
     {
-        throw new NotImplementedException();
+        this.priorityQueue.add(state);
+        this.set.add(state);
     }
 
     @Override
     public State pop()
     {
-        throw new NotImplementedException();
+        State state = this.priorityQueue.poll();
+        this.set.remove(state);
+        return state;
     }
 
     @Override
     public boolean isEmpty()
     {
-        throw new NotImplementedException();
+    	return this.priorityQueue.isEmpty();
     }
 
     @Override
     public int size()
     {
-        throw new NotImplementedException();
+    	return this.priorityQueue.size();
     }
 
     @Override
     public boolean contains(State state)
     {
-        throw new NotImplementedException();
+    	return this.set.contains(state);
     }
 
     @Override
