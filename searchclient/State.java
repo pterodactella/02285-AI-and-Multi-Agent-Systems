@@ -108,37 +108,70 @@ public class State
                 case Move:
                     this.agentRows[agent] += action.agentRowDelta;
                     this.agentCols[agent] += action.agentColDelta;
+
                     break;
                     
                 case Push:
-
+                	this.agentRows[agent] = this.agentRows[agent] + action.agentRowDelta;
+                	this.agentCols[agent] = this.agentCols[agent] + action.agentColDelta;
+             
                 	boxRow = this.agentRows[agent] + action.boxRowDelta;
                 	boxCol = this.agentCols[agent] + action.boxColDelta;
-   
-                	box = this.boxes[boxRow][boxCol];
+                	//delete previous state
+                	box = this.boxes[this.agentRows[agent]][this.agentCols[agent]];
+                	
+                	this.boxes[this.agentRows[agent]][this.agentCols[agent]] = 0;
+                	
+                	this.boxes[boxRow][boxCol] = box;
+                	
+                    break;
+                    
+                case Pull:
+                	
+//                	System.out.println(action.agentRowDelta + " " + action.agentColDelta + " ACTIONS");
+//                	System.out.println(action.boxRowDelta + " " + action.boxColDelta + " BOXES ACTION");
+//                	
+//                	System.out.println(this.agentRows[agent] + " " + this.agentCols[agent] + "Coordinates");
+//                	
+//                	for (int i = 0; i < this.boxes.length; i++) {
+//                  		 
+//                        // Loop through all elements of current row
+//                        for (int j = 0; j < this.boxes[i].length; j++)
+//                        	
+//                            System.out.print((int)this.boxes[i][j] + " " );
+//                        System.out.println("");
+//                	}
+//                	
+//                	System.out.println((this.agentRows[agent] - action.boxRowDelta) + " " + (this.agentCols[agent] - action.boxColDelta) + "BOX COORDINATES Before ACTION");
                 	
                 	
-                	this.boxes[boxRow][boxCol] = 0;
-                	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
+                	boxRow = this.agentRows[agent];
+                	boxCol = this.agentCols[agent];
+//                	System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
+
+                	box = this.boxes[this.agentRows[agent] - action.boxRowDelta][this.agentCols[agent] - action.boxColDelta];
+                	this.boxes[this.agentRows[agent] - action.boxRowDelta][this.agentCols[agent] - action.boxColDelta] = 0;
+                	this.boxes[boxRow][boxCol] = box;
                 	
-                    this.agentRows[agent] += action.agentRowDelta;
+                	this.agentRows[agent] += action.agentRowDelta;
                 	this.agentCols[agent] += action.agentColDelta;
                 	
+
+                	
+
+//                	System.out.println(this.agentRows[agent] + " " + this.agentCols[agent] + "Coordinates");
+//                	
+//                	for (int i = 0; i < this.boxes.length; i++) {
+//                  		 
+//                        // Loop through all elements of current row
+//                        for (int j = 0; j < this.boxes[i].length; j++)
+//                        	
+//                            System.out.print((int)this.boxes[i][j] + " " );
+//                        System.out.println("");
+//                	}
+        
                 	break;
                 	
-                case Pull:
-                    boxRow = this.agentRows[agent] - action.boxRowDelta;
-                	boxCol = this.agentCols[agent] - action.boxColDelta;
-   
-                	box = this.boxes[boxRow][boxCol];
-                	
-                	
-                	this.boxes[boxRow][boxCol] = 0;
-                	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
-                    this.agentRows[agent] += action.agentRowDelta;
-                    this.agentCols[agent] += action.agentColDelta;
-                    break;
-
                 	
             }
         }
@@ -185,6 +218,7 @@ public class State
                 if (this.isApplicable(agent, action))
                 {
                     agentActions.add(action);
+                 
                 }
             }
             applicableActions[agent] = agentActions.toArray(new Action[0]);
@@ -194,6 +228,7 @@ public class State
         Action[] jointAction = new Action[numAgents];
         int[] actionsPermutation = new int[numAgents];
         ArrayList<State> expandedStates = new ArrayList<>(16);
+
         while (true)
         {
             for (int agent = 0; agent < numAgents; ++agent)
@@ -257,44 +292,155 @@ public class State
                 return this.cellIsFree(destinationRow, destinationCol);
                 
             case Push:
-                boxRow = agentRow + action.agentRowDelta;
-                boxCol = agentCol + action.agentColDelta;
-                box = this.boxes[boxRow][boxCol];
-                int boxColorIndexForPush = box - 'A';
-                if(box >= 'A' && box <= 'Z') {
-                if (boxColors[boxColorIndexForPush % boxColors.length] == agentColor) {
-                    destinationRow = boxRow + action.boxRowDelta;
-                    destinationCol = boxCol + action.boxColDelta;
-                    return this.cellIsFree(destinationRow, destinationCol);
-                }}
-               return false;
-                
+            	destinationRow = agentRow + action.agentRowDelta;
+            	destinationCol = agentCol + action.agentColDelta;
+         
+            	if(!isBoxAt(destinationRow, destinationCol, agentColor)) {
+            		return false;
+            	}
+            	boxRow = destinationRow + action.boxRowDelta;
+            	boxCol = destinationCol + action.boxColDelta;
+            	
+            	if(boxRow < 0 || boxCol < 0 || boxRow >= this.boxes.length || boxCol >= this.boxes[0].length) {
+            		return false;
+            	}
+            	
+            	if(!this.cellIsFree(boxRow, boxCol)) {
+            		return false;
+            	}
+            	return true;
+        	
+            	
+            	
+//            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
+//            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
+//            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
+//            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
+//            		return false;
+//            	}
+            	
+//            	boxRow = this.agentRows[agent] - action.boxRowDelta;
+//            	boxCol = this.agentCols[agent] - action.boxColDelta;
 
+//            	box = this.boxes[boxRow][boxCol];
+//            	System.out.println(box + "WTFF");
+//            	int boxColorIndexForPush = box - 'A';
+//            	System.out.println(boxColorIndexForPush + "" + agentColor);
+//            	
+//            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
+//            		return false;
+//            	}
+//            	
+//            	
+//            	System.out.println(agentRow + " " + agentCol);
+//            	
+//            	for (int i = 0; i < this.boxes.length; i++) {
+//            		 
+//                    // Loop through all elements of current row
+//                    for (int j = 0; j < this.boxes[i].length; j++)
+//                    	
+//                        System.out.print((int)this.boxes[i][j] + " " );
+//                    System.out.println("");
+//            	}
+//            	
+//            	//if there is a wall or there is a box
+//            	if(this.walls[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] || !(this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] == 0)) {
+//            		return false;
+//            	}
+//            	
+//            	
+//                if(!this.boxColors[boxColorIndexForPush].equals(agentColor) ) {
+//                	return false;
+//                }
+//            	
+//            	this.boxes[boxRow][boxCol] = 0;
+//            	this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] = box;
+//            	System.out.println(box + "da pan aici");
+            	
             	
             case Pull:
-                destinationRow = agentRow + action.agentRowDelta;
-                destinationCol = agentCol + action.agentColDelta;
-                
-                if(!this.cellIsFree(destinationRow, destinationCol)) {
-                    return false;
-                }
+            	
+            	//check for box location on the map
+            	if(!this.isBoxAt(agentRow - action.boxRowDelta, agentCol - action.boxColDelta, agentColor)) {
+            		return false;
+            	}
+            	
+            	//
+            	boxRow = agentRow + action.boxRowDelta;
+            	boxCol = agentCol + action.boxColDelta;
+            	
+            	destinationRow = boxRow + action.agentRowDelta;
+            	destinationCol = boxCol + action.agentColDelta;
+            	
+            	if(destinationRow < 0 || destinationCol < 0 || destinationRow >= this.boxes.length || destinationCol >= this.boxes[0].length) {
+            		return false;
+            	}
+            	
+            	if(!this.cellIsFree(destinationRow, destinationCol)) {
+            		return false;
+            	}
+            	
+//            	System.out.println("CEVA PROSTA");
+            	return true;
+            
+//            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
+//            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
+//            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
+//            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
+//            		return false;
+//            	}
+//            	
+//            	boxRow = this.agentRows[agent] + action.boxRowDelta;
+//            	boxCol = this.agentCols[agent] + action.boxColDelta;
+//
+//            	box = this.boxes[boxRow][boxCol];
+//            	
+//            	
+//            	int boxColorIndexForPull = box - 'A';
+//            	
+//            	
+//            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
+//            		return false;
+//            	}
+//            	
+//            	
+//            	
+//            	//if there is a wall or there is a box
+//            	if(this.walls[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] || !(this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] == 0)) {
+//            		return false;
+//            	}
+//            	
+//                if(!this.boxColors[boxColorIndexForPull].equals(agentColor)) {
+//                	return false;
+//                }
+//                
+//            	
+//            	this.boxes[boxRow][boxCol] = 0;
+//            	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
 
-                destinationRow = agentRow - action.boxRowDelta;
-                destinationCol = agentCol - action.boxColDelta;
-                box = this.boxes[destinationRow][destinationCol];
-                int boxColorIndexForPull = box - 'A';
-                if (!(box >= 'A' && box <= 'Z' && boxColors[boxColorIndexForPull % boxColors.length] == agentColor)) {
-
-                    return false;
-                }
-                
-                
-
-                
         }
 
         // Unreachable:
         return false;
+    }
+    
+    private boolean isBoxAt(int boxRow, int boxCol, Color boxColor) {
+    	
+    	//check for out of boundaries
+    	if(boxRow < 0 || boxCol <0 ) {
+    		return false;
+    	}
+    	//check for character
+    	if(this.boxes[boxRow][boxCol] == 0) {
+    		return false;
+    	}
+    	//check color of box to match the agent
+    	int boxIndex = this.boxes[boxRow][boxCol] - 'A';
+    	if(!this.boxColors[boxIndex].equals(boxColor)) {
+    		return false;
+    	}
+    	return true;
+    	
     }
     
     
@@ -331,33 +477,28 @@ public class State
                     destinationBoxRows[agent] = agentRow + action.agentRowDelta;
                     destinationBoxCols[agent] = agentCol + action.agentColDelta;
                     break;
-
-                case Push:
-                    destinationRows[agent] = agentRow + action.agentRowDelta;
-                    destinationCols[agent] = agentCol + action.agentColDelta;
-
-                    boxRows[agent] = agentRow + destinationRows[agent];
-                    boxCols[agent] = agentCol + destinationCols[agent];
-
-                    destinationBoxRows[agent] += action.boxRowDelta;
-                    destinationBoxCols[agent] += action.boxColDelta;
-                   
-
-                    break;
-
-                case Pull:
-
-                    destinationRows[agent] = agentRow + action.agentRowDelta;
-                    destinationCols[agent] = agentCol + action.agentColDelta;
-
-                    boxRows[agent] = agentRow - action.boxRowDelta;
-                    boxCols[agent] = agentCol - action.boxColDelta;
                     
-                    destinationBoxRows[agent] = agentRow;
-                    destinationBoxCols[agent] = agentCol;
-
-                    break;
-
+//                case Push:
+//                    // perform Move conflict check
+//                    destinationRows[agent] = agentRow + action.agentRowDelta;
+//                    destinationCols[agent] = agentCol + action.agentColDelta;
+//                    // add box push to agents possible conflicts
+//                    boxRow = agentRow + action.agentRowDelta;
+//                    boxCol = agentCol + action.agentColDelta;
+//                    boxRows[agent] = boxRow - action.boxRowDelta;
+//                    boxCols[agent] = boxCol - action.boxColDelta;
+//                    break;
+//                    
+//                case Pull:
+//                    // perform Move conflict check
+//                    destinationRows[agent] = agentRow + action.agentRowDelta;
+//                    destinationCols[agent] = agentCol + action.agentColDelta;
+//                    // add box pull to agents possible conflicts
+//                    boxRow = agentRow - action.boxRowDelta;
+//                    boxCol = agentCol = action.boxColDelta;
+//                    boxRows[agent] = boxRow + action.boxRowDelta;
+//                    boxCols[agent] = boxCol + action.boxColDelta;
+//                    break;
                     
                     
            }
