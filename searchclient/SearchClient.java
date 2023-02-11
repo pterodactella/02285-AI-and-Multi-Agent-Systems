@@ -155,7 +155,7 @@ public class SearchClient {
 				// frontier = new FrontierBestFirst(new GeneticSelection(initialState));
 				plans = new GeneticSelection(initialState).getSolutions(initialState);
 				for (Action[][] plan : plans) {
-					System.out.println(plan.toString());
+					// System.out.println(plan.toString());
 					for (Action[] jointAction : plan) {
 						System.out.print(jointAction[0].name);
 						for (int action = 1; action < jointAction.length; ++action) {

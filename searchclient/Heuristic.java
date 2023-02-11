@@ -117,17 +117,17 @@ class GeneticSelection extends Heuristic {
     public ArrayList<Action[][]> getSolutions(State s) {
         ArrayList<Action[][]> plans = new ArrayList<Action[][]>(5);
         // for (int i = 0; i < 2; i++) {
-            Action[][] plan1 = SearchClient.search(s, new FrontierBestFirst(new HeuristicGreedy(s)));
+            Action[][] plan1 = GraphSearch.search(s, new FrontierBestFirst(new HeuristicGreedy(s)));
             if (plan1 != null) {
                 System.err.println("Found a greedy plan!");
 			    plans.add(plan1);
             }
-            Action[][] plan2 = SearchClient.search(s, new FrontierBestFirst(new HeuristicAStar(s)));
+            Action[][] plan2 = GraphSearch.search(s, new FrontierBestFirst(new HeuristicAStar(s)));
             if (plan2 != null) {
                 System.err.println("Found a a star plan!");
                 plans.add(plan2);
             }
-            Action[][] plan3 = SearchClient.search(s, new FrontierBestFirst(new HeuristicWeightedAStar(s, 5)));
+            Action[][] plan3 = GraphSearch.search(s, new FrontierBestFirst(new HeuristicWeightedAStar(s, 5)));
             if (plan3 != null) {
                 System.err.println("Found a weighted a star plan!");
                 plans.add(plan3);
