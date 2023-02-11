@@ -110,10 +110,8 @@ public class State
                     this.agentCols[agent] += action.agentColDelta;
                     break;
                     
-                case Pull:
-                	this.agentRows[agent] += action.agentRowDelta;
-                	this.agentCols[agent] += action.agentColDelta;
-                	
+                case Push:
+
                 	boxRow = this.agentRows[agent] + action.boxRowDelta;
                 	boxCol = this.agentCols[agent] + action.boxColDelta;
    
@@ -123,12 +121,12 @@ public class State
                 	this.boxes[boxRow][boxCol] = 0;
                 	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
                 	
+                    this.agentRows[agent] += action.agentRowDelta;
+                	this.agentCols[agent] += action.agentColDelta;
+                	
                 	break;
                 	
-                case Push:
-                    this.agentRows[agent] += action.agentRowDelta;
-                    this.agentCols[agent] += action.agentColDelta;
-                    
+                case Pull:
                     boxRow = this.agentRows[agent] - action.boxRowDelta;
                 	boxCol = this.agentCols[agent] - action.boxColDelta;
    
@@ -137,7 +135,10 @@ public class State
                 	
                 	this.boxes[boxRow][boxCol] = 0;
                 	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
+                    this.agentRows[agent] += action.agentRowDelta;
+                    this.agentCols[agent] += action.agentColDelta;
                     break;
+
                 	
             }
         }
@@ -256,100 +257,40 @@ public class State
                 return this.cellIsFree(destinationRow, destinationCol);
                 
             case Push:
-            	destinationRow = agentRow + action.agentRowDelta;
-            	destinationCol = agentCol + action.agentColDelta;
-         
-            	if(!this.cellIsFree(destinationRow, destinationCol)) {
-            		return false;
-            	}
-            	
-            	
-            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
-            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
-            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
-            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
-            		return false;
-            	}
-            	
-            	boxRow = this.agentRows[agent] - action.boxRowDelta;
-            	boxCol = this.agentCols[agent] - action.boxColDelta;
+                boxRow = agentRow + action.agentRowDelta;
+                boxCol = agentCol + action.agentColDelta;
+                box = this.boxes[boxRow][boxCol];
+                int boxColorIndexForPush = box - 'A';
+                if(box >= 'A' && box <= 'Z') {
+                if (boxColors[boxColorIndexForPush % boxColors.length] == agentColor) {
+                    destinationRow = boxRow + action.boxRowDelta;
+                    destinationCol = boxCol + action.boxColDelta;
+                    return this.cellIsFree(destinationRow, destinationCol);
+                }}
+               return false;
+                
 
-            	box = this.boxes[boxRow][boxCol];
-            	
-            	int boxColorIndexForPush = box - 'A';
-            	
-            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
-            		return false;
-            	}
-            	
-            	
-            	System.out.println(agentRow + " " + agentCol);
-            	
-            	for (int i = 0; i < this.boxes.length; i++) {
-            		 
-                    // Loop through all elements of current row
-                    for (int j = 0; j < this.boxes[i].length; j++)
-                    	
-                        System.out.print((int)this.boxes[i][j] + " " );
-                    System.out.println("");
-            	}
-            	
-            	//if there is a wall or there is a box
-            	if(this.walls[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] || !(this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] == 0)) {
-            		return false;
-            	}
-            	
-            	
-                if(!this.boxColors[boxColorIndexForPush].equals(agentColor) ) {
-                	return false;
-                }
-            	
-            	this.boxes[boxRow][boxCol] = 0;
-            	this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] = box;
-            	
             	
             case Pull:
-            	destinationRow = agentRow + action.agentRowDelta;
-            	destinationCol = agentCol + action.agentColDelta;
-            	if(!this.cellIsFree(destinationRow, destinationCol)) {
-            		return false;
-            	}
-            	
-            	
-            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
-            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
-            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
-            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
-            		return false;
-            	}
-            	
-            	boxRow = this.agentRows[agent] - action.boxRowDelta;
-            	boxCol = this.agentCols[agent] - action.boxColDelta;
+                destinationRow = agentRow + action.agentRowDelta;
+                destinationCol = agentCol + action.agentColDelta;
+                
+                if(!this.cellIsFree(destinationRow, destinationCol)) {
+                    return false;
+                }
 
-            	box = this.boxes[boxRow][boxCol];
-            	
-            	int boxColorIndexForPull = box - 'A';
-            	
-            	
-            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
-            		return false;
-            	}
-            	
-            	
-            	
-            	//if there is a wall or there is a box
-            	if(this.walls[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] || !(this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] == 0)) {
-            		return false;
-            	}
-            	
-                if(!this.boxColors[boxColorIndexForPull].equals(agentColor)) {
-                	return false;
+                destinationRow = agentRow - action.boxRowDelta;
+                destinationCol = agentCol - action.boxColDelta;
+                box = this.boxes[destinationRow][destinationCol];
+                int boxColorIndexForPull = box - 'A';
+                if (!(box >= 'A' && box <= 'Z' && boxColors[boxColorIndexForPull % boxColors.length] == agentColor)) {
+
+                    return false;
                 }
                 
-            	
-            	this.boxes[boxRow][boxCol] = 0;
-            	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
+                
 
+                
         }
 
         // Unreachable:
@@ -390,6 +331,33 @@ public class State
                     destinationBoxRows[agent] = agentRow + action.agentRowDelta;
                     destinationBoxCols[agent] = agentCol + action.agentColDelta;
                     break;
+
+                case Push:
+                    destinationRows[agent] = agentRow + action.agentRowDelta;
+                    destinationCols[agent] = agentCol + action.agentColDelta;
+
+                    boxRows[agent] = agentRow + destinationRows[agent];
+                    boxCols[agent] = agentCol + destinationCols[agent];
+
+                    destinationBoxRows[agent] += action.boxRowDelta;
+                    destinationBoxCols[agent] += action.boxColDelta;
+                   
+
+                    break;
+
+                case Pull:
+
+                    destinationRows[agent] = agentRow + action.agentRowDelta;
+                    destinationCols[agent] = agentCol + action.agentColDelta;
+
+                    boxRows[agent] = agentRow - action.boxRowDelta;
+                    boxCols[agent] = agentCol - action.boxColDelta;
+                    
+                    destinationBoxRows[agent] = agentRow;
+                    destinationBoxCols[agent] = agentCol;
+
+                    break;
+
                     
                     
            }

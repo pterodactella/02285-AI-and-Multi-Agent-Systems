@@ -31,40 +31,40 @@ public enum Action
     MoveE("Move(E)", ActionType.Move, 0, 1, 0, 0),
     MoveW("Move(W)", ActionType.Move, 0, -1, 0, 0),
 	
-	PushNN("Push(NN)", ActionType.Push, -1, 0, -1, 0),
-	PushNE("Push(NE)", ActionType.Push, -1, 0, 0, 1),
-	PushNW("Push(NW)", ActionType.Push, -1, 0, 0, -1),
+	PushNN("Push(N,N)", ActionType.Push, -1, 0, -1, 0),
+	PushNE("Push(N,E)", ActionType.Push, -1, 0, 0, 1),
+	PushNW("Push(N,W)", ActionType.Push, -1, 0, 0, -1),
 	
-	PushSS("Push(SS)", ActionType.Push, 1, 0, 1, 0),
-	PushSE("Push(SE)", ActionType.Push, 1, 0, 0, 1),
-	PushSW("Push(SW)", ActionType.Push, 1, 0, 0, -1),
+	PushSS("Push(S,S)", ActionType.Push, 1, 0, 1, 0),
+	PushSE("Push(S,E)", ActionType.Push, 1, 0, 0, 1),
+	PushSW("Push(S,W)", ActionType.Push, 1, 0, 0, -1),
 
 	
-	PushEN("Push(EN)", ActionType.Push, 0, 1, -1, 0),
-	PushES("Push(ES)", ActionType.Push, 0, 1, 1, 0),
-	PushEE("Push(EE)", ActionType.Push, 0, 1, 0, 1),
+	PushEN("Push(E,N)", ActionType.Push, 0, 1, -1, 0),
+	PushES("Push(E,S)", ActionType.Push, 0, 1, 1, 0),
+	PushEE("Push(E,E)", ActionType.Push, 0, 1, 0, 1),
 	
-	PushWN("Push(WN)", ActionType.Push, 0, -1, -1, 0),
-	PushWS("Push(WS)", ActionType.Push, 0, -1, 1, 0),
-	PushWW("Push(WW)", ActionType.Push, 0, -1, 0, -1),
+	PushWN("Push(W,N)", ActionType.Push, 0, -1, -1, 0),
+	PushWS("Push(W,S)", ActionType.Push, 0, -1, 1, 0),
+	PushWW("Push(W,W)", ActionType.Push, 0, -1, 0, -1),
 	
 
 
-	PullNN("Pull(NN)", ActionType.Pull, -1, 0, -1, 0),
-	PullNE("Pull(NE)", ActionType.Pull, -1, 0, 0, 1),
-	PullNW("Pull(NW)", ActionType.Pull, -1, 0, 0, -1),
+	PullNN("Pull(N,N)", ActionType.Pull, -1, 0, -1, 0),
+	PullNE("Pull(N,E)", ActionType.Pull, -1, 0, 0, 1),
+	PullNW("Pull(N,W)", ActionType.Pull, -1, 0, 0, -1),
 	
-	PullSS("Pull(SS)", ActionType.Pull, 1, 0, 1, 0),
-	PullSE("Pull(SE)", ActionType.Pull, 1, 0, 0, 1),
-	PullSW("Pull(SW)", ActionType.Pull, 1, 0, 0, -1),
+	PullSS("Pull(S,S)", ActionType.Pull, 1, 0, 1, 0),
+	PullSE("Pull(S,E)", ActionType.Pull, 1, 0, 0, 1),
+	PullSW("Pull(S,W)", ActionType.Pull, 1, 0, 0, -1),
 	
-	PullEN("Pull(EN)", ActionType.Pull, 0, 1, -1, 0),
-	PullES("Pull(ES)", ActionType.Pull, 0, 1, 1, 0),
-	PullEE("Pull(EE)", ActionType.Pull, 0, 1, 0, 1),
+	PullEN("Pull(E,N)", ActionType.Pull, 0, 1, -1, 0),
+	PullES("Pull(E,S)", ActionType.Pull, 0, 1, 1, 0),
+	PullEE("Pull(E,E)", ActionType.Pull, 0, 1, 0, 1),
 	
-	PullWN("Pull(WN)", ActionType.Pull, 0, -1, -1, 0),
-	PullWS("Pull(WS)", ActionType.Pull, 0, -1, 1, 0),
-	PullWW("Pull(WW)", ActionType.Pull, 0, -1, 0, -1);
+	PullWN("Pull(W,N)", ActionType.Pull, 0, -1, -1, 0),
+	PullWS("Pull(W,S)", ActionType.Pull, 0, -1, 1, 0),
+	PullWW("Pull(W,W)", ActionType.Pull, 0, -1, 0, -1);
 	
 
 	
