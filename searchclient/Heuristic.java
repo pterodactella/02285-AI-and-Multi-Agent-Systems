@@ -1,5 +1,5 @@
 package searchclient;
-
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public abstract class Heuristic
@@ -13,13 +13,15 @@ public abstract class Heuristic
     public int h(State s)
     {
     	Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals);
-    	// System.out.println("d=" );
-    	// System.out.println(d.calculate());
+    	System.err.println("d=" );
+    	System.err.println(d.calculate());
         return d.calculate();
     }
 
     public abstract int f(State s);
 
+
+    
     @Override
     public int compare(State s1, State s2)
     {
@@ -93,3 +95,46 @@ class HeuristicGreedy
         return "greedy evaluation";
     }
 }
+
+class GeneticSelection extends Heuristic {
+
+    // private int[] pathLength;
+
+    public GeneticSelection(State initialState) {
+        super(initialState);
+    }
+    public double usedMemory(State s)
+    {
+        return Memory.used();
+    }
+
+    @Override
+    public int f(State s)
+    {
+        return this.h(s);
+    }
+
+    public ArrayList<Action[][]> getSolutions(State s) {
+        ArrayList<Action[][]> plans = new ArrayList<Action[][]>(5);
+        // for (int i = 0; i < 2; i++) {
+            Action[][] plan1 = SearchClient.search(s, new FrontierBestFirst(new HeuristicGreedy(s)));
+            if (plan1 != null) {
+                System.err.println("Found a greedy plan!");
+			    plans.add(plan1);
+            }
+            Action[][] plan2 = SearchClient.search(s, new FrontierBestFirst(new HeuristicAStar(s)));
+            if (plan2 != null) {
+                System.err.println("Found a a star plan!");
+                plans.add(plan2);
+            }
+            Action[][] plan3 = SearchClient.search(s, new FrontierBestFirst(new HeuristicWeightedAStar(s, 5)));
+            if (plan3 != null) {
+                System.err.println("Found a weighted a star plan!");
+                plans.add(plan3);
+            }
+        // }
+        return plans;
+    }
+}
+
+// }
