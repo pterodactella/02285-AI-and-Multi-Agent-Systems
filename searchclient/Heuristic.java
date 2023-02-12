@@ -13,8 +13,8 @@ public abstract class Heuristic
     public int h(State s)
     {
     	Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals);
-    	System.err.println("d=" );
-    	System.err.println(d.calculate());
+    	// System.err.println("d=" );
+    	// System.err.println(d.calculate());
         return d.calculate();
     }
 
@@ -96,45 +96,31 @@ class HeuristicGreedy
     }
 }
 
-class GeneticSelection extends Heuristic {
+class HeuristicMeta extends Heuristic {
 
     // private int[] pathLength;
 
-    public GeneticSelection(State initialState) {
+    public HeuristicMeta(State initialState) {
         super(initialState);
-    }
-    public double usedMemory(State s)
-    {
-        return Memory.used();
     }
 
     @Override
     public int f(State s)
     {
-        return this.h(s);
+        int total = 0;
+        for (State expanded : s.getExpandedStates()) {
+            total += this.h(expanded);
+            if (this.h(expanded) < this.h(s) ) {
+                return total - this.h(expanded);
+            }
+        }
+        return total - this.h(s);
     }
 
-    public ArrayList<Action[][]> getSolutions(State s) {
-        ArrayList<Action[][]> plans = new ArrayList<Action[][]>(5);
-        // for (int i = 0; i < 2; i++) {
-            Action[][] plan1 = GraphSearch.search(s, new FrontierBestFirst(new HeuristicGreedy(s)));
-            if (plan1 != null) {
-                System.err.println("Found a greedy plan!");
-			    plans.add(plan1);
-            }
-            Action[][] plan2 = GraphSearch.search(s, new FrontierBestFirst(new HeuristicAStar(s)));
-            if (plan2 != null) {
-                System.err.println("Found a a star plan!");
-                plans.add(plan2);
-            }
-            Action[][] plan3 = GraphSearch.search(s, new FrontierBestFirst(new HeuristicWeightedAStar(s, 5)));
-            if (plan3 != null) {
-                System.err.println("Found a weighted a star plan!");
-                plans.add(plan3);
-            }
-        // }
-        return plans;
+    @Override public String toString() {
+        return "HeuristicMeta";
     }
+
 }
 
 // }

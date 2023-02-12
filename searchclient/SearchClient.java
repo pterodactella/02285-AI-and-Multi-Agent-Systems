@@ -122,8 +122,7 @@ public class SearchClient {
 		State initialState = SearchClient.parseLevel(serverMessages);
 
 		// Select search strategy.
-		Frontier frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
-		boolean genetic = false;
+		Frontier frontier;
 		ArrayList<Action[][]> plans = new ArrayList<Action[][]>();
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
@@ -150,24 +149,8 @@ public class SearchClient {
 			case "-greedy":
 				frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
 				break;
-			case "-genetic":
-				genetic = true;
-				// frontier = new FrontierBestFirst(new GeneticSelection(initialState));
-				plans = new GeneticSelection(initialState).getSolutions(initialState);
-				for (Action[][] plan : plans) {
-					// System.out.println(plan.toString());
-					for (Action[] jointAction : plan) {
-						System.out.print(jointAction[0].name);
-						for (int action = 1; action < jointAction.length; ++action) {
-							System.out.print("|");
-							System.out.print(jointAction[action].name);
-						}
-						System.out.println();
-						// We must read the server's response to not fill up the stdin buffer and block
-						// the server.
-						serverMessages.readLine();
-			}
-				}
+			case "-meta":
+				frontier = new FrontierBestFirst(new HeuristicMeta(initialState));
 				break;
 			default:
 				frontier = new FrontierBFS();
@@ -181,36 +164,36 @@ public class SearchClient {
 		}
 
 		// Search for a plan.
-		// Action[][] plan = null;
+		Action[][] plan = null;
 		
 		
-		// try {
-		// 	plan = SearchClient.search(initialState, frontier);
+		try {
+			plan = SearchClient.search(initialState, frontier);
 
-		// } catch (OutOfMemoryError ex) {
-		// 	System.err.println("Maximum memory usage exceeded.");
-		// 	plan = null;
-		// }
+		} catch (OutOfMemoryError ex) {
+			System.err.println("Maximum memory usage exceeded.");
+			plan = null;
+		}
 
 		// Print plan to server.
-		// if (plan == null) {
-		// 	// System.err.println("Unable to solve level.");
-		// 	System.exit(0);
-		// } 
-		// else {
-		// 	System.err.format("Found solution of length %,d.\n", plan.length);
+		if (plan == null) {
+			System.err.println("Unable to solve level.");
+			System.exit(0);
+		} 
+		else {
+			System.err.format("Found solution of length %,d.\n", plan.length);
 
-		// 	for (Action[] jointAction : plan) {
-		// 		System.out.print(jointAction[0].name);
-		// 		for (int action = 1; action < jointAction.length; ++action) {
-		// 			System.out.print("|");
-		// 			System.out.print(jointAction[action].name);
-		// 		}
-		// 		System.out.println();
-		// 		// We must read the server's response to not fill up the stdin buffer and block
-		// 		// the server.
-		// 		serverMessages.readLine();
-		// 	}
-		// }
+			for (Action[] jointAction : plan) {
+				System.out.print(jointAction[0].name);
+				for (int action = 1; action < jointAction.length; ++action) {
+					System.out.print("|");
+					System.out.print(jointAction[action].name);
+				}
+				System.out.println();
+				// We must read the server's response to not fill up the stdin buffer and block
+				// the server.
+				serverMessages.readLine();
+			}
+		}
 	}
 }
