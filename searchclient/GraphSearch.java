@@ -48,6 +48,7 @@ public class GraphSearch {
             	}
             	State s = frontier.pop();
             	if(s.isGoalState()) {
+                    printSearchStatus(expanded, frontier);
             		return s.extractPlan();
             	}
             	expanded.add(s);
