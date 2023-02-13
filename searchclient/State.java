@@ -366,11 +366,11 @@ public class State
             	}
             	
             	//
-            	boxRow = agentRow + action.boxRowDelta;
-            	boxCol = agentCol + action.boxColDelta;
+//            	boxRow = agentRow + action.boxRowDelta;
+//            	boxCol = agentCol + action.boxColDelta;
             	
-            	destinationRow = boxRow + action.agentRowDelta;
-            	destinationCol = boxCol + action.agentColDelta;
+            	destinationRow = agentRow + action.agentRowDelta;
+            	destinationCol = agentCol + action.agentColDelta;
             	
             	if(destinationRow < 0 || destinationCol < 0 || destinationRow >= this.boxes.length || destinationCol >= this.boxes[0].length) {
             		return false;
