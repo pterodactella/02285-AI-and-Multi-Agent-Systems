@@ -9,29 +9,30 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 
-public class SearchClient {
+public class SearchClientB {
 	public static State parseLevel(BufferedReader serverMessages) throws IOException {
 		// We can assume that the level file is conforming to specification, since the
 		// server verifies this.
-		// Read domain
-		serverMessages.readLine(); // #domain
-		serverMessages.readLine(); // hospital
 
-		// Read Level name
-		serverMessages.readLine(); // #levelname
-		serverMessages.readLine(); // <name>
+        while (!serverMessages.readLine().startsWith("#")) {
+        }
+    
+		Color[] agentColors = new Color[50];
+        Color[] boxColors = new Color[50];
+        String line;
 
-		// Read colors
-		serverMessages.readLine(); // #colors
-		Color[] agentColors = new Color[10];
-		Color[] boxColors = new Color[26];
-		StringBuilder line = new StringBuilder(serverMessages.readLine());
+		//  the method creates two arrays to hold the colors of agents and boxes. 
+		//  reads in lines from serverMessages until it encounters #,
+		//  For each non-comment line, it splits the line into a color starting with : and a 
+		//  comma-separated list of entities (agents and/or boxes) that have that color. It then sets the color of each entity
+		//  in the appropriate array based on its first character (which should be either be a digit for an agent or a capital letter for a box).
 		
-		while (!line.toString().startsWith("#")) {
-			String[] split = line.toString().split(":");
-			Color color = Color.fromString(split[0].strip());
-			String[] entities = split[1].split(",");
-			for (String entity : entities) {
+        while (!(line = serverMessages.readLine()).startsWith("#")) {
+            String[] split = line.split(":");
+            Color color = Color.fromString(split[0].strip());
+            String[] entities = split[1].split(",");
+
+            for (String entity : entities) {
 				char c = entity.strip().charAt(0);
 				if ('0' <= c && c <= '9') {
 					agentColors[c - '0'] = color;
@@ -39,31 +40,26 @@ public class SearchClient {
 					boxColors[c - 'A'] = color;
 				}
 			}
-			line = new StringBuilder(serverMessages.readLine());
+            
+        }
+		
+        ArrayList<String> levelLines = new ArrayList<>(64);
+		while (!(line = serverMessages.readLine()).startsWith("#")) {
+			levelLines.add(line);
 		}
 
-		// Read initial state
-		// line is currently "#initial"
-		int numRows = 0;
-		int numCols = 0;
-		ArrayList<String> levelLines = new ArrayList<>(64);
-		line = new StringBuilder(serverMessages.readLine());
-		while (!line.toString().startsWith("#")) {
-			levelLines.add(line.toString());
-			numCols = Math.max(numCols, line.length());
-			++numRows;
-			line = new StringBuilder(serverMessages.readLine());
-		}
+		int numRows = levelLines.size();
+		int numCols = levelLines.stream().mapToInt(String::length).max().orElse(0);
 		int numAgents = 0;
 		int[] agentRows = new int[10];
 		int[] agentCols = new int[10];
 		boolean[][] walls = new boolean[numRows][numCols];
 		char[][] boxes = new char[numRows][numCols];
-		for (int rows : numRows) {
+
+		for (int row = 0; row < numRows; ++row) {
 			line = levelLines.get(row);
 			for (int col = 0; col < line.length(); ++col) {
 				char c = line.charAt(col);
-
 				if ('0' <= c && c <= '9') {
 					agentRows[c - '0'] = row;
 					agentCols[c - '0'] = col;
@@ -81,25 +77,23 @@ public class SearchClient {
 		// Read goal state
 		// line is currently "#goal"
 		char[][] goals = new char[numRows][numCols];
-		line = serverMessages.readLine();
-		int row = 0;
-		while (!line.startsWith("#")) {
+        int row = 0;
+
+		while (!(line = serverMessages.readLine()).startsWith("#")) {
 			for (int col = 0; col < line.length(); ++col) {
 				char c = line.charAt(col);
 
 				if (('0' <= c && c <= '9') || ('A' <= c && c <= 'Z')) {
-					goals[row][col] = c;
+					goals[numRows - levelLines.size() + row][col] = c;
 				}
 			}
-
-			++row;
-			line = serverMessages.readLine();
 		}
 
 		// End
 		// line is currently "#end"
 
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
+
 	}
 
 	public static Action[][] search(State initialState, Frontier frontier) {
