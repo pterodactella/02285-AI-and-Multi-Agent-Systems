@@ -45,10 +45,10 @@ public class SearchClient {
 		// line is currently "#initial"
 		int numRows = 0;
 		int numCols = 0;
-		ArrayList<String> levelLines = new ArrayList<>(64);
+		String[] levelLines = new String[1000];
 		line = serverMessages.readLine();
 		while (!line.startsWith("#")) {
-			levelLines.add(line);
+			levelLines[numRows] = line;
 			numCols = Math.max(numCols, line.length());
 			++numRows;
 			line = serverMessages.readLine();
@@ -59,7 +59,7 @@ public class SearchClient {
 		boolean[][] walls = new boolean[numRows][numCols];
 		char[][] boxes = new char[numRows][numCols];
 		for (int row = 0; row < numRows; ++row) {
-			line = levelLines.get(row);
+			line = levelLines[row];
 			for (int col = 0; col < line.length(); ++col) {
 				char c = line.charAt(col);
 

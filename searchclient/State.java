@@ -14,6 +14,8 @@ public class State
         The agent rows, columns, and colors are indexed by the agent number.
         For example, this.agentRows[0] is the row location of agent '0'.
     */
+
+    //WIP we need to bridge this agent rows to the actual agent object
     public int[] agentRows;
     public int[] agentCols;
     public static Color[] agentColors;
@@ -127,23 +129,7 @@ public class State
                     break;
                     
                 case Pull:
-                	
-//                	System.out.println(action.agentRowDelta + " " + action.agentColDelta + " ACTIONS");
-//                	System.out.println(action.boxRowDelta + " " + action.boxColDelta + " BOXES ACTION");
-//                	
-//                	System.out.println(this.agentRows[agent] + " " + this.agentCols[agent] + "Coordinates");
-//                	
-//                	for (int i = 0; i < this.boxes.length; i++) {
-//                  		 
-//                        // Loop through all elements of current row
-//                        for (int j = 0; j < this.boxes[i].length; j++)
-//                        	
-//                            System.out.print((int)this.boxes[i][j] + " " );
-//                        System.out.println("");
-//                	}
-//                	
-//                	System.out.println((this.agentRows[agent] - action.boxRowDelta) + " " + (this.agentCols[agent] - action.boxColDelta) + "BOX COORDINATES Before ACTION");
-                	
+                	 
                 	
                 	boxRow = this.agentRows[agent];
                 	boxCol = this.agentCols[agent];
@@ -158,18 +144,6 @@ public class State
                 	
 
                 	
-
-//                	System.out.println(this.agentRows[agent] + " " + this.agentCols[agent] + "Coordinates");
-//                	
-//                	for (int i = 0; i < this.boxes.length; i++) {
-//                  		 
-//                        // Loop through all elements of current row
-//                        for (int j = 0; j < this.boxes[i].length; j++)
-//                        	
-//                            System.out.print((int)this.boxes[i][j] + " " );
-//                        System.out.println("");
-//                	}
-        
                 	break;
                 	
                 	
@@ -311,53 +285,6 @@ public class State
             	return true;
         	
             	
-            	
-//            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
-//            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
-//            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
-//            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
-//            		return false;
-//            	}
-            	
-//            	boxRow = this.agentRows[agent] - action.boxRowDelta;
-//            	boxCol = this.agentCols[agent] - action.boxColDelta;
-
-//            	box = this.boxes[boxRow][boxCol];
-//            	System.out.println(box + "WTFF");
-//            	int boxColorIndexForPush = box - 'A';
-//            	System.out.println(boxColorIndexForPush + "" + agentColor);
-//            	
-//            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
-//            		return false;
-//            	}
-//            	
-//            	
-//            	System.out.println(agentRow + " " + agentCol);
-//            	
-//            	for (int i = 0; i < this.boxes.length; i++) {
-//            		 
-//                    // Loop through all elements of current row
-//                    for (int j = 0; j < this.boxes[i].length; j++)
-//                    	
-//                        System.out.print((int)this.boxes[i][j] + " " );
-//                    System.out.println("");
-//            	}
-//            	
-//            	//if there is a wall or there is a box
-//            	if(this.walls[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] || !(this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] == 0)) {
-//            		return false;
-//            	}
-//            	
-//            	
-//                if(!this.boxColors[boxColorIndexForPush].equals(agentColor) ) {
-//                	return false;
-//                }
-//            	
-//            	this.boxes[boxRow][boxCol] = 0;
-//            	this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] = box;
-//            	System.out.println(box + "da pan aici");
-            	
-            	
             case Pull:
             	
             	//check for box location on the map
@@ -382,41 +309,6 @@ public class State
             	
 //            	System.out.println("CEVA PROSTA");
             	return true;
-            
-//            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
-//            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
-//            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
-//            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
-//            		return false;
-//            	}
-//            	
-//            	boxRow = this.agentRows[agent] + action.boxRowDelta;
-//            	boxCol = this.agentCols[agent] + action.boxColDelta;
-//
-//            	box = this.boxes[boxRow][boxCol];
-//            	
-//            	
-//            	int boxColorIndexForPull = box - 'A';
-//            	
-//            	
-//            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
-//            		return false;
-//            	}
-//            	
-//            	
-//            	
-//            	//if there is a wall or there is a box
-//            	if(this.walls[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] || !(this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] == 0)) {
-//            		return false;
-//            	}
-//            	
-//                if(!this.boxColors[boxColorIndexForPull].equals(agentColor)) {
-//                	return false;
-//                }
-//                
-//            	
-//            	this.boxes[boxRow][boxCol] = 0;
-//            	this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = box;
 
         }
 

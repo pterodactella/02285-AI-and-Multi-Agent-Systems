@@ -48,6 +48,16 @@ public class SearchClientB {
 			levelLines.add(line);
 		}
 
+        //levelLines.stream() creates a stream of elements from the levelLines collection.
+
+        // .mapToInt(String::length) maps each element (which is a String object) to its length.
+
+        // .max().orElse(0) finds the maximum element in the stream (which is the length of the longest String in levelLines) and returns it as an OptionalInt object. If the stream is empty (i.e., levelLines is empty), orElse(0) returns a default value of 0.
+
+        // So, altogether, int numCols = levelLines.stream().mapToInt(String::length).max().orElse(0); sets numCols to the length of the longest String in levelLines, or 0 if levelLines is empty.
+
+        // In other words, this line of code is calculating the number of columns in the level, based on the length of the longest row in the level.
+
 		int numRows = levelLines.size();
 		int numCols = levelLines.stream().mapToInt(String::length).max().orElse(0);
 		int numAgents = 0;

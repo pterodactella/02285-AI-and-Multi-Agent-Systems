@@ -17,20 +17,12 @@ public abstract class Distances {
 		
 		parseCoordinates();
 		
-//		for (HashMap.Entry<Character, int[]> set :
-//            this.coordinates.entrySet()) {
-//			System.out.println(set.getKey() + " = "
-//                    + Arrays.toString(set.getValue()));
-//       }
 	}
 	
 	public abstract int calculate();
 	public void parseCoordinates() {
 		this.coordinates = new HashMap<>();
-//		
-//		for(int i=0; i<agentRows.length; i++) {
-//			coordinates.put((char) ('0' + i), new int[] {agentRows[i], agentCols[i], 0, 0});
-//		}
+
 		
 		for(int i=0; i<boxes.length; i++) {
 			for(int j=0; j<boxes[i].length; j++) {
@@ -67,8 +59,7 @@ class ManhattanDistance extends Distances{
 	@Override
 	public int calculate() {
 		int sum = 0;
-		for (HashMap.Entry<Character, int[]> set :
-            this.coordinates.entrySet()) {
+		for (HashMap.Entry<Character, int[]> set : this.coordinates.entrySet()) {
 			int[] location = set.getValue();
 			sum+= Math.abs(location[2]-location[0]) + Math.abs(location[3]-location[1]);
        }
