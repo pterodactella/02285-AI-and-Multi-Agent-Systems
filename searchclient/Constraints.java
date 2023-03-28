@@ -6,10 +6,10 @@ public class Constraints {
    Integer loc_y;
    Integer timestamp;
 
-   Constraints(String agentID, Agent agent, Integer timestamp ){
+   Constraints(String agentID, int loc_x, int loc_y, Integer timestamp ){
       this.agentID=agentID;
-      this.loc_x=agent.agentCols[0];
-      this.loc_y=agent.agentRows[0];
+      this.loc_x=loc_x;
+      this.loc_y=loc_y;
       this.timestamp=timestamp;
    }
 
