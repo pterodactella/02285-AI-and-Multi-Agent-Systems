@@ -7,17 +7,27 @@ import java.lang.Object;
 //Consider only one agent from one color at a time
 
 public class CBS {
-  public static void ConflictBasedSearch(Agent[] agents) {
-    Agent[] conflictFreeAgents;
+  public static void ConflictBasedSearch(State initialState, Frontier frontier) {
 
+    // Create an agent object for all agents, make an array of them
+    // The object has the cost, solution, constraints
+    ArrayList<Agent> agents;
 
-    for (int i =0; i < agents.length; i++) {
-      if (conflictFreeAgents.length < 1) {
-        conflictFreeAgents[i] = new Agent("a"+ i, null, null, 0);
-      }
-      
-      
+    for (int i = 0; i< initialState.agentCols.length; i ++) {
+      agents.add(new Agent(initialState.agentColors[i].toString() + i , initialState, frontier));
     }
+
+    // iterate over the array of agents
+
+      // start checking the agents based on their cost
+      // Validate the solutions until there is no conflict
+
+
+
+
+    
+    }
+    
 
     // while 
     // Root.constraints = ∅
