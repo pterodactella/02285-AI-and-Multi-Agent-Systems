@@ -13,4 +13,13 @@ public class Constraints {
       this.timestamp=timestamp;
    }
 
+
+   public boolean isConflicting(Constraints o) {
+       if (this == o) return true;
+       if (o == null || getClass() != o.getClass()) return false;
+       Constraints that = (Constraints) o;
+       
+       return timestamp == that.timestamp && loc_y == that.loc_y  && loc_x == that.loc_x;
+   }
+
 }

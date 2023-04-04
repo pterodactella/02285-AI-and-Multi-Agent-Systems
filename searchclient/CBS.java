@@ -11,14 +11,53 @@ public class CBS {
 
     // Create an agent object for all agents, make an array of them
     // The object has the cost, solution, constraints
-    ArrayList<Agent> agents;
-
+    ArrayList<Agent> agents = new ArrayList<>();
     for (int i = 0; i< initialState.agentCols.length; i ++) {
       agents.add(new Agent(initialState.agentColors[i].toString() + i , initialState, frontier));
     }
+    ArrayList<Constraints> globalConstraints = new ArrayList<>();
 
     // iterate over the array of agents
+    while (!agents.isEmpty()) {
+      int minimumCost = agents.get(0).cost;
+      int index = 0;
+      for (int i = 0; i < agents.size(); i++) {
+          if(agents.get(i).cost < minimumCost) {
+            minimumCost = agents.get(i).cost;
+            index = i;
+          }
+      }
+      // validate the constraints of the agent[index] regarding the global constratins
+      // Agent agentWithLowestCost = agents.get(index);
+      
+      for (int i = 0; i < agents.get(index).constraints.length; i++) {
+        // Compare wth global constraints
+        for (int j = 0; j < globalConstraints.size(); j++) {
+          if ( globalConstraints.get(j).isConflicting(agents.get(index).constraints[i])  ) {
+            // this is a conflict
 
+
+          }
+
+          else {
+            // this is not a conflict
+            globalConstraints.add(agents.get(index).constraints[i]);
+          }
+
+        }
+      }
+
+      
+      // Finished checking
+      agents.remove(index);
+
+
+      
+      
+    }
+
+
+    
       // start checking the agents based on their cost
       // Validate the solutions until there is no conflict
 
@@ -60,4 +99,3 @@ public class CBS {
   }
 
   
-}
