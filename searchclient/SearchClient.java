@@ -45,21 +45,24 @@ public class SearchClient {
 		// line is currently "#initial"
 		int numRows = 0;
 		int numCols = 0;
-		String[] levelLines = new String[1000];
+		ArrayList<String> levelLines = new ArrayList<>(64);
 		line = serverMessages.readLine();
 		while (!line.startsWith("#")) {
-			levelLines[numRows] = line;
+			levelLines.add(line);
 			numCols = Math.max(numCols, line.length());
 			++numRows;
 			line = serverMessages.readLine();
-		}
+	}
+	
+	numRows = levelLines.size(); // Add this line
+	
 		int numAgents = 0;
 		int[] agentRows = new int[10];
 		int[] agentCols = new int[10];
 		boolean[][] walls = new boolean[numRows][numCols];
 		char[][] boxes = new char[numRows][numCols];
 		for (int row = 0; row < numRows; ++row) {
-			line = levelLines[row];
+			line = levelLines.get(row);
 			for (int col = 0; col < line.length(); ++col) {
 				char c = line.charAt(col);
 
@@ -101,6 +104,68 @@ public class SearchClient {
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
 
+	public static Action[][] ConflictBasedSearch(State initialState, Frontier frontier) {
+
+		// Create an agent object for all agents, make an array of them
+		// The object has the cost, solution, constraints
+		ArrayList<Agent> agents = new ArrayList<>();
+
+		ArrayList<Agent> checkedAgents = new ArrayList<>();
+		
+		for (int i = 0; i< initialState.agentCols.length; i ++) {
+			System.err.println(State.agentColors[i].toString() +" i:"+ i);
+			System.out.println(agents.size());
+			agents.add(new Agent(State.agentColors[i].toString() + i, State.agentColors[i], initialState, frontier));
+			System.out.println(agents.size());
+			System.out.println("agents.size()");
+		}
+		ArrayList<Constraints> globalConstraints = new ArrayList<>(64);
+
+		boolean conflict = false;
+		// iterate over the array of agents
+		while (!agents.isEmpty()) {
+			int minimumCost = agents.get(0).cost;
+			int index = 0;
+			for (int i = 0; i < agents.size(); i++) {
+					if(agents.get(i).cost < minimumCost) {
+					minimumCost = agents.get(i).cost;
+					index = i;
+					}
+			}
+			// validate the constraints of the agent[index] regarding the global constratins
+			// Agent agentWithLowestCost = agents.get(index);
+			
+			//loop through all constraints within
+			for (int i = 0; i < agents.get(index).constraints.length; i++) {
+				// Compare wth global constraints
+				for (int j = 0; j < globalConstraints.size(); j++) {
+					if ( globalConstraints.get(j).isConflicting(agents.get(index).constraints[i])  ) {
+					}
+
+					else {
+					// this is not a conflict
+					globalConstraints.add(agents.get(index).constraints[i]);
+					}
+
+				}
+			}
+
+			checkedAgents.add(agents.get(index));
+			agents.remove(index);
+		
+		}
+
+		
+		// start checking the agents based on their cost
+		// Validate the solutions until there is no conflict
+
+
+
+		return checkedAgents.get(0).solution;
+		
+
+	}
+
 	public static Action[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
 
@@ -123,10 +188,15 @@ public class SearchClient {
 
 		// Select search strategy.
 		Frontier frontier;
+		boolean isConflictBasedSearch = false;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
+			case "-cbs": 
+			 	isConflictBasedSearch = true;
+				frontier =  new FrontierBestFirst(new HeuristicAStar(initialState));
+				break;
 			case "-bfs":
-				frontier = new FrontierBFS();
+				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
 				break;
 			case "-dfs":
 				frontier = new FrontierDFS();
@@ -159,33 +229,47 @@ public class SearchClient {
 					+ "set the search strategy.");
 		}
 
-		// Search for a plan.
+		// Run search.
 		Action[][] plan;
-		try {
-			plan = SearchClient.search(initialState, frontier);
-		} catch (OutOfMemoryError ex) {
-			System.err.println("Maximum memory usage exceeded.");
-			plan = null;
-		}
-
-		// Print plan to server.
-		if (plan == null) {
-			System.err.println("Unable to solve level.");
-			System.exit(0);
+		if(isConflictBasedSearch){
+			System.err.println("Running Conflict Based Search");
+			try {
+				plan = SearchClient.ConflictBasedSearch(initialState, frontier);
+				System.err.println("Found CBS plan");
+			} catch (OutOfMemoryError ex) {
+				System.err.println("Maximum memory usage exceeded.");
+				plan = null;
+			}
 		} else {
-			System.err.format("Found solution of length %,d.\n", plan.length);
-
-			for (Action[] jointAction : plan) {
-				System.out.print(jointAction[0].name);
-				for (int action = 1; action < jointAction.length; ++action) {
-					System.out.print("|");
-					System.out.print(jointAction[action].name);
-				}
-				System.out.println();
-				// We must read the server's response to not fill up the stdin buffer and block
-				// the server.
-				serverMessages.readLine();
+			try {
+				plan = SearchClient.search(initialState, frontier);
+			} catch (OutOfMemoryError ex) {
+				System.err.println("Maximum memory usage exceeded.");
+				plan = null;
 			}
 		}
+
+			// Print plan to server.
+			if (plan == null) {
+				System.err.println("Unable to solve level.");
+				System.exit(0);
+			} else {
+				System.err.format("Found solution of length %,d.\n", plan.length);
+
+				for (Action[] jointAction : plan) {
+					System.out.print(jointAction[0].name);
+					for (int action = 1; action < jointAction.length; ++action) {
+						System.out.print("|");
+						System.out.print(jointAction[action].name);
+					}
+					System.out.println();
+					// We must read the server's response to not fill up the stdin buffer and block
+					// the server.
+					serverMessages.readLine();
+				}
+			}
+
+		
+
 	}
 }

@@ -7,44 +7,34 @@ import java.util.HashSet;
 public class GraphSearch {
 
     public static Action[][] search(State initialState, Frontier frontier) {
-        boolean useGraphSearch = true;
+        int iterations = 0;
 
+        frontier.add(initialState);
+        HashSet<State> expanded = new HashSet<>();
 
-        if (useGraphSearch) {
-            int iterations = 0;
+        while (true) {
+            if (frontier.isEmpty()) {
+                return null;
+            }
+            State s = frontier.pop();
 
-            frontier.add(initialState);
-            HashSet<State> expanded = new HashSet<>();
+            if (s.isGoalState()) {
+                return s.extractPlan();
+            }
+            expanded.add(s);
 
-            while (true) {
-                if (frontier.isEmpty()) {
-                    return null;
-                }
-                State s = frontier.pop();
-
-                if (s.isGoalState()) {
-                    return s.extractPlan();
-                }
-                expanded.add(s);
-
-                for (State t : s.getExpandedStates()) {
-                    if (!frontier.contains(t) && !expanded.contains(t)) {
-                        frontier.add(t);
-                    }
-
+            for (State t : s.getExpandedStates()) {
+                if (!frontier.contains(t) && !expanded.contains(t)) {
+                    frontier.add(t);
                 }
 
-                // Print a status message every 10000 iteration
-                if (++iterations % 10000 == 0) {
-                    printSearchStatus(expanded, frontier);
-                }
+            }
+
+            // Print a status message every 10000 iteration
+            if (++iterations % 10000 == 0) {
+                printSearchStatus(expanded, frontier);
+            }
         }
-    } else {
-
-    }
-    return null;
-
-
         
     }
 

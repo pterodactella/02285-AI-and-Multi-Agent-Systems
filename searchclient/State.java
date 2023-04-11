@@ -18,7 +18,7 @@ public class State
     //WIP we need to bridge this agent rows to the actual agent object
     public int[] agentRows;
     public int[] agentCols;
-    public Color[] agentColors;
+    public static Color[] agentColors;
 
     /*
         The walls, boxes, and goals arrays are indexed from the top-left of the level, row-major order (row, col).

@@ -10,7 +10,8 @@ public class Agent {
   // constraints are agent (ai , v, t)
   public String agentId;
   public State initialState;
-  
+  public Color agentColor;
+
   public int[] agentCols;
   public int[] agentRows;
   public Constraints[] constraints;
@@ -20,12 +21,14 @@ public class Agent {
   // public int timeStep;
 
 
-  Agent(String agentId, State initialState, Frontier frontier) {
+  Agent(String agentId, Color color, State initialState, Frontier frontier) {
     // calculate the plan
+    this.agentColor = color;
     this.agentId = agentId;
     this.initialState = initialState;
     this.solution = GraphSearch.search(initialState, frontier);
     this.cost = this.solution[0].length;
+    this.constraints = new Constraints[solution[0].length];
 
     // calculate the positions
     // [15] [ Move(N,N), Move(N,N), Move(N,N), Move(N,N)]
@@ -34,7 +37,7 @@ public class Agent {
     this.agentRows = initialState.agentRows;
 
     // Calculate the constrain for the 0th timestamp
-    constraints[0]=new Constraints(agentId, this.agentCols[0], this.agentRows[0], 0);
+    this.constraints[0] = new Constraints(agentId, this.agentCols[0], this.agentRows[0], 0);
 
     for (int i = 1; i < solution[0].length; i++) {
       Action a = solution[0][i];
@@ -44,8 +47,11 @@ public class Agent {
       this.agentRows[i] += a.agentRowDelta;
 
       // calculate the constratins of the agent given by timestamp i
-      constraints[i]=new Constraints(agentId, this.agentCols[i], this.agentRows[i], i);
+      this.constraints[i]=new Constraints(agentId, this.agentCols[i], this.agentRows[i], i);
     }
   }
+
+
+
 
 }
