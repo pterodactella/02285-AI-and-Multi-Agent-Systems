@@ -16,14 +16,6 @@ public class Constraints {
       this.timestamp=timestamp;
    }
 
-   Constraints(int a1, int a2, Action act1, Action act2) {
-      this.agent1 = a1;
-      this.agent2 = a2;
-      this.action1 = act1;
-      this.action2 = act2;
-   }
-
-
    public boolean isConflicting(Constraints o) {
        if (this == o) return true;
        if (o == null || getClass() != o.getClass()) return false;
