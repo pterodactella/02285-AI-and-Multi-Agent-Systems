@@ -6,12 +6,13 @@ import java.util.HashSet;
 
 public class GraphSearch {
 
-  public static Action[][] search(State initialState, Frontier frontier) {
+  public static Action[][] search(State initialState, Frontier frontier, arrayList) {
     int iterations = 0;
     int conflicts = 0;
     int step = 0;
 
-    frontier.add(initialState);
+    frontier.add(initialState, 0, calculateHeuristic(initialState, agents));
+
     HashSet<State> expanded = new HashSet<>();
 
     while (true) {
@@ -72,10 +73,8 @@ public class GraphSearch {
     int h = 0;
     for (Agent agent : agents) {
       int agentConflicts = 0;
-      for (Constraints c : agent.constraints) {
-        if (state.isConflicting(c)) {
-          agentConflicts++;
-        }
+      if (state.conflictingConstraints(agent.constraints)) {
+        agentConflicts++;
       }
       h += agentConflicts;
     }
