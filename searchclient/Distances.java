@@ -1,6 +1,6 @@
 package searchclient;
 
-import java.util.Arrays;
+// import java.util.Arrays;
 import java.util.HashMap;
 
 public abstract class Distances {

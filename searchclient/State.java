@@ -28,13 +28,13 @@ public class State {
   public static Color[] boxColors;
 
   public final State parent;
-  public final Action[] jointAction;
+  public Action[] jointAction;
   private final int g;
 
   private int hash = 0;
 
   public int cost;
-  public int timestamp;
+  final public int timestamp;
 
   public Constraints[] globalConstraints;
 
@@ -53,17 +53,26 @@ public class State {
     this.parent = null;
     this.jointAction = null;
     this.g = 0;
-    this.globalConstraints = new Constraints[agentRows.length];
+    this.globalConstraints = null;
     this.timestamp = 0;
   }
 
   public State(State parent, Action[] jointAction, Constraints[] newConstraint) {
     this.parent = parent;
-    this.timestamp = parent.timestamp += 1;
+    this.timestamp = parent.timestamp;
     this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
     this.g = parent.g + 1;
     this.globalConstraints = newConstraint;
   }
+
+  public State(State parent, Constraints[] newConstraints) {
+    this.parent = parent;
+    this.g = 0;
+    this.globalConstraints = newConstraints;
+    this.timestamp = 0;
+  }
+  
+
 
   // Constructs the state resulting from applying jointAction in parent.
   // Precondition: Joint action must be applicable and non-conflicting in parent
@@ -140,22 +149,39 @@ public class State {
   public int g() {
     return this.g;
   }
-
   public boolean isGoalState() {
     for (int row = 1; row < this.goals.length - 1; row++) {
       for (int col = 1; col < this.goals[row].length - 1; col++) {
         char goal = this.goals[row][col];
-
+  
         if ('A' <= goal && goal <= 'Z' && this.boxes[row][col] != goal) {
-          return false;
-        } else if ('0' <= goal && goal <= '9' &&
-            !(this.agentRows[goal - '0'] == row && this.agentCols[goal - '0'] == col)) {
           return false;
         }
       }
     }
-    return true;
+    
+    // Check if there are any boxes of the correct color remaining
+    for (int i = 0; i < this.boxColors.length; i++) {
+      boolean foundBox = false;
+      for (int row = 1; row < this.boxes.length - 1; row++) {
+        for (int col = 1; col < this.boxes[row].length - 1; col++) {
+          if (this.boxes[row][col] == 'A' + i && this.boxColors[i].equals(this.agentColors[i])) {
+            foundBox = true;
+            break;
+          }
+        }
+        if (foundBox) {
+          break;
+        }
+      }
+      if (!foundBox) {
+        return true;
+      }
+    }
+  
+    return false;
   }
+
 
   public ArrayList<State> getExpandedStates() {
     int numAgents = this.agentRows.length;
@@ -453,8 +479,11 @@ public class State {
   }
 
   private boolean checkConstraint(int destCol, int destRow, int timestamp) {
-    for (int i = 0; i < globalConstraints.length; i++) {
-      if (globalConstraints[i].isViolated(destCol, destRow, timestamp)) {
+    if (this.globalConstraints == null || this.globalConstraints.length == 0) {
+        return true;
+    }
+    for (int i = 0; i < this.globalConstraints.length; i++) {
+      if (this.globalConstraints[i].isViolated(destCol, destRow, timestamp)) {
         return false;
       }
     }

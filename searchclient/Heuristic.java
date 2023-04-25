@@ -1,5 +1,5 @@
 package searchclient;
-import java.util.ArrayList;
+// import java.util.ArrayList;
 import java.util.Comparator;
 
 public abstract class Heuristic
