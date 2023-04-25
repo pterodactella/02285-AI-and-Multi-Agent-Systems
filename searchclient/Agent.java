@@ -11,69 +11,98 @@ import java.util.Arrays;
 public class Agent {
   // constraints are agent (ai , v, t)
   public String agentId;
-  public Color color;
+  public State initialState;
+  public Color agentColor;
   public int agentIndex;
 
-  public int col;
-  public int row;
+  public int[] agentCols;
+  public int[] agentRows;
+  public Constraints[] constraints;
 
-  private Constraints[] constraints;
-
+  public Action[][] solution;
+  public int cost;
   // public int timeStep;
-  Agent(int row, int col, Color color, int agentIndex) {
-    this.color = color;
+
+
+  Agent(String agentId, Color color, State initialState, Frontier frontier, int agentIndex) {
+    // calculate the plan
+    this.agentColor = color;
+    this.agentId = agentId;
+    this.initialState = initialState;
     this.agentIndex = agentIndex;
 
-    this.col = col;
-    this.row = row;
+    this.solution = GraphSearch.search(initialState, frontier);
+    this.cost = this.solution[0].length;
+    this.constraints = new Constraints[solution[0].length];
 
-    this.constraints = new Constraints[0];
+    // calculate the positions
+    // [15] [ Move(N,N), Move(N,N), Move(N,N), Move(N,N)]
+    this.agentCols[0] = initialState.agentCols[agentIndex]; // ???????????
+    this.agentRows[0] = initialState.agentRows[agentIndex];
+
+    // Calculate the constrain for the 0th timestamp
+    this.constraints[0] = new Constraints(Integer.parseInt(agentId), this.agentCols[0], this.agentRows[0], 0);
+
+    for (int i = 1; i < solution[0].length; i++) {
+      Action a = solution[0][i];
+      System.err.println(a);
+      // calculate the positions of the agent given by timestamp i
+      this.agentCols[i] += a.agentColDelta;
+      this.agentRows[i] += a.agentRowDelta;
+
+      // calculate the constratins of the agent given by timestamp i
+      this.constraints[i]=new Constraints(Integer.parseInt(agentId), this.agentCols[i], this.agentRows[i], i);
+    }
   }
 
-  Agent(Color color, int row, int col, int agentIndex, Constraints addConstraint) {
-    this(row, col, color, agentIndex);
+
+    Agent(String agentId, Color color, State initialState, Frontier frontier, int agentIndex, Constraints addConstraint) {
+    // calculate the plan
+    this.agentColor = color;
+    this.agentId = agentId;
+    this.initialState = initialState;
+    this.agentIndex = agentIndex;
+
+    // TODO: here we need to handle the extra, addConstraint
+
+    this.solution = GraphSearch.search(initialState, frontier);
+    this.cost = this.solution[0].length;
+    this.constraints = new Constraints[solution[0].length];
+
+    // calculate the positions
+    // [15] [ Move(N,N), Move(N,N), Move(N,N), Move(N,N)]
+    this.agentCols[0] = initialState.agentCols[agentIndex]; // ???????????
+    this.agentRows[0] = initialState.agentRows[agentIndex];
+
+    // Calculate the constrain for the 0th timestamp
+    this.constraints[0] = new Constraints(Integer.parseInt(agentId), this.agentCols[0], this.agentRows[0], 0);
+
+    for (int i = 1; i < solution[0].length; i++) {
+      Action a = solution[0][i];
+      System.err.println(a);
+      // calculate the positions of the agent given by timestamp i
+      this.agentCols[i] += a.agentColDelta;
+      this.agentRows[i] += a.agentRowDelta;
+
+      // calculate the constratins of the agent given by timestamp i
+      this.constraints[i]=new Constraints(Integer.parseInt(agentId), this.agentCols[i], this.agentRows[i], i);
+    }
 
     Constraints[] newConstraints = new Constraints[this.constraints.length + 1];
     System.arraycopy(this.constraints, 0, newConstraints, 0, this.constraints.length);
     newConstraints[newConstraints.length - 1] = addConstraint;
     this.constraints = newConstraints;
+
+
+
+
   }
 
-  public Agent createChildAgent(Constraints newConstraint) {
-    Agent childAgent = new Agent(agentId, row, col, color, agentIndex);
-    childAgent.setConstraints(Arrays.copyOf(constraints, constraints.length + 1));
-    childAgent.getConstraints()[constraints.length] = newConstraint;
-    return childAgent;
-  }
 
-  public Constraints[] getConstraints() {
-    return constraints;
-  }
 
-  public void setConstraints(Constraints[] constraints) {
-    this.constraints = constraints;
-  }
 
-  public int[] toArray() {
-    return new int[] { this.agentIndex, this.row, this.col };
-  }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Agent ");
-    sb.append(this.agentId);
-    sb.append(" (");
-    sb.append(this.color.toString());
-    sb.append(") at (");
-    sb.append(this.row);
-    sb.append(",");
-    sb.append(this.col);
-    sb.append(") with constraints: ");
-    sb.append(Arrays.toString(this.constraints));
-    return sb.toString();
-  }
-  public Agent copy() {
-    return new Agent(this.agentId, this.row, this.col, this.color, this.agentIndex);
-  }
+
+  
+
 }
