@@ -53,6 +53,9 @@ public class SearchClient {
 			++numRows;
 			line = serverMessages.readLine();
 		}
+
+		numRows = levelLines.size(); // Add this line
+
 		int numAgents = 0;
 		int[] agentRows = new int[10];
 		int[] agentCols = new int[10];
@@ -95,10 +98,19 @@ public class SearchClient {
 			line = serverMessages.readLine();
 		}
 
-		// End
-		// line is currently "#end"
+		// // End
+		// // line is currently "#end"
 
-		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
+    return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
+
+	}
+	
+
+	public static Action[][] ConflictBasedSearch(State initialState, Frontier frontier) {
+		System.err.format("Starting %s.\n", frontier.getName());
+
+		return CBS.search(initialState, frontier);
+
 	}
 
 	public static Action[][] search(State initialState, Frontier frontier) {
@@ -123,39 +135,40 @@ public class SearchClient {
 
 		// Select search strategy.
 		Frontier frontier;
-		ArrayList<Action[][]> plans = new ArrayList<Action[][]>();
+		boolean isConflictBasedSearch = false;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
-			case "-bfs":
-				frontier = new FrontierBFS();
-				break;
-			case "-dfs":
-				frontier = new FrontierDFS();
-				break;
-			case "-astar":
-				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
-				break;
-			case "-wastar":
-				int w = 5;
-				if (args.length > 1) {
-					try {
-						w = Integer.parseUnsignedInt(args[1]);
-					} catch (NumberFormatException e) {
-						System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
+				case "-cbs":
+					isConflictBasedSearch = true;
+					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					break;
+				case "-bfs":
+					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					break;
+				case "-dfs":
+					frontier = new FrontierDFS();
+					break;
+				case "-astar":
+					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					break;
+				case "-wastar":
+					int w = 5;
+					if (args.length > 1) {
+						try {
+							w = Integer.parseUnsignedInt(args[1]);
+						} catch (NumberFormatException e) {
+							System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
+						}
 					}
-				}
-				frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
-				break;
-			case "-greedy":
-				frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
-				break;
-			case "-meta":
-				frontier = new FrontierBestFirst(new HeuristicMeta(initialState));
-				break;
-			default:
-				frontier = new FrontierBFS();
-				System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
-						+ "-greedy to set the search strategy.");
+					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
+					break;
+				case "-greedy":
+					frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
+					break;
+				default:
+					frontier = new FrontierBFS();
+					System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
+							+ "-greedy to set the search strategy.");
 			}
 		} else {
 			frontier = new FrontierBFS();
@@ -163,16 +176,24 @@ public class SearchClient {
 					+ "set the search strategy.");
 		}
 
-		// Search for a plan.
-		Action[][] plan = null;
-		
-		
-		try {
-			plan = SearchClient.search(initialState, frontier);
-
-		} catch (OutOfMemoryError ex) {
-			System.err.println("Maximum memory usage exceeded.");
-			plan = null;
+		// Run search.
+		Action[][] plan;
+		if (isConflictBasedSearch) {
+			System.err.println("Running Conflict Based Search");
+			try {
+				plan = SearchClient.ConflictBasedSearch(initialState, frontier);
+				System.err.println("Found CBS plan");
+			} catch (OutOfMemoryError ex) {
+				System.err.println("Maximum memory usage exceeded.");
+				plan = null;
+			}
+		} else {
+			try {
+				plan = SearchClient.search(initialState, frontier);
+			} catch (OutOfMemoryError ex) {
+				System.err.println("Maximum memory usage exceeded.");
+				plan = null;
+			}
 		}
 
 		// Print plan to server.
@@ -195,5 +216,6 @@ public class SearchClient {
 				serverMessages.readLine();
 			}
 		}
+
 	}
 }
