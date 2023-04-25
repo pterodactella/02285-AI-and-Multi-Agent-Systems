@@ -258,7 +258,7 @@ public class State {
         destinationRow = agentRow + action.agentRowDelta;
         destinationCol = agentCol + action.agentColDelta;
 
-        return this.checkConstraint(destinationRow, destinationCol, this.timestamp) && this.cellIsFree(destinationRow, destinationCol);
+        return !this.constraintViolated(destinationRow, destinationCol, this.timestamp) && this.cellIsFree(destinationRow, destinationCol);
 
       case Push:
         destinationRow = agentRow + action.agentRowDelta;
@@ -277,7 +277,7 @@ public class State {
         if (!this.cellIsFree(boxRow, boxCol)) {
           return false;
         }
-        if (!this.checkConstraint(boxRow, boxCol, this.timestamp)) {
+        if (!this.constraintViolated(boxRow, boxCol, this.timestamp)) {
           return false;
         }
         return true;
@@ -304,7 +304,7 @@ public class State {
         if (!this.cellIsFree(destinationRow, destinationCol)) {
           return false;
         }
-        if(!this.checkConstraint(destinationRow, destinationCol, this.timestamp)){
+        if(!this.constraintViolated(destinationRow, destinationCol, this.timestamp)){
           return false;
         }
 
@@ -478,15 +478,15 @@ public class State {
     return s.toString();
   }
 
-  private boolean checkConstraint(int destCol, int destRow, int timestamp) {
+  private boolean constraintViolated(int destCol, int destRow, int timestamp) {
     if (this.globalConstraints == null || this.globalConstraints.length == 0) {
-        return true;
+        return false;
     }
     for (int i = 0; i < this.globalConstraints.length; i++) {
       if (this.globalConstraints[i].isViolated(destCol, destRow, timestamp)) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 }

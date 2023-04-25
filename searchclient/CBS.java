@@ -20,6 +20,8 @@ public class CBS {
 			// System.out.println(agents.size());
 			// System.out.println("agents.size()");
 		}
+		System.err.println("Initial agent list: " + agents.toString());
+
 		ArrayList<Constraints> conflictFreePaths = new ArrayList<>(64);
 		// Map<int, Array<(int, int)> objects = new HashMap<String, Object>();
 
@@ -28,6 +30,8 @@ public class CBS {
 			// int minimumCost = agents.get(0).cost;
 
 			Agent agentWithLowestCost = agents.peek();
+			System.err.println("Current agent with lowest cost: " + agentWithLowestCost.toString());
+
 			boolean allConstraintsConflictFree = true;
 			// should check if the conflict is already covered by an existing constraint
 			// before adding a new constraint
@@ -44,6 +48,9 @@ public class CBS {
 					}
 				}
 				if (conflictFound) {
+					System.out.println("Conflict found between: " + currentConstraint.toString() + " and "
+							+ initialState.globalConstraints.toString());
+
 					allConstraintsConflictFree = false;
 
 					// This constraint conflicts with an existing constraint, so add the new
@@ -55,25 +62,32 @@ public class CBS {
 
 					Agent newAgent1 = new Agent(agentWithLowestCost.agentId, agentWithLowestCost.agentColor,
 							initialState, frontier, agentWithLowestCost.agentIndex, newConstraints);
+					System.out.println("Creating new agent with updated constraints: " + newAgent1.toString());
+
 					agents.add(newAgent1);
 				}
 			}
 
-				if (allConstraintsConflictFree) {
-					// All constraints for the current agent are conflict-free, so add them to the list of conflict-free
-					// paths
-					conflictFreePaths.addAll(Arrays.asList(agentWithLowestCost.constraints));
-					
-					solutionFound = agents.isEmpty(); // Set the flag to true if all agents have been checked
-				}
-	
-				checkedAgents.add(agents.poll());
+			if (allConstraintsConflictFree) {
+				// All constraints for the current agent are conflict-free, so add them to the
+				// list of conflict-free
+				// paths
+				System.out.println("All constraints conflict-free for agent: " + agentWithLowestCost.agentId);
+
+				conflictFreePaths.addAll(Arrays.asList(agentWithLowestCost.constraints));
+
+				solutionFound = agents.isEmpty(); // Set the flag to true if all agents have been checked
 			}
+
+			checkedAgents.add(agents.poll());
+		}
 
 		if (checkedAgents.isEmpty()) {
 			// The initial state is already a goal state, so return its solution
 			return GraphSearch.search(initialState, frontier);
 		} else {
+			System.out.println("Solution found for all agents. Checked agents: " + checkedAgents.toString());
+
 			// Return the solution of the first agent that was checked
 			return checkedAgents.get(0).solution;
 		}

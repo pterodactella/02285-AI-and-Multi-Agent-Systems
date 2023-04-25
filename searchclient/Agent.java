@@ -96,13 +96,6 @@ public class Agent implements Comparable<Agent>{
       this.constraints[i]=new Constraints(agentIndex, this.agentCols[i], this.agentRows[i], i);
     }
 
-    // TODO: Do we need this here?
-    // Constraints[] newConstraints = new Constraints[this.constraints.length + 1];
-    // System.arraycopy(this.constraints, 0, newConstraints, 0, this.constraints.length);
-    // newConstraints[newConstraints.length - 1] = addConstraint;
-    // this.constraints = newConstraints;
-
-
 
 
   }
