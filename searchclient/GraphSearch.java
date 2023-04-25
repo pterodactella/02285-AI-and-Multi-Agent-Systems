@@ -33,18 +33,18 @@ public class GraphSearch {
         } else {
           // If the state is already expanded, check if the new path has a lower cost
           State existing = getStateFromSet(expanded, t);
-          if (existing != null && s.g() + 1 < existing.g()) {
+          if (existing != null && s.g() < existing.g()) {
             expanded.remove(existing);
             frontier.add(t);
           }
         }
       }
-    // Print a status message every 10000 iteration
-    if (++iterations % 10000 == 0) {
-      printSearchStatus(expanded, frontier);
+      // Print a status message every 10000 iteration
+      if (++iterations % 10000 == 0) {
+        printSearchStatus(expanded, frontier);
+      }
     }
   }
-}
 
   private static long startTime = System.nanoTime();
 

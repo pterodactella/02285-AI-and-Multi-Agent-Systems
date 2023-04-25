@@ -58,6 +58,7 @@ public class CBS {
 					Constraints[] newConstraints = Arrays.copyOf(agentWithLowestCost.constraints,
 							agentWithLowestCost.constraints.length + 1);
 					newConstraints[agentWithLowestCost.constraints.length] = currentConstraint;
+					
 					agents.remove(agentWithLowestCost);
 
 					Agent newAgent1 = new Agent(agentWithLowestCost.agentId, agentWithLowestCost.agentColor,

@@ -1,6 +1,4 @@
 package searchclient;
-
-import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,8 +69,6 @@ public class State {
     this.globalConstraints = newConstraints;
     this.timestamp = 0;
   }
-  
-
 
   // Constructs the state resulting from applying jointAction in parent.
   // Precondition: Joint action must be applicable and non-conflicting in parent
@@ -149,17 +145,25 @@ public class State {
   public int g() {
     return this.g;
   }
+
   public boolean isGoalState() {
+    boolean hasBoxGoals = false;
     for (int row = 1; row < this.goals.length - 1; row++) {
       for (int col = 1; col < this.goals[row].length - 1; col++) {
         char goal = this.goals[row][col];
-  
-        if ('A' <= goal && goal <= 'Z' && this.boxes[row][col] != goal) {
-          return false;
+
+        if ('A' <= goal && goal <= 'Z') {
+          hasBoxGoals = true;
+          if (this.boxes[row][col] != goal) {
+            return false;
+          }
         }
       }
     }
-    
+    if (!hasBoxGoals) {
+      // No box goals, so the agent can simply move to their goal spot
+      return true;
+    }
     // Check if there are any boxes of the correct color remaining
     for (int i = 0; i < this.boxColors.length; i++) {
       boolean foundBox = false;
@@ -178,10 +182,9 @@ public class State {
         return true;
       }
     }
-  
+
     return false;
   }
-
 
   public ArrayList<State> getExpandedStates() {
     int numAgents = this.agentRows.length;
@@ -258,7 +261,8 @@ public class State {
         destinationRow = agentRow + action.agentRowDelta;
         destinationCol = agentCol + action.agentColDelta;
 
-        return !this.constraintViolated(destinationRow, destinationCol, this.timestamp) && this.cellIsFree(destinationRow, destinationCol);
+        return !this.constraintViolated(destinationRow, destinationCol, this.timestamp)
+            && this.cellIsFree(destinationRow, destinationCol);
 
       case Push:
         destinationRow = agentRow + action.agentRowDelta;
@@ -304,7 +308,7 @@ public class State {
         if (!this.cellIsFree(destinationRow, destinationCol)) {
           return false;
         }
-        if(!this.constraintViolated(destinationRow, destinationCol, this.timestamp)){
+        if (!this.constraintViolated(destinationRow, destinationCol, this.timestamp)) {
           return false;
         }
 
@@ -327,7 +331,7 @@ public class State {
       return false;
     }
     // check color of box to match the agent
-    int boxIndex = this.boxes[boxRow][boxCol] - 'A';
+    int boxIndex = this.boxes[boxRow][boxCol] - 'A' + 1;
     if (!this.boxColors[boxIndex].equals(boxColor)) {
       return false;
     }
@@ -388,7 +392,6 @@ public class State {
 
     return false;
   }
-
 
   private boolean cellIsFree(int row, int col) {
     return !this.walls[row][col] && this.boxes[row][col] == 0 && this.agentAt(row, col) == 0;
@@ -479,11 +482,11 @@ public class State {
   }
 
   private boolean constraintViolated(int destCol, int destRow, int timestamp) {
-    if (this.globalConstraints == null || this.globalConstraints.length == 0) {
-        return false;
+    if (globalConstraints == null || globalConstraints.length == 0) {
+      return false;
     }
-    for (int i = 0; i < this.globalConstraints.length; i++) {
-      if (this.globalConstraints[i].isViolated(destCol, destRow, timestamp)) {
+    for (int i = 0; i < globalConstraints.length; i++) {
+      if (globalConstraints[i].isViolated(destCol, destRow, timestamp)) {
         return true;
       }
     }
