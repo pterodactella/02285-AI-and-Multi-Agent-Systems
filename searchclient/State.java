@@ -20,7 +20,6 @@ public class State {
   public int[] agentCols;
   public static Color[] agentColors;
   public Agent[] agents;
-  
 
   public static boolean[][] walls;
   public char[][] boxes;
@@ -35,11 +34,14 @@ public class State {
   private int hash = 0;
 
   public int cost;
+  public int timestamp;
+
+  public Constraints[] globalConstraints;
 
   // Constructs an initial state.
   // Arguments are not copied, and therefore should not be modified after being
   // passed in.
-  public State(Agent[] agents, boolean[][] walls,
+  public State(int[] agentRows, int[] agentCols, Color[] agentColors, boolean[][] walls,
       char[][] boxes, Color[] boxColors, char[][] goals) {
     this.agentRows = agentRows;
     this.agentCols = agentCols;
@@ -51,6 +53,16 @@ public class State {
     this.parent = null;
     this.jointAction = null;
     this.g = 0;
+    this.globalConstraints = new Constraints[agentRows.length];
+    this.timestamp = 0;
+  }
+
+  public State(State parent, Action[] jointAction, Constraints[] newConstraint) {
+    this.parent = parent;
+    this.timestamp = parent.timestamp += 1;
+    this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
+    this.g = parent.g + 1;
+    this.globalConstraints = newConstraint;
   }
 
   // Constructs the state resulting from applying jointAction in parent.
@@ -69,6 +81,7 @@ public class State {
     this.parent = parent;
     this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
     this.g = parent.g + 1;
+    this.timestamp = parent.timestamp + 1; // Increment the timestamp
 
     // Apply each action
     int numAgents = this.agentRows.length;
@@ -207,14 +220,19 @@ public class State {
     char box;
     int destinationRow;
     int destinationCol;
+
     switch (action.type) {
       case NoOp:
         return true;
 
       case Move:
+        // destinationRow = agentRow + action.agentRowDelta;
+        // destinationCol = agentCol + action.agentColDelta;
+        // return this.cellIsFree(destinationRow, destinationCol);
         destinationRow = agentRow + action.agentRowDelta;
         destinationCol = agentCol + action.agentColDelta;
-        return this.cellIsFree(destinationRow, destinationCol);
+
+        return this.checkConstraint(destinationRow, destinationCol, this.timestamp) && this.cellIsFree(destinationRow, destinationCol);
 
       case Push:
         destinationRow = agentRow + action.agentRowDelta;
@@ -231,6 +249,9 @@ public class State {
         }
 
         if (!this.cellIsFree(boxRow, boxCol)) {
+          return false;
+        }
+        if (!this.checkConstraint(boxRow, boxCol, this.timestamp)) {
           return false;
         }
         return true;
@@ -257,8 +278,10 @@ public class State {
         if (!this.cellIsFree(destinationRow, destinationCol)) {
           return false;
         }
+        if(!this.checkConstraint(destinationRow, destinationCol, this.timestamp)){
+          return false;
+        }
 
-        // System.out.println("CEVA PROSTA");
         return true;
 
     }
@@ -340,27 +363,6 @@ public class State {
     return false;
   }
 
-  public boolean conflictingConstraints(Constraints[] constraints) {
-    for (int i = 0; i < agents.length; i++) {
-      for (int j = i + 1; j < agents.length; j++) {
-        if (agents[i].agentRows == agents[j].agentRows
-            && agents[i].agentCols == agents[j].agentCols) {
-          // Agents are in the same cell, so there is a conflict
-          return true;
-        }
-      }
-    }
-
-    for (Constraints c : constraints) {
-      if (c.isViolated(this)) {
-        // A constraint is being violated, so there is a conflict
-        return true;
-      }
-    }
-
-    // No conflicts found
-    return false;
-  }
 
   private boolean cellIsFree(int row, int col) {
     return !this.walls[row][col] && this.boxes[row][col] == 0 && this.agentAt(row, col) == 0;
@@ -448,5 +450,14 @@ public class State {
       s.append("\n");
     }
     return s.toString();
+  }
+
+  private boolean checkConstraint(int destCol, int destRow, int timestamp) {
+    for (int i = 0; i < globalConstraints.length; i++) {
+      if (globalConstraints[i].isViolated(destCol, destRow, timestamp)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

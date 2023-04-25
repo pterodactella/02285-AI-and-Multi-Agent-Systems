@@ -56,16 +56,20 @@ public class Agent {
   }
 
 
-    Agent(String agentId, Color color, State initialState, Frontier frontier, int agentIndex, Constraints addConstraint) {
+  Agent(String agentId, Color color, State initialState, Frontier frontier, int agentIndex, Constraints[] newConstraints) {
     // calculate the plan
     this.agentColor = color;
     this.agentId = agentId;
     this.initialState = initialState;
     this.agentIndex = agentIndex;
+    
 
     // TODO: here we need to handle the extra, addConstraint
+    // Create a new state with the global constraints and confli
+    // State parent, Action[] jointAction, Constraints[] newConstraint
+    State newState = new State(initialState, actions, newConstraints);
 
-    this.solution = GraphSearch.search(initialState, frontier);
+    this.solution = GraphSearch.search(newState, frontier);
     this.cost = this.solution[0].length;
     this.constraints = new Constraints[solution[0].length];
 

@@ -101,9 +101,31 @@ public class SearchClientB {
 
 		// End
 		// line is currently "#end"
+		for (int boxCol = 0; boxCol < boxColors.length; ++boxCol) {
+			boolean foundBoxColor = false;
+			for (int agentCol = 0; agentCol < agentColors.length; ++agentCol) {
+				if (boxColors[boxCol] == agentColors[agentCol]) {
+					foundBoxColor = true;
+					break;
+				}
+			}
+			if (!foundBoxColor) {
+				SearchClientB.replaceBoxWithWall(walls, boxes, (char) ('A' + boxCol));
+			}
+		}
 
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 
+	}
+	public static void replaceBoxWithWall(boolean[][] walls, char[][] boxes, char replacedChar) {
+		for (int row = 0; row < boxes.length; ++row) {
+			for (int col = 0; col < boxes[row].length; ++col) {
+				if (boxes[row][col] == replacedChar) {
+					boxes[row][col] = 0;
+					walls[row][col] = true;
+				}
+			}
+		}
 	}
 
 	public static Action[][] search(State initialState, Frontier frontier) {

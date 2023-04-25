@@ -3,8 +3,8 @@ package searchclient;
 public class Constraints {
    int agent1;
    int agent2;
-   Integer loc_x;
-   Integer loc_y;
+   int loc_x;
+   int loc_y;
    Integer timestamp;
    Action action1;
    Action action2;
@@ -23,9 +23,9 @@ public class Constraints {
        
        return timestamp == that.timestamp && loc_y == that.loc_y  && loc_x == that.loc_x;
    }
-   public boolean isViolated(State state) {
+   public boolean isViolated(int destCol, int destRow, int timestamp) {
     // Check if the constraint is being violated
-    if (state.agentRows[timestamp] == loc_x && state.agentCols[timestamp] == loc_y) {
+    if (destCol == loc_x && destRow == loc_y && timestamp == this.timestamp) {
         // Agent is occupying the cell, so the constraint is being violated
         return true;
     }
