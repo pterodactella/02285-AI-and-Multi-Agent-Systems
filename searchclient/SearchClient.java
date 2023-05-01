@@ -56,7 +56,6 @@ public class SearchClient {
 
 		numRows = levelLines.size(); // Add this line
 
-		int numAgents = 0;
 		ArrayList<Agent> agents = new ArrayList<>();
 		boolean[][] walls = new boolean[numRows][numCols];
 		char[][] boxes = new char[numRows][numCols];
@@ -68,7 +67,6 @@ public class SearchClient {
 				if ('0' <= c && c <= '9') {
 					Agent agent = new Agent(c - '0', row, col, agentColors[c- '0']);
 					agents.add(agent);
-					++numAgents;
 				} else if ('A' <= c && c <= 'Z') {
 					boxes[row][col] = c;
 				} else if (c == '+') {
@@ -81,8 +79,10 @@ public class SearchClient {
 		// line is currently "#goal"
 		char[][] goals = new char[numRows][numCols];
 		line = serverMessages.readLine();
+		
 		int row = 0;
 		while (!line.startsWith("#")) {
+			// System.err.println(line);
 			for (int col = 0; col < line.length(); ++col) {
 				char c = line.charAt(col);
 
@@ -129,6 +129,7 @@ public class SearchClient {
 		// Parse the level.
 		BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.US_ASCII));
 		State initialState = SearchClient.parseLevel(serverMessages);
+		System.err.println(initialState);
 
 		// Select search strategy.
 		Frontier frontier;

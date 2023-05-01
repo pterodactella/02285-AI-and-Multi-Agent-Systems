@@ -7,19 +7,16 @@ public class Agent {
     public int row;
     public int col;
     public Color color;
-    public ArrayList<CBSNode> path;
 
     public Agent(int id, int row, int col, Color color) {
         this.id = id;
         this.row = row;
         this.col = col;
         this.color = color;
-        this.path = new ArrayList<CBSNode>();
     }
 
     public Agent copy() {
         Agent copy = new Agent(this.id, this.row, this.col, this.color);
-        copy.path = new ArrayList<CBSNode>(this.path);
         return copy;
     }
 
