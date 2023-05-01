@@ -57,8 +57,7 @@ public class SearchClient {
 		numRows = levelLines.size(); // Add this line
 
 		int numAgents = 0;
-		int[] agentRows = new int[10];
-		int[] agentCols = new int[10];
+		ArrayList<Agent> agents = new ArrayList<>();
 		boolean[][] walls = new boolean[numRows][numCols];
 		char[][] boxes = new char[numRows][numCols];
 		for (int row = 0; row < numRows; ++row) {
@@ -67,8 +66,8 @@ public class SearchClient {
 				char c = line.charAt(col);
 
 				if ('0' <= c && c <= '9') {
-					agentRows[c - '0'] = row;
-					agentCols[c - '0'] = col;
+					Agent agent = new Agent(c - '0', row, col, agentColors[c- '0']);
+					agents.add(agent);
 					++numAgents;
 				} else if ('A' <= c && c <= 'Z') {
 					boxes[row][col] = c;
@@ -77,8 +76,6 @@ public class SearchClient {
 				}
 			}
 		}
-		agentRows = Arrays.copyOf(agentRows, numAgents);
-		agentCols = Arrays.copyOf(agentCols, numAgents);
 
 		// Read goal state
 		// line is currently "#goal"
@@ -100,8 +97,8 @@ public class SearchClient {
 
 		// // End
 		// // line is currently "#end"
-
-    return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
+		return new State(agents, walls, boxes, boxColors, goals);
+    
 
 	}
 	

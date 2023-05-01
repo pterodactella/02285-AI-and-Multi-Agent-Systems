@@ -1,17 +1,15 @@
 package searchclient;
 
-// import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class Distances {
-	private int[] agentRows;
-	private int[] agentCols;
+    private ArrayList<Agent> agents;
 	private char[][] goals;
 	private char[][] boxes;
 	protected HashMap<Character, int[]> coordinates;
-	public Distances(int[] agentRows, int[] agentCols, char[][] goals, char[][] boxes) {
-		this.agentRows = agentRows;
-		this.agentCols = agentCols;
+	public Distances(ArrayList<Agent> agents, char[][] goals, char[][] boxes) {
+        this.agents = agents;
 		this.goals = goals;
 		this.boxes = boxes;
 		
@@ -45,42 +43,44 @@ public abstract class Distances {
 				}
 			}
 		}
+		for (int i = 0; i < agents.size(); i++) {
+			Agent agent = agents.get(i);
+			coordinates.put(Character.forDigit(agent.id, 10), new int[]{agent.row, agent.col, 0, 0});
+		}
+		
 		
 	}
 }
 
 
+class ManhattanDistance extends Distances {
+    public ManhattanDistance(ArrayList<Agent> agents, char[][] goals, char[][] boxes) {
+        super(agents, goals, boxes);
+    }
 
-class ManhattanDistance extends Distances{
-	public ManhattanDistance(int[] agentRows, int[] agentCols, char[][] goals, char[][] boxes) {
-		super(agentRows, agentCols, goals, boxes);
-	}
-
-	@Override
-	public int calculate() {
-		int sum = 0;
-		for (HashMap.Entry<Character, int[]> set : this.coordinates.entrySet()) {
-			int[] location = set.getValue();
-			sum+= Math.abs(location[2]-location[0]) + Math.abs(location[3]-location[1]);
-       }
-		return sum;
-	}
+    @Override
+    public int calculate() {
+        int sum = 0;
+        for (HashMap.Entry<Character, int[]> set : this.coordinates.entrySet()) {
+            int[] location = set.getValue();
+            sum += Math.abs(location[2] - location[0]) + Math.abs(location[3] - location[1]);
+        }
+        return sum;
+    }
 }
 
+class EuclideanDistanceWithoutRoot extends Distances {
+    public EuclideanDistanceWithoutRoot(ArrayList<Agent> agents, char[][] goals, char[][] boxes) {
+        super(agents, goals, boxes);
+    }
 
-class EuclideanDistanceWithoutRoot extends Distances{
-	public EuclideanDistanceWithoutRoot(int[] agentRows, int[] agentCols, char[][] goals, char[][] boxes) {
-		super(agentRows, agentCols, goals, boxes);
-	}
-
-	@Override
-	public int calculate() {
-		int sum = 0;
-		for (HashMap.Entry<Character, int[]> set :
-            this.coordinates.entrySet()) {
-			int[] location = set.getValue();
-			sum+= Math.pow(location[2]-location[0],2) + Math.pow(location[3]-location[1],2);
-       }
-		return sum;
-	}
+    @Override
+    public int calculate() {
+        int sum = 0;
+        for (HashMap.Entry<Character, int[]> set : this.coordinates.entrySet()) {
+            int[] location = set.getValue();
+            sum += Math.pow(location[2] - location[0], 2) + Math.pow(location[3] - location[1], 2);
+        }
+        return sum;
+    }
 }

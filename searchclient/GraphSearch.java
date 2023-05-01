@@ -8,34 +8,42 @@ public class GraphSearch {
 
   public static Action[][] search(State initialState, Frontier frontier) {
     int iterations = 0;
-    // int conflicts = 0;
-    // int step = 0;
 
-    frontier.add(initialState);
-    // PriorityQueue<>
-    HashSet<State> expanded = new HashSet<>();
+    CBSNode initialNode = new CBSNode(initialState, null);
+    frontier.add(initialNode);
+
+    HashSet<CBSNode> expanded = new HashSet<>();
 
     while (true) {
       if (frontier.isEmpty()) {
         return null;
       }
 
-      State s = frontier.pop();
+      CBSNode node = frontier.pop();
 
-      if (s.isGoalState()) {
-        return s.extractPlan();
+      if (node.getState().isGoalState()) {
+        return node.getState().extractPlan();
       }
-      expanded.add(s);
+      expanded.add(node);
 
-      for (State t : s.getExpandedStates()) {
-        if (!expanded.contains(t)) {
-          frontier.add(t);
-        } else {
+      for (State t : node.getState().getExpandedStates()) {
+        CBSNode childNode = new CBSNode(t, node);
+        if (!expanded.contains(childNode) && !frontier.contains(childNode)) {
+          frontier.add(childNode);
+        } else if (frontier.contains(childNode)) {
+          // If the state is already in the frontier, check if the new path has a lower
+          // cost
+          CBSNode existing = frontier.getNode(childNode);
+          if (existing != null && childNode.getState().g() < existing.getState().g()) {
+            frontier.remove(existing);
+            frontier.add(childNode);
+          }
+        } else if (expanded.contains(childNode)) {
           // If the state is already expanded, check if the new path has a lower cost
-          State existing = getStateFromSet(expanded, t);
-          if (existing != null && s.g() < existing.g()) {
+          CBSNode existing = expanded.stream().filter(n -> n.equals(childNode)).findFirst().orElse(null);
+          if (existing != null && childNode.getState().g() < existing.getState().g()) {
             expanded.remove(existing);
-            frontier.add(t);
+            frontier.add(childNode);
           }
         }
       }
@@ -48,20 +56,11 @@ public class GraphSearch {
 
   private static long startTime = System.nanoTime();
 
-  private static void printSearchStatus(HashSet<State> expanded, Frontier frontier) {
+  private static void printSearchStatus(HashSet<CBSNode> expanded, Frontier frontier) {
     String statusTemplate = "#CBS, #Expanded: %,8d, #Frontier: %,8d, #Generated: %,8d, Time: %3.3f s\n%s\n";
     double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000d;
     System.err.format(statusTemplate, expanded.size(), frontier.size(), expanded.size() + frontier.size(),
         elapsedTime, Memory.stringRep());
-  }
-
-  private static State getStateFromSet(HashSet<State> set, State state) {
-    for (State s : set) {
-      if (s.equals(state)) {
-        return s;
-      }
-    }
-    return null;
   }
 
 }

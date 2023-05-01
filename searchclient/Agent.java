@@ -1,112 +1,77 @@
 package searchclient;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
-// import java.util.Arrays;
+public class Agent {
+    public int id;
+    public int row;
+    public int col;
+    public Color color;
+    public ArrayList<CBSNode> path;
 
-// import java.security.Timestamp;
-// import java.sql.Time;
-// import java.util.ArrayList;
-// import java.util.Arrays;
-// import java.util.HashMap;
-
-public class Agent implements Comparable<Agent>{
-  // constraints are agent (ai , v, t)
-  public String agentId;
-  public State initialState;
-  public Color agentColor;
-  public int agentIndex;
-
-  public int[] agentCols;
-  public int[] agentRows;
-  public Constraints[] constraints;
-
-  public Action[][] solution;
-  public int cost;
-  public int timestamp;
-
-
-  Agent(String agentId, Color color, State initialState, Frontier frontier, int agentIndex) {
-    // calculate the plan
-    this.agentColor = color;
-    this.agentId = agentId;
-    this.initialState = initialState;
-    this.agentIndex = agentIndex;
-
-    this.solution = GraphSearch.search(initialState, frontier);
-    this.cost = this.solution[0].length;
-    this.constraints = new Constraints[solution[0].length];
-    this.timestamp = 0;
-    // calculate the positions
-    // [15] [ Move(N,N), Move(N,N), Move(N,N), Move(N,N)]
-    this.agentCols = Arrays.copyOf(initialState.agentCols, initialState.agentCols.length);
-    this.agentRows = Arrays.copyOf(initialState.agentRows, initialState.agentRows.length);
-
-    // Calculate the constrain for the 0th timestamp
-    this.constraints[0] = new Constraints(agentIndex, this.agentCols[0], this.agentRows[0], 0);
-
-    for (int i = 1; i < solution[0].length; i++) {
-      Action a = solution[0][i];
-      System.err.println(a);
-      // calculate the positions of the agent given by timestamp i
-      this.agentCols[i] += a.agentColDelta;
-      this.agentRows[i] += a.agentRowDelta;
-
-      // calculate the constratins of the agent given by timestamp i
-      this.constraints[i]=new Constraints(agentIndex, this.agentCols[i], this.agentRows[i], i);
-    }
-  }
-
-  // Constructor to solve the conflicts. It initialises the global constraints in the state
-  Agent(String agentId, Color color, State initialState, Frontier frontier, int agentIndex, Constraints[] newConstraints) {
-    // calculate the plan
-    this.agentColor = color;
-    this.agentId = agentId;
-    this.initialState = initialState;
-    this.agentIndex = agentIndex;
-    
-
-    // TODO: here we need to handle the extra, addConstraint
-    // Create a new state with the global constraints and confli
-    // State parent, Action[] jointAction, Constraints[] newConstraint
-
-    this.solution = GraphSearch.search(new State(initialState, newConstraints), frontier);
-    this.cost = this.solution[0].length;
-    this.constraints = new Constraints[solution[0].length];
-    this.timestamp = 0;
-
-
-    // calculate the positions
-    // [15] [ Move(N,N), Move(N,N), Move(N,N), Move(N,N)]
-    this.agentCols = new int[initialState.agentCols.length];
-    this.agentRows = new int[initialState.agentRows.length];
-    
-
-    // Calculate the constrain for the 0th timestamp
-    this.constraints[0] = new Constraints(agentIndex, this.agentCols[0], this.agentRows[0], 0);
-
-    for (int i = 1; i < solution[0].length; i++) {
-      Action a = solution[0][i];
-      System.err.println(a);
-      // calculate the positions of the agent given by timestamp i
-      this.agentCols[i] += a.agentColDelta;
-      this.agentRows[i] += a.agentRowDelta;
-
-      // calculate the constratins of the agent given by timestamp i
-      this.constraints[i]=new Constraints(agentIndex, this.agentCols[i], this.agentRows[i], i);
+    public Agent(int id, int row, int col, Color color) {
+        this.id = id;
+        this.row = row;
+        this.col = col;
+        this.color = color;
+        this.path = new ArrayList<CBSNode>();
     }
 
+    public Agent copy() {
+        Agent copy = new Agent(this.id, this.row, this.col, this.color);
+        copy.path = new ArrayList<CBSNode>(this.path);
+        return copy;
+    }
 
-
-  }
-
-
-
-  @Override
-  public int compareTo(Agent other) {
-      return Integer.compare(this.cost, other.cost);
-  }
-
-
-
+    public ArrayList<Constraints> resolveConflictsWith(Agent other) {
+        ArrayList<Constraints> constraints = new ArrayList<>();
+        if (this.color == other.color) {
+            // Agents have the same color and can't occupy the same cell at the same time
+            if (this.row == other.row && this.col == other.col) {
+                Constraints constraint1 = new Constraints(this.id, this.row + 1, this.col, null);
+                Constraints constraint2 = new Constraints(this.id, this.row - 1, this.col, null);
+                Constraints constraint3 = new Constraints(this.id, this.row, this.col + 1, null);
+                Constraints constraint4 = new Constraints(this.id, this.row, this.col - 1, null);
+                Constraints constraint5 = new Constraints(other.id, other.row + 1, other.col, null);
+                Constraints constraint6 = new Constraints(other.id, other.row - 1, other.col, null);
+                Constraints constraint7 = new Constraints(other.id, other.row, other.col + 1, null);
+                Constraints constraint8 = new Constraints(other.id, other.row, other.col - 1, null);
+                constraints.add(constraint1);
+                constraints.add(constraint2);
+                constraints.add(constraint3);
+                constraints.add(constraint4);
+                constraints.add(constraint5);
+                constraints.add(constraint6);
+                constraints.add(constraint7);
+                constraints.add(constraint8);
+            }
+        } else {
+            // Agents have different colors and can't be at the same cell at the same time
+            if (this.row == other.row && this.col == other.col) {
+                Constraints constraint1 = new Constraints(this.id, this.row, this.col, null);
+                Constraints constraint2 = new Constraints(other.id, other.row, other.col, null);
+                constraints.add(constraint1);
+                constraints.add(constraint2);
+            }
+    
+            // Agents have different colors and can't swap places at the same time
+            if (this.row == other.row + 1 && this.col == other.col && other.row == this.row + 1) {
+                Constraints constraint = new Constraints(this.id, this.row + 1, this.col, null);
+                constraints.add(constraint);
+            } else if (this.row == other.row - 1 && this.col == other.col && other.row == this.row - 1) {
+                Constraints constraint = new Constraints(this.id, this.row - 1, this.col, null);
+                constraints.add(constraint);
+            } else if (this.row == other.row && this.col == other.col + 1 && other.col == this.col - 1) {
+                Constraints constraint = new Constraints(this.id, this.row, this.col + 1, null);
+                constraints.add(constraint);
+            } else if (this.row == other.row && this.col == other.col - 1 && other.col == this.col + 1) {
+                Constraints constraint = new Constraints(this.id, this.row, this.col - 1, null);
+                constraints.add(constraint);
+            }
+        }
+        return constraints;
+    }
+    
+    
+    
 }

@@ -10,17 +10,22 @@ public abstract class Heuristic
         // Here's a chance to pre-process the static parts of the level.
     }
 
+    public int h(CBSNode node) {
+        return h(node.getState());
+    }
+    
     public int h(State s)
     {
-    	Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
+    	Distances d = new ManhattanDistance(s.agents, s.goals, s.boxes);
 //    	System.out.println("d=" );
 //    	System.out.println(d.calculate());
         return d.calculate();
     }
 
+
     public abstract int f(State s);
 
-
+    
     
     @Override
     public int compare(State s1, State s2)

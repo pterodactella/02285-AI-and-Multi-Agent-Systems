@@ -1,96 +1,95 @@
 package searchclient;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.PriorityQueue;
 
 public class CBS {
+
 	public static Action[][] search(State initialState, Frontier frontier) {
+		int iterations = 0;
 
-		// Create an agent object for all agents, make an array of them
-		// The object has the cost, solution, constraints
-		PriorityQueue<Agent> agents = new PriorityQueue<Agent>();
-		boolean solutionFound = false;
-		ArrayList<Agent> checkedAgents = new ArrayList<Agent>();
+		// Create the root node of the CBS search tree
+		CBSNode root = new CBSNode(initialState, null);
 
-		for (int i = 0; i < initialState.agentCols.length; i++) {
-			agents.add(
-					new Agent(State.agentColors[i].toString() + i, State.agentColors[i], initialState, frontier, i));
-			// System.out.println(agents.size());
-			// System.out.println("agents.size()");
-		}
-		System.err.println("Initial agent list: " + agents.toString());
+		// Initialize the frontier with the root node
+		frontier.add(root);
 
-		ArrayList<Constraints> conflictFreePaths = new ArrayList<>(64);
-		// Map<int, Array<(int, int)> objects = new HashMap<String, Object>();
+		// Initialize the set of already-explored nodes
+		HashSet<CBSNode> closed = new HashSet<>();
 
-		// iterate over the array of agents
-		while (!solutionFound) {
-			// int minimumCost = agents.get(0).cost;
+		while (!frontier.isEmpty()) {
+			// Pop the lowest-cost node from the frontier
+			CBSNode node = (CBSNode) frontier.pop();
 
-			Agent agentWithLowestCost = agents.peek();
-			System.err.println("Current agent with lowest cost: " + agentWithLowestCost.toString());
+			if (node.getState().isGoalState()) {
+				return node.getState().extractPlan();
+			}
 
-			boolean allConstraintsConflictFree = true;
-			// should check if the conflict is already covered by an existing constraint
-			// before adding a new constraint
-			// loop through all constraints within
-			for (int agentConstI = 0; agentConstI < agentWithLowestCost.constraints.length; agentConstI++) {
-				Constraints currentConstraint = agentWithLowestCost.constraints[agentConstI];
-				boolean conflictFound = false;
+			// Generate child nodes by resolving conflicts between agents' paths
+			ArrayList<CBSNode> children = new ArrayList<>();
+			ArrayList<Agent> agents = node.getState().agents;
 
-				for (int globalConstJ = 0; globalConstJ < conflictFreePaths.size(); globalConstJ++) {
-					Constraints globalConstraint = conflictFreePaths.get(globalConstJ);
-					if (globalConstraint.isConflicting(currentConstraint)) {
-						conflictFound = true;
-						break;
+			for (int i = 0; i < agents.size(); i++) {
+				Agent agent = agents.get(i);
+				ArrayList<Constraints> conflictResolutionNodes = new ArrayList<>();
+
+				// Check for conflicts with other agents
+				for (int j = i + 1; j < agents.size(); j++) {
+					Agent otherAgent = agents.get(j);
+					ArrayList<Constraints> nodes = agent.resolveConflictsWith(otherAgent);
+					conflictResolutionNodes.addAll(nodes);
+				}
+
+				// Add the child nodes to the list of children
+				if (conflictResolutionNodes.isEmpty()) {
+					children.add(new CBSNode(node.getState(), node));
+				} else {
+					for (Constraints childConstraints : conflictResolutionNodes) {
+						// Create a new state based on the current state and the child constraints
+						State childState = new State(node.getState(), childConstraints); // create a new state object
+						childState.globalConstraints = new ArrayList<>(node.getState().globalConstraints); 
+						childState.globalConstraints.add(childConstraints); // add the child constraints to the new list
+
+						// Add the child node to the list of children
+						CBSNode childNode = new CBSNode(childState, node, i, childConstraints, null);
+						children.add(childNode);
+						System.out.println("Child Node: " + childNode.toString());
 					}
 				}
-				if (conflictFound) {
-					System.out.println("Conflict found between: " + currentConstraint.toString() + " and "
-							+ initialState.globalConstraints.toString());
+			}
 
-					allConstraintsConflictFree = false;
-
-					// This constraint conflicts with an existing constraint, so add the new
-					// constraint
-					Constraints[] newConstraints = Arrays.copyOf(agentWithLowestCost.constraints,
-							agentWithLowestCost.constraints.length + 1);
-					newConstraints[agentWithLowestCost.constraints.length] = currentConstraint;
-					
-					agents.remove(agentWithLowestCost);
-
-					Agent newAgent1 = new Agent(agentWithLowestCost.agentId, agentWithLowestCost.agentColor,
-							initialState, frontier, agentWithLowestCost.agentIndex, newConstraints);
-					System.out.println("Creating new agent with updated constraints: " + newAgent1.toString());
-
-					agents.add(newAgent1);
+			// Add child nodes to the frontier if they have not been explored before
+			for (CBSNode child : children) {
+				if (!closed.contains(child)) {
+					frontier.add(child);
+					System.out.println("Added to Frontier: " + child);
 				}
 			}
 
-			if (allConstraintsConflictFree) {
-				// All constraints for the current agent are conflict-free, so add them to the
-				// list of conflict-free
-				// paths
-				System.out.println("All constraints conflict-free for agent: " + agentWithLowestCost.agentId);
-
-				conflictFreePaths.addAll(Arrays.asList(agentWithLowestCost.constraints));
-
-				solutionFound = agents.isEmpty(); // Set the flag to true if all agents have been checked
+			// Add the current node to the closed set
+			closed.add(node);
+			System.out.println("Closed Node: " + node);
+			for (CBSNode child : children) {
+				System.out.println("Child node: " + child);
 			}
 
-			checkedAgents.add(agents.poll());
+			// Print a status message every 10000 iteration
+			if (++iterations % 10000 == 0) {
+				printSearchStatus(closed, frontier);
+			}
 		}
 
-		if (checkedAgents.isEmpty()) {
-			// The initial state is already a goal state, so return its solution
-			return GraphSearch.search(initialState, frontier);
-		} else {
-			System.out.println("Solution found for all agents. Checked agents: " + checkedAgents.toString());
+		// No solution was found
+		return null;
+	}
 
-			// Return the solution of the first agent that was checked
-			return checkedAgents.get(0).solution;
-		}
+	private static long startTime = System.nanoTime();
+
+	private static void printSearchStatus(HashSet<CBSNode> expanded, Frontier frontier) {
+		String statusTemplate = "#CBS, #Expanded: %,8d, #Frontier: %,8d, #Generated: %,8d, Time: %3.3f s\n%s\n";
+		double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000d;
+		System.err.format(statusTemplate, expanded.size(), frontier.size(), expanded.size() + frontier.size(),
+				elapsedTime, Memory.stringRep());
 	}
 }
