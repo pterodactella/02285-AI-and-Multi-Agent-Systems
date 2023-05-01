@@ -1,6 +1,5 @@
 package searchclient;
 
-import java.util.ArrayList;
 
 public class CBSNode implements Comparable<CBSNode> {
 

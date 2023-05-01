@@ -2,19 +2,9 @@ package searchclient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Random;
 
 public class State {
-  private static final Random RNG = new Random(1);
 
-  /*
-   * The agent rows, columns, and colors are indexed by the agent number.
-   * For example, this.agentRows[0] is the row location of agent '0'.
-   */
-
-  // WIP we need to bridge this agent rows to the actual agent object
   public ArrayList<Agent> agents;
 
   public static boolean[][] walls;
@@ -63,16 +53,11 @@ public class State {
     this.globalConstraints.add(constraints);
   }
 
-
   // Constructs the state resulting from applying jointAction in parent.
   // Precondition: Joint action must be applicable and non-conflicting in parent
   // state.
   private State(State parent, Action[] jointAction) {
-    if (jointAction.length != parent.agents.size()) {
-      System.err.println(
-          "Error: Joint action length: " + jointAction.length + ", Parent agents size: " + parent.agents.size());
-      throw new IllegalArgumentException("Invalid number of agents in joint action not allowed");
-    }
+
     this.agents = new ArrayList<>();
     for (Agent agent : parent.agents) {
       this.agents.add(agent.copy());
@@ -87,14 +72,24 @@ public class State {
     this.goals = parent.goals;
     this.globalConstraints = new ArrayList<>(parent.globalConstraints);
     this.parent = parent;
-    this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
+    if (jointAction != null && jointAction.length > 0) {
+      this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
+    } else {
+      this.jointAction = new Action[0];
+    }
     this.g = parent.g + 1;
     this.timestamp = parent.timestamp + 1;
 
     int numAgents = this.agents.size();
     for (int i = 0; i < numAgents; i++) {
       Agent agent = this.agents.get(i);
-      Action action = jointAction[i];
+      Action action = null;
+      if (jointAction != null && jointAction.length > i) {
+        action = jointAction[i];
+      }
+      if (action == null) {
+        continue;
+      }
       char box;
       int boxRow;
       int boxCol;
@@ -114,18 +109,33 @@ public class State {
           agent.col += action.agentColDelta;
           boxRow = agent.row + action.boxRowDelta;
           boxCol = agent.col + action.boxColDelta;
-          // delete previous state
-          box = this.boxes[agent.row][agent.col];
-          this.boxes[agent.row][agent.col] = 0;
+          if (boxRow < 0 || boxRow >= this.boxes.length || boxCol < 0 || boxCol >= this.boxes[0].length) {
+            // Box is out of bounds, so this action is invalid
+            return;
+          }
+          box = this.boxes[boxRow][boxCol];
+          if (box == '-' || box == '+') {
+            // There is already a box in the target cell, so this action is invalid
+            return;
+          }
+          // Move the box
+          this.boxes[agent.row][agent.col] = '-';
           this.boxes[boxRow][boxCol] = box;
           break;
 
         case Pull:
-
           boxRow = agent.row - action.boxRowDelta;
           boxCol = agent.col - action.boxColDelta;
-          // System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
+          if (boxRow < 0 || boxRow >= this.boxes.length || boxCol < 0 || boxCol >= this.boxes[0].length) {
+            // Box is out of bounds, so this action is invalid
+            return;
+          }
           box = this.boxes[boxRow][boxCol];
+          if (box == '-' || box == '+') {
+            // There is no box in the source cell, so this action is invalid
+            return;
+          }
+          // Move the box
           this.boxes[boxRow][boxCol] = '-';
           this.boxes[agent.row][agent.col] = box;
           agent.row += action.agentRowDelta;
@@ -188,16 +198,16 @@ public class State {
     // Determine list of applicable actions for each individual agent.
     Action[][] applicableActions = new Action[numAgents][];
     for (int agent = 0; agent < numAgents; ++agent) {
-      
+
       ArrayList<Action> agentActions = new ArrayList<>(Action.values().length);
       for (Action action : Action.values()) {
         if (this.isApplicable(agent, action)) {
-          
           agentActions.add(action);
         }
       }
       applicableActions[agent] = agentActions.toArray(new Action[0]);
-      // System.err.println("Applicable actions for agent " + agent + ": " + Arrays.toString(applicableActions[agent]));
+      // System.err.println("Applicable actions for agent " + agent + ": " +
+      // Arrays.toString(applicableActions[agent]));
 
     }
 
@@ -253,9 +263,6 @@ public class State {
         return true;
 
       case Move:
-        // destinationRow = agentRow + action.agentRowDelta;
-        // destinationCol = agentCol + action.agentColDelta;
-        // return this.cellIsFree(destinationRow, destinationCol);
         destinationRow = agentRow + action.agentRowDelta;
         destinationCol = agentCol + action.agentColDelta;
 
@@ -291,9 +298,6 @@ public class State {
           return false;
         }
 
-        //
-        // boxRow = agentRow + action.boxRowDelta;
-        // boxCol = agentCol + action.boxColDelta;
 
         destinationRow = agentRow + action.agentRowDelta;
         destinationCol = agentCol + action.agentColDelta;
@@ -337,6 +341,7 @@ public class State {
     return true;
 
   }
+
   private boolean isConflicting(Action[] jointAction) {
     int numAgents = this.agents.size();
 
