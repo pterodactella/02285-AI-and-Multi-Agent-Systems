@@ -1,18 +1,26 @@
 package searchclient;
 
 import java.util.ArrayDeque;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
 public interface Frontier {
     void add(CBSNode node);
+
     CBSNode pop();
+
     boolean isEmpty();
+
     int size();
+
     boolean contains(CBSNode node);
+
     CBSNode getNode(CBSNode node); // New method to get node by state
+
     void remove(CBSNode node);
+
     String getName();
 }
 
@@ -22,6 +30,9 @@ class FrontierBFS implements Frontier {
 
     @Override
     public void add(CBSNode node) {
+        System.out.println("Adding state to BFS queue: " + node.getState());
+        System.out.println("Queue size: " + this.queue.size());
+
         this.queue.addLast(node);
         this.set.add(node.getState());
     }
@@ -29,6 +40,10 @@ class FrontierBFS implements Frontier {
     @Override
     public CBSNode pop() {
         CBSNode node = this.queue.pollFirst();
+        System.out.println("Removing state from BFS queue: " + node.getState());
+        System.out.println("Queue size: " + this.queue.size());
+
+        
         this.set.remove(node.getState());
         return node;
     }
@@ -62,6 +77,7 @@ class FrontierBFS implements Frontier {
         }
         return null;
     }
+
     @Override
     public void remove(CBSNode node) {
         this.queue.remove(node);
@@ -105,6 +121,7 @@ class FrontierDFS implements Frontier {
     public String getName() {
         return "depth-first search";
     }
+
     @Override
     public CBSNode getNode(CBSNode state) {
         for (CBSNode node : this.stack) {
@@ -114,6 +131,7 @@ class FrontierDFS implements Frontier {
         }
         return null;
     }
+
     @Override
     public void remove(CBSNode node) {
         this.stack.remove(node);
@@ -125,16 +143,25 @@ class FrontierBestFirst implements Frontier {
     private Heuristic heuristic;
     private final PriorityQueue<CBSNode> priorityQueue;
     private final HashSet<State> set;
-
+    
     public FrontierBestFirst(Heuristic h) {
         this.heuristic = h;
-        this.priorityQueue = new PriorityQueue<CBSNode>((CBSNode n1, CBSNode n2) -> {
-            int f1 = n1.getState().g() + this.heuristic.h(n1);
-            int f2 = n2.getState().g() + this.heuristic.h(n2);
-            return Integer.compare(f1, f2);
+        this.priorityQueue = new PriorityQueue<CBSNode>(new Comparator<CBSNode>() {
+            @Override
+            public int compare(CBSNode n1, CBSNode n2) {
+                int f1 = n1.getState().g() + heuristic.h(n1);
+                int f2 = n2.getState().g() + heuristic.h(n2);
+                if (f1 != f2) {
+                    return Integer.compare(f1, f2);
+                } else {
+                    return System.identityHashCode(n1) - System.identityHashCode(n2);
+                }
+            }
         });
         this.set = new HashSet<>(65536);
     }
+    
+    
 
     @Override
     public void add(CBSNode node) {
@@ -148,6 +175,7 @@ class FrontierBestFirst implements Frontier {
         this.set.remove(node.getState());
         return node;
     }
+
     @Override
     public boolean isEmpty() {
         return this.priorityQueue.isEmpty();
@@ -167,6 +195,7 @@ class FrontierBestFirst implements Frontier {
     public String getName() {
         return "best-first search";
     }
+
     @Override
     public CBSNode getNode(CBSNode state) {
         for (CBSNode node : this.priorityQueue) {
@@ -176,6 +205,7 @@ class FrontierBestFirst implements Frontier {
         }
         return null;
     }
+
     @Override
     public void remove(CBSNode node) {
         this.priorityQueue.remove(node);
