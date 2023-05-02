@@ -1,4 +1,5 @@
 package searchclient;
+
 // import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -16,9 +17,8 @@ public abstract class Heuristic
     
     public int h(State s)
     {
-    	Distances d = new ManhattanDistance(s.agents, s.goals, s.boxes);
-//    	System.out.println("d=" );
-//    	System.out.println(d.calculate());
+    	Distances d = new ManhattanDistance(s.getAgents(), s.getGoals(), s.getBoxes());
+   	// System.err.println("d= " + d.calculate());
         return d.calculate();
     }
 

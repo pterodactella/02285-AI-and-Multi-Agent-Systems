@@ -1,7 +1,7 @@
 package searchclient;
 
 import java.util.ArrayDeque;
-import java.util.Comparator;
+// import java.util.Comparator;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Stack;
@@ -146,17 +146,10 @@ class FrontierBestFirst implements Frontier {
     
     public FrontierBestFirst(Heuristic h) {
         this.heuristic = h;
-        this.priorityQueue = new PriorityQueue<CBSNode>(new Comparator<CBSNode>() {
-            @Override
-            public int compare(CBSNode n1, CBSNode n2) {
-                int f1 = n1.getState().g() + heuristic.h(n1);
-                int f2 = n2.getState().g() + heuristic.h(n2);
-                if (f1 != f2) {
-                    return Integer.compare(f1, f2);
-                } else {
-                    return System.identityHashCode(n1) - System.identityHashCode(n2);
-                }
-            }
+        this.priorityQueue = new PriorityQueue<CBSNode>((CBSNode n1, CBSNode n2) -> {
+            int f1 = n1.getState().g() + this.heuristic.h(n1);
+            int f2 = n2.getState().g() + this.heuristic.h(n2);
+            return Integer.compare(f1, f2);
         });
         this.set = new HashSet<>(65536);
     }
@@ -166,7 +159,7 @@ class FrontierBestFirst implements Frontier {
     @Override
     public void add(CBSNode node) {
         this.priorityQueue.add(node);
-        this.set.add(node.getState());
+        this.set.add(node.state);
     }
 
     @Override

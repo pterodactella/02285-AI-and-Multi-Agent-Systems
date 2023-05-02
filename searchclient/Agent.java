@@ -20,19 +20,19 @@ public class Agent {
         return copy;
     }
 
-    public ArrayList<Constraints> resolveConflictsWith(Agent other) {
+    public ArrayList<Constraints> resolveConflictsWith(Agent other, int[] agentTimestamps) {
         ArrayList<Constraints> constraints = new ArrayList<>();
         if (this.color == other.color) {
             // Agents have the same color and can't occupy the same cell at the same time
             if (this.row == other.row && this.col == other.col) {
-                Constraints constraint1 = new Constraints(this.id, this.row + 1, this.col, null);
-                Constraints constraint2 = new Constraints(this.id, this.row - 1, this.col, null);
-                Constraints constraint3 = new Constraints(this.id, this.row, this.col + 1, null);
-                Constraints constraint4 = new Constraints(this.id, this.row, this.col - 1, null);
-                Constraints constraint5 = new Constraints(other.id, other.row + 1, other.col, null);
-                Constraints constraint6 = new Constraints(other.id, other.row - 1, other.col, null);
-                Constraints constraint7 = new Constraints(other.id, other.row, other.col + 1, null);
-                Constraints constraint8 = new Constraints(other.id, other.row, other.col - 1, null);
+                Constraints constraint1 = new Constraints(this.id, this.row + 1, this.col, agentTimestamps[this.id]);
+                Constraints constraint2 = new Constraints(this.id, this.row - 1, this.col, agentTimestamps[this.id]);
+                Constraints constraint3 = new Constraints(this.id, this.row, this.col + 1, agentTimestamps[this.id]);
+                Constraints constraint4 = new Constraints(this.id, this.row, this.col - 1, agentTimestamps[this.id]);
+                Constraints constraint5 = new Constraints(other.id, other.row + 1, other.col, agentTimestamps[other.id]);
+                Constraints constraint6 = new Constraints(other.id, other.row - 1, other.col, agentTimestamps[other.id]);
+                Constraints constraint7 = new Constraints(other.id, other.row, other.col + 1, agentTimestamps[other.id]);
+                Constraints constraint8 = new Constraints(other.id, other.row, other.col - 1, agentTimestamps[other.id]);
                 constraints.add(constraint1);
                 constraints.add(constraint2);
                 constraints.add(constraint3);
@@ -45,24 +45,24 @@ public class Agent {
         } else {
             // Agents have different colors and can't be at the same cell at the same time
             if (this.row == other.row && this.col == other.col) {
-                Constraints constraint1 = new Constraints(this.id, this.row, this.col, null);
-                Constraints constraint2 = new Constraints(other.id, other.row, other.col, null);
+                Constraints constraint1 = new Constraints(this.id, this.row, this.col, agentTimestamps[this.id]);
+                Constraints constraint2 = new Constraints(other.id, other.row, other.col, agentTimestamps[other.id]);
                 constraints.add(constraint1);
                 constraints.add(constraint2);
             }
     
             // Agents have different colors and can't swap places at the same time
             if (this.row == other.row + 1 && this.col == other.col && other.row == this.row + 1) {
-                Constraints constraint = new Constraints(this.id, this.row + 1, this.col, null);
+                Constraints constraint = new Constraints(this.id, this.row + 1, this.col, agentTimestamps[this.id]);
                 constraints.add(constraint);
             } else if (this.row == other.row - 1 && this.col == other.col && other.row == this.row - 1) {
-                Constraints constraint = new Constraints(this.id, this.row - 1, this.col, null);
+                Constraints constraint = new Constraints(this.id, this.row - 1, this.col, agentTimestamps[this.id]);
                 constraints.add(constraint);
             } else if (this.row == other.row && this.col == other.col + 1 && other.col == this.col - 1) {
-                Constraints constraint = new Constraints(this.id, this.row, this.col + 1, null);
+                Constraints constraint = new Constraints(this.id, this.row, this.col + 1, agentTimestamps[this.id]);
                 constraints.add(constraint);
             } else if (this.row == other.row && this.col == other.col - 1 && other.col == this.col + 1) {
-                Constraints constraint = new Constraints(this.id, this.row, this.col - 1, null);
+                Constraints constraint = new Constraints(this.id, this.row, this.col - 1, agentTimestamps[this.id]);
                 constraints.add(constraint);
             }
         }
