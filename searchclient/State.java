@@ -2,65 +2,70 @@ package searchclient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Random;
 
 public class State {
+  private static final Random RNG = new Random(1);
 
-  public ArrayList<Agent> agents;
-
-  public static boolean[][] walls;
-  public char[][] boxes;
-  public static char[][] goals;
-
-  public static Color[] boxColors;
-
-  public final State parent;
-  public Action[] jointAction;
+  private ArrayList<Agent> agents;
+  private int[] agentTimestamps;
+  private int[][] boxTimestamps;
+  private static boolean[][] walls;
+  private char[][] boxes;
+  private static char[][] goals;
+  private static Color[] boxColors;
+  private final State parent;
+  private Action[] jointAction;
   private final int g;
-
   private int hash = 0;
-
-  public int cost;
-  final public int timestamp;
-
-  public ArrayList<Constraints> globalConstraints = new ArrayList<Constraints>();
+  private ArrayList<Constraints> globalConstraints = new ArrayList<Constraints>();
 
   // Constructs an initial state.
   // Arguments are not copied, and therefore should not be modified after being
   // passed in.
   public State(ArrayList<Agent> agents, boolean[][] walls, char[][] boxes, Color[] boxColors, char[][] goals) {
     this.agents = agents;
-    this.walls = walls;
-    this.boxes = boxes;
-    this.boxColors = boxColors;
-    this.goals = goals;
-    this.parent = null;
-    this.jointAction = null;
+    this.agentTimestamps = new int[agents.size()];
+    this.boxTimestamps = new int[boxes.length][agents.size()];
     this.g = 0;
-    this.timestamp = 0;
+    this.parent = null;
+    State.walls = walls;
+    this.boxes = new char[boxes.length][];
+    System.err.println("Boxes: " + boxes);
+    for (int i = 0; i < boxes.length; i++) {
+      this.boxes[i] = Arrays.copyOf(boxes[i], boxes[i].length);
+    }
+    State.boxColors = boxColors;
+    State.goals = goals;
+    this.globalConstraints = new ArrayList<>(globalConstraints);
   }
 
   public State(State state, Constraints constraints) {
-    this.agents = state.agents;
-    this.walls = state.walls;
-    this.boxes = state.boxes;
-    this.boxColors = state.boxColors;
-    this.goals = state.goals;
-    this.parent = state.parent;
-    this.jointAction = state.jointAction;
-    this.g = state.g;
-    this.globalConstraints = new ArrayList<>(state.globalConstraints);
-    this.timestamp = state.timestamp;
+    this.g = state.g + 1;
+    this.parent = state; // set parent state
     this.globalConstraints.add(constraints);
+    this.agentTimestamps = new int[state.agentTimestamps.length];
+    System.arraycopy(state.agentTimestamps, 0, this.agentTimestamps, 0, state.agentTimestamps.length);
+    this.boxTimestamps = new int[state.boxTimestamps.length][state.boxTimestamps[0].length];
+    for (int i = 0; i < state.boxTimestamps.length; i++) {
+      System.arraycopy(state.boxTimestamps[i], 0, this.boxTimestamps[i], 0, state.boxTimestamps[i].length);
+    }
   }
 
   // Constructs the state resulting from applying jointAction in parent.
   // Precondition: Joint action must be applicable and non-conflicting in parent
   // state.
   private State(State parent, Action[] jointAction) {
-
     this.agents = new ArrayList<>();
     for (Agent agent : parent.agents) {
       this.agents.add(agent.copy());
+    }
+
+    this.agentTimestamps = Arrays.copyOf(parent.agentTimestamps, parent.agentTimestamps.length);
+    this.boxTimestamps = new int[parent.boxTimestamps.length][];
+    for (int i = 0; i < parent.boxTimestamps.length; i++) {
+      this.boxTimestamps[i] = Arrays.copyOf(parent.boxTimestamps[i], parent.boxTimestamps[i].length);
     }
 
     this.boxes = new char[parent.boxes.length][];
@@ -68,9 +73,8 @@ public class State {
       this.boxes[i] = Arrays.copyOf(parent.boxes[i], parent.boxes[i].length);
     }
 
-    this.boxColors = parent.boxColors;
-    this.goals = parent.goals;
-    this.globalConstraints = new ArrayList<>(parent.globalConstraints);
+    this.globalConstraints.addAll(parent.globalConstraints);
+
     this.parent = parent;
     if (jointAction != null && jointAction.length > 0) {
       this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
@@ -78,10 +82,8 @@ public class State {
       this.jointAction = new Action[0];
     }
     this.g = parent.g + 1;
-    this.timestamp = parent.timestamp + 1;
 
-    int numAgents = this.agents.size();
-    for (int i = 0; i < numAgents; i++) {
+    for (int i = 0; i < this.agents.size(); i++) {
       Agent agent = this.agents.get(i);
       Action action = null;
       if (jointAction != null && jointAction.length > i) {
@@ -102,6 +104,8 @@ public class State {
           agent.row += action.agentRowDelta;
           agent.col += action.agentColDelta;
 
+          this.agentTimestamps[i]++;
+
           break;
 
         case Push:
@@ -109,37 +113,29 @@ public class State {
           agent.col += action.agentColDelta;
           boxRow = agent.row + action.boxRowDelta;
           boxCol = agent.col + action.boxColDelta;
-          if (boxRow < 0 || boxRow >= this.boxes.length || boxCol < 0 || boxCol >= this.boxes[0].length) {
-            // Box is out of bounds, so this action is invalid
-            return;
-          }
-          box = this.boxes[boxRow][boxCol];
-          if (box == '-' || box == '+') {
-            // There is already a box in the target cell, so this action is invalid
-            return;
-          }
-          // Move the box
-          this.boxes[agent.row][agent.col] = '-';
+          // System.err.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER PUSH");
+          // delete previous state
+          box = this.boxes[agent.row][agent.col];
+          this.boxes[agent.row][agent.col] = 0;
           this.boxes[boxRow][boxCol] = box;
+          this.boxTimestamps[boxRow][boxCol]++;
+          this.agentTimestamps[i]++;
+
           break;
 
         case Pull:
-          boxRow = agent.row - action.boxRowDelta;
-          boxCol = agent.col - action.boxColDelta;
-          if (boxRow < 0 || boxRow >= this.boxes.length || boxCol < 0 || boxCol >= this.boxes[0].length) {
-            // Box is out of bounds, so this action is invalid
-            return;
-          }
-          box = this.boxes[boxRow][boxCol];
-          if (box == '-' || box == '+') {
-            // There is no box in the source cell, so this action is invalid
-            return;
-          }
-          // Move the box
-          this.boxes[boxRow][boxCol] = '-';
+
+          boxRow = agent.row;
+          boxCol = agent.col;
+          // System.err.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER PULL");
+          box = this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta];
+          this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] = 0;
           this.boxes[agent.row][agent.col] = box;
           agent.row += action.agentRowDelta;
           agent.col += action.agentColDelta;
+          this.boxTimestamps[boxRow][boxCol]--;
+          this.boxTimestamps[agent.row][agent.col]++;
+          this.agentTimestamps[i]++;
           break;
 
       }
@@ -152,9 +148,9 @@ public class State {
 
   public boolean isGoalState() {
     boolean hasBoxGoals = false;
-    for (int row = 1; row < this.goals.length - 1; row++) {
-      for (int col = 1; col < this.goals[row].length - 1; col++) {
-        char goal = this.goals[row][col];
+    for (int row = 1; row < State.goals.length - 1; row++) {
+      for (int col = 1; col < State.goals[row].length - 1; col++) {
+        char goal = State.goals[row][col];
 
         if ('A' <= goal && goal <= 'Z') {
           hasBoxGoals = true;
@@ -169,11 +165,11 @@ public class State {
       return true;
     }
     // Check if there are any boxes of the correct color remaining
-    for (int i = 0; i < this.boxColors.length; i++) {
+    for (int i = 0; i < State.boxColors.length; i++) {
       boolean foundBox = false;
       for (int row = 1; row < this.boxes.length - 1; row++) {
         for (int col = 1; col < this.boxes[row].length - 1; col++) {
-          if (this.boxes[row][col] == 'A' + i && this.boxColors[i].equals(this.agents.get(i).color)) {
+          if (this.boxes[row][col] == 'A' + i && State.boxColors[i].equals(this.agents.get(i).color)) {
             foundBox = true;
             break;
           }
@@ -201,43 +197,42 @@ public class State {
 
       ArrayList<Action> agentActions = new ArrayList<>(Action.values().length);
       for (Action action : Action.values()) {
-        if (this.isApplicable(agent, action)) {
+        if (isApplicable(agent, action)) {
           agentActions.add(action);
         }
+
       }
       applicableActions[agent] = agentActions.toArray(new Action[0]);
       // System.err.println("Applicable actions for agent " + agent + ": " +
-      // Arrays.toString(applicableActions[agent]));
+      //     Arrays.toString(applicableActions[agent]));
 
     }
 
     // Iterate over joint actions, check conflict and generate child states.
     int[] actionsPermutation = new int[numAgents];
+    Action[] jointAction = new Action[numAgents];
     ArrayList<State> expandedStates = new ArrayList<>(16);
 
     while (true) {
-      Action[] jointAction = new Action[numAgents];
-      boolean skipAction = false;
+
       for (int agent = 0; agent < numAgents; ++agent) {
-        if (applicableActions[agent].length == 0) {
-          jointAction[agent] = Action.NoOp;
-          break;
-        }
         jointAction[agent] = applicableActions[agent][actionsPermutation[agent]];
       }
 
-      if (!skipAction && !this.isConflicting(jointAction)) {
+      if (!this.isConflicting(jointAction)) {
         expandedStates.add(new State(this, jointAction));
       }
 
-      boolean done = true;
+      boolean done = false;
       for (int agent = 0; agent < numAgents; ++agent) {
         if (actionsPermutation[agent] < applicableActions[agent].length - 1) {
           ++actionsPermutation[agent];
-          done = false;
           break;
         } else {
           actionsPermutation[agent] = 0;
+          if (agent == numAgents - 1) {
+            done = true;
+          }
         }
       }
 
@@ -246,6 +241,7 @@ public class State {
       }
     }
 
+    Collections.shuffle(expandedStates, State.RNG);
     return expandedStates;
   }
 
@@ -258,16 +254,21 @@ public class State {
     int destinationRow;
     int destinationCol;
 
+    int currentTime = this.agentTimestamps[agent];
+
     switch (action.type) {
       case NoOp:
         return true;
 
       case Move:
+        // System.err.println("Move: ");
         destinationRow = agentRow + action.agentRowDelta;
         destinationCol = agentCol + action.agentColDelta;
 
-        return !this.constraintViolated(destinationRow, destinationCol, this.timestamp)
-            && this.cellIsFree(destinationRow, destinationCol);
+        if (this.constraintViolated(destinationRow, destinationCol, currentTime)) {
+          return false;
+        }
+        return this.cellIsFree(destinationRow, destinationCol);
 
       case Push:
         destinationRow = agentRow + action.agentRowDelta;
@@ -286,7 +287,10 @@ public class State {
         if (!this.cellIsFree(boxRow, boxCol)) {
           return false;
         }
-        if (this.constraintViolated(boxRow, boxCol, this.timestamp)) {
+        if (this.boxTimestamps[destinationRow][destinationCol] > currentTime) {
+          return false;
+        }
+        if (constraintViolated(destinationRow, destinationCol, currentTime)) {
           return false;
         }
         return true;
@@ -298,7 +302,8 @@ public class State {
           return false;
         }
 
-
+        boxRow = agentRow - action.boxRowDelta; // Fix: use boxRow and boxCol
+        boxCol = agentCol - action.boxColDelta;
         destinationRow = agentRow + action.agentRowDelta;
         destinationCol = agentCol + action.agentColDelta;
 
@@ -310,7 +315,10 @@ public class State {
         if (!this.cellIsFree(destinationRow, destinationCol)) {
           return false;
         }
-        if (this.constraintViolated(destinationRow, destinationCol, this.timestamp)) {
+        if (this.boxTimestamps[boxRow][boxCol] > currentTime) { // Fix: use boxRow and boxCol
+          return false;
+        }
+        if (constraintViolated(destinationRow, destinationCol, currentTime)) {
           return false;
         }
 
@@ -324,7 +332,8 @@ public class State {
 
   private boolean isBoxAt(int boxRow, int boxCol, Color boxColor) {
 
-    System.err.println("boxRow: " + boxRow + " boxCol: " + boxCol + " boxColor: " + boxColor);
+    // System.err.println("boxRow: " + boxRow + " boxCol: " + boxCol + " boxColor: "
+    // + boxColor);
     // check for out of boundaries
     if (boxRow < 0 || boxCol < 0) {
       return false;
@@ -335,7 +344,7 @@ public class State {
     }
     // check color of box to match the agent
     int boxIndex = this.boxes[boxRow][boxCol] - 'A';
-    if (this.boxColors[boxIndex] == null || !this.boxColors[boxIndex].equals(boxColor)) {
+    if (State.boxColors[boxIndex] == null || !State.boxColors[boxIndex].equals(boxColor)) {
       return false;
     }
     return true;
@@ -345,43 +354,43 @@ public class State {
   private boolean isConflicting(Action[] jointAction) {
     int numAgents = this.agents.size();
 
-    System.err.println("jointAction.length: " + jointAction.length);
-    System.err.println("numAgents: " + numAgents);
-
     int[][] newPositions = new int[numAgents][2];
     int[][] boxPositions = new int[numAgents][2];
     int[][] newBoxPositions = new int[numAgents][2];
 
+    int numNonNoOpAgents = 0;
+    for (int i = 0; i < numAgents; i++) {
+      if (jointAction[i] != Action.NoOp) {
+        numNonNoOpAgents++;
+      }
+    }
+
+    int nonNoOpIndex = 0;
     for (int i = 0; i < numAgents; i++) {
       Action action = jointAction[i];
       int agentRow = this.agents.get(i).row;
       int agentCol = this.agents.get(i).col;
 
-      newPositions[i][0] = agentRow + action.agentRowDelta;
-      newPositions[i][1] = agentCol + action.agentColDelta;
+      if (action != Action.NoOp) {
+        newPositions[nonNoOpIndex][0] = agentRow + action.agentRowDelta;
+        newPositions[nonNoOpIndex][1] = agentCol + action.agentColDelta;
 
-      if (this.isBoxAt(newPositions[i][0], newPositions[i][1], this.agents.get(i).color)) {
-        boxPositions[i][0] = newPositions[i][0];
-        boxPositions[i][1] = newPositions[i][1];
-        newBoxPositions[i][0] = newPositions[i][0] + action.agentRowDelta;
-        newBoxPositions[i][1] = newPositions[i][1] + action.agentColDelta;
+        if (this.isBoxAt(newPositions[nonNoOpIndex][0], newPositions[nonNoOpIndex][1], this.agents.get(i).color)) {
+          boxPositions[nonNoOpIndex][0] = newPositions[nonNoOpIndex][0];
+          boxPositions[nonNoOpIndex][1] = newPositions[nonNoOpIndex][1];
+          newBoxPositions[nonNoOpIndex][0] = newPositions[nonNoOpIndex][0] + action.agentRowDelta;
+          newBoxPositions[nonNoOpIndex][1] = newPositions[nonNoOpIndex][1] + action.agentColDelta;
+        }
+
+        nonNoOpIndex++;
       }
     }
 
-    for (int i = 0; i < numAgents; i++) {
-      if (jointAction[i] == Action.NoOp) {
-        continue;
-      }
-      for (int j = i + 1; j < numAgents; j++) {
-        if (jointAction[j] == Action.NoOp) {
-          continue;
-        }
-        // Moving into same cell?
+    for (int i = 0; i < numNonNoOpAgents; i++) {
+      for (int j = i + 1; j < numNonNoOpAgents; j++) {
         if (Arrays.equals(newPositions[i], newPositions[j])) {
           return true;
         }
-
-        // Moving box into same cell as another box or an agent?
         if (Arrays.equals(boxPositions[i], boxPositions[j])) {
           return true;
         }
@@ -404,7 +413,7 @@ public class State {
   }
 
   private boolean cellIsFree(int row, int col) {
-    return !this.walls[row][col] && this.boxes[row][col] == 0 && this.agentAt(row, col) == 0;
+    return !walls[row][col] && boxes[row][col] == 0 && this.agentAt(row, col) == 0;
   }
 
   private char agentAt(int row, int col) {
@@ -423,6 +432,8 @@ public class State {
       plan[state.g] = state.jointAction;
       state = state.parent;
     }
+    System.err.println("plan: " + plan);
+
     return plan;
   }
 
@@ -431,9 +442,7 @@ public class State {
     if (this.hash == 0) {
       final int prime = 31;
       int result = 1;
-      result = prime * result + Arrays.hashCode(this.boxColors);
-      result = prime * result + Arrays.deepHashCode(this.walls);
-      result = prime * result + Arrays.deepHashCode(this.goals);
+      result = prime * result + Arrays.hashCode(State.boxColors);
 
       // include agent positions in hash code calculation
       for (Agent agent : this.agents) {
@@ -465,18 +474,7 @@ public class State {
       return false;
     }
     State other = (State) obj;
-    if (!Arrays.equals(this.boxColors, other.boxColors)) {
-      return false;
-    }
-    if (!Arrays.deepEquals(this.goals, other.goals)) {
-      return false;
-    }
-    if (!Arrays.deepEquals(this.walls, other.walls)) {
-      return false;
-    }
-    if (!Arrays.deepEquals(this.boxes, other.boxes)) {
-      return false;
-    }
+
     // compare each agent in the state
     for (int i = 0; i < this.agents.size(); i++) {
       Agent thisAgent = this.agents.get(i);
@@ -495,8 +493,8 @@ public class State {
     s.append(globalConstraints);
     s.append("\n");
 
-    for (int row = 0; row < this.walls.length; row++) {
-      for (int col = 0; col < this.walls[row].length; col++) {
+    for (int row = 0; row < walls.length; row++) {
+      for (int col = 0; col < walls[row].length; col++) {
         if (this.boxes[row][col] > 0) {
           s.append(this.boxes[row][col]);
         } else if (this.walls[row][col]) {
@@ -522,5 +520,33 @@ public class State {
       }
     }
     return false;
+  }
+
+  public ArrayList<Agent> getAgents() {
+    return this.agents;
+  }
+
+  public ArrayList<Constraints> getConstraints() {
+    return this.globalConstraints;
+  }
+
+  public char[][] getGoals() {
+    return State.goals;
+  }
+
+  public boolean[][] getWalls() {
+    return State.walls;
+  }
+
+  public char[][] getBoxes() {
+    return this.boxes;
+  }
+
+  public int[] getAgentTimestamps() {
+    return this.agentTimestamps;
+  }
+
+  public int[][] getBoxTimestamps() {
+    return this.boxTimestamps;
   }
 }
