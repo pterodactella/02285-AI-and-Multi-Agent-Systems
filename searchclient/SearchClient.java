@@ -56,7 +56,7 @@ public class SearchClient {
 
 		numRows = levelLines.size(); // Add this line
 
-		ArrayList<Agent> agents = new ArrayList<>();
+		ArrayList<Agent> agents = new ArrayList<>(10);
 		boolean[][] walls = new boolean[numRows][numCols];
 		char[][] boxes = new char[numRows][numCols];
 		for (int row = 0; row < numRows; ++row) {
