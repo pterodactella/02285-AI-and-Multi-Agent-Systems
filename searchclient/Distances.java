@@ -4,21 +4,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class Distances {
-    private ArrayList<Agent> agents;
+
 	private char[][] goals;
 	private char[][] boxes;
 	protected HashMap<Character, int[]> coordinates;
-	public Distances(ArrayList<Agent> agents, char[][] goals, char[][] boxes) {
-        this.agents = agents;
+	public Distances( char[][] goals, char[][] boxes) {
+
 		this.goals = goals;
 		this.boxes = boxes;
 		
 		parseCoordinates();
 		
+//		for (HashMap.Entry<Character, int[]> set :
+//            this.coordinates.entrySet()) {
+//			System.out.println(set.getKey() + " = "
+//                    + Arrays.toString(set.getValue()));
+//       }
 	}
 	
 	public abstract int calculate();
 	public void parseCoordinates() {
+		// System.err.println("Parse coordinates");
 		this.coordinates = new HashMap<>();
 
 		
@@ -43,10 +49,6 @@ public abstract class Distances {
 				}
 			}
 		}
-		for (int i = 0; i < agents.size(); i++) {
-			Agent agent = agents.get(i);
-			coordinates.put(Character.forDigit(agent.id, 10), new int[]{agent.row, agent.col, 0, 0});
-		}
 		
 		
 	}
@@ -54,9 +56,10 @@ public abstract class Distances {
 
 
 class ManhattanDistance extends Distances {
-    public ManhattanDistance(ArrayList<Agent> agents, char[][] goals, char[][] boxes) {
-        super(agents, goals, boxes);
-    }
+    public ManhattanDistance( char[][] goals, char[][] boxes) {
+		super(goals, boxes);
+	}
+
 
     @Override
     public int calculate() {
@@ -70,9 +73,10 @@ class ManhattanDistance extends Distances {
 }
 
 class EuclideanDistanceWithoutRoot extends Distances {
-    public EuclideanDistanceWithoutRoot(ArrayList<Agent> agents, char[][] goals, char[][] boxes) {
-        super(agents, goals, boxes);
-    }
+    public EuclideanDistanceWithoutRoot( char[][] goals, char[][] boxes) {
+		super(goals, boxes);
+	}
+
 
     @Override
     public int calculate() {

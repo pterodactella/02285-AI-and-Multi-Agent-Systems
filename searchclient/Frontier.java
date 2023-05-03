@@ -104,7 +104,7 @@ class FrontierBestFirst implements Frontier {
 
     public FrontierBestFirst(Heuristic h) {
         this.heuristic = h;
-        this.priorityQueue = new PriorityQueue<CBSNode>();
+        this.priorityQueue = new PriorityQueue<CBSNode>(this.heuristic);
         this.set = new HashSet<CBSNode>(65536);
     }
 

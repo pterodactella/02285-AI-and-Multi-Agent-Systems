@@ -5,68 +5,79 @@ import java.util.HashSet;
 
 public class CBS {
 
-    public static Action[][] search(State initialState, Frontier frontier) {
+    public static Action[][] search(CBSNode initialState, Frontier frontier) {
         int iterations = 0;
 
-        // Create the root node of the CBS search tree
-        CBSNode root = new CBSNode(initialState);
 
         // Initialize the frontier with the root node
-        frontier.add(root);
+        frontier.add(initialState);
+        System.err.println("froniter empty" + frontier.isEmpty());
 
         // Initialize the set of already-explored nodes
         HashSet<CBSNode> closed = new HashSet<>();
 
         while (!frontier.isEmpty()) {
+            System.err.println("froniter not empty");
+
             // Pop the lowest-cost node from the frontier
             CBSNode node = frontier.pop();
+            // System.err.println("CBSNode" + node);
+
             if (node.getState().isGoalState()) {
                 return node.getState().extractPlan();
             }
 
-            // Generate child nodes by resolving conflicts
-            ArrayList<CBSNode> children = new ArrayList<>();
-
-            boolean conflictExists = true;
-
-            while (conflictExists) {
-                conflictExists = false;
-                ArrayList<Constraints> constraints = new ArrayList<Constraints>();
-
-                // Check for conflicts
-                for (int i = 0; i < node.getState().getAgents().size(); i++) {
-                    for (int j = i + 1; j < node.getState().getAgents().size(); j++) {
-                        if (node.getState().getAgents().get(i).hasConflictWith(node.getState().getAgents().get(j))) {
-                            // Resolve conflicts using MACBS
-                            conflictExists = true;
-                            ArrayList<Constraints> subConstraints = node.getState().getAgents().get(i)
-                                    .resolveConflictsWith(node.getState().getAgents().get(j),
-                                            node.getState().getAgentTimestamps());
-
-                            if (subConstraints == null) {
-                                // No solution was found, return failure
-                                return null;
-                            }
-                            System.err.println("subConstraints" + subConstraints);
-
-                            constraints.addAll(subConstraints);
-                        }
+            // Check for conflicts
+            boolean conflictExists = false;
+            for (int i = 0; i < node.getState().getAgents().size(); i++) {
+                for (int j = i + 1; j < node.getState().getAgents().size(); j++) {
+                    if (node.getState().getAgents().get(i).hasConflictWith(node.getState().getAgents().get(j))) {
+                        conflictExists = true;
+                        break;
                     }
                 }
-
-                // Create new states for each set of constraints
-                ArrayList<State> childStates = new ArrayList<>();
-                for (Constraints c : constraints) {
-                    // Create a new state with the updated constraints
-                    State childState = new State(node.getState(), c); // Clone the parent state
-                    childStates.add(childState);
+                if (conflictExists) {
+                    break;
                 }
+            }
+            if (!conflictExists) {
+                System.err.println("NO CONFLICTS");
+                System.err.println(GraphSearch.search(initialState, frontier));
+                System.err.println("oh no it got past it");
+                return GraphSearch.search(initialState, frontier);
+            }
+            // Generate child nodes by resolving conflicts
+            ArrayList<CBSNode> children = new ArrayList<>();
+            ArrayList<Constraints> constraints = new ArrayList<>();
+            for (int i = 0; i < node.getState().getAgents().size(); i++) {
+                for (int j = i + 1; j < node.getState().getAgents().size(); j++) {
+                    if (node.getState().getAgents().get(i).hasConflictWith(node.getState().getAgents().get(j))) {
+                        // Resolve conflicts using MACBS
+                        ArrayList<Constraints> subConstraints = node.getState().getAgents().get(i)
+                                .resolveConflictsWith(node.getState().getAgents().get(j),
+                                        node.getState().getAgentTimestamps());
 
-                // Create new child nodes for each child state
-                for (State childState : childStates) {
-                    CBSNode childNode = new CBSNode(childState);
-                    children.add(childNode);
+                        if (subConstraints == null) {
+                            // No solution was found, return failure
+                            return null;
+                        }
+
+                        constraints.addAll(subConstraints);
+                    }
                 }
+            }
+            // Create new states for each set of constraints
+            ArrayList<State> childStates = new ArrayList<>();
+            for (Constraints c : constraints) {
+                // Create a new state with the updated constraints
+                State childState = new State(node.getState(), c); // Clone the parent state
+                childStates.add(childState);
+            }
+
+            // Create new child nodes for each child state
+            for (State childState : childStates) {
+                CBSNode childNode = new CBSNode(childState);
+                children.add(childNode);
             }
 
             // Add child nodes to the frontier if they have not been explored before

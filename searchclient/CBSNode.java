@@ -2,18 +2,14 @@ package searchclient;
 
 import java.util.ArrayList;
 
-public class CBSNode implements Comparable<CBSNode> {
+public class CBSNode {
 
-    private State state; // The state of the node
-    private CBSNode parent;
-    private ArrayList<MetaAgent> metaAgents; // The meta-agents of the node
-    private int cost; // The cost of the node
+    public State state; // The state of the node
+    public CBSNode parent;
 
     public CBSNode(State state) {
         this.state = state;
         this.parent = null;
-        this.metaAgents = null;
-        this.cost = 0;
     }
 
     public CBSNode(State state, CBSNode parent) {
@@ -31,20 +27,34 @@ public class CBSNode implements Comparable<CBSNode> {
     }
 
     public void setParent(CBSNode parent) {
-        this.parent= parent;
-    }
-
-    public ArrayList<MetaAgent> getMetaAgents() {
-        return metaAgents;
-    }
-
-    public int getCost() {
-        return cost;
+        this.parent = parent;
     }
 
     @Override
-    public int compareTo(CBSNode other) {
-        return Integer.compare(getCost(), other.getCost());
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        CBSNode other = (CBSNode) obj;
+        if (this.parent != other.parent) {
+            return false;
+        }
+        return state.equals(other.state);
+    }
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((parent == null) ? 0 : parent.hashCode());
+        result = prime * result + ((state == null) ? 0 : state.hashCode());
+        return result;
     }
 
 }

@@ -7,7 +7,8 @@ import java.util.Random;
 
 public class State {
   private static final Random RNG = new Random(1);
-
+  public int[] agentRows;
+  public int[] agentCols;
   private ArrayList<Agent> agents;
   private int[] agentTimestamps;
   private int[][] boxTimestamps;
@@ -17,35 +18,38 @@ public class State {
   private static Color[] boxColors;
   private State parent;
   private Action[] jointAction;
-  private int g;
+  public int g;
   private int hash = 0;
   private ArrayList<Constraints> globalConstraints = new ArrayList<Constraints>();
 
-  public State(ArrayList<Agent> agents, boolean[][] walls, char[][] boxes, Color[] boxColors, char[][] goals) {
+  public State(int[] agentRows, int[] agentCols, ArrayList<Agent> agents, boolean[][] walls, char[][] boxes,
+      Color[] boxColors, char[][] goals) {
+    this.agentRows = agentRows;
+    this.agentCols = agentCols;
     this.agents = agents;
     this.agentTimestamps = new int[2300];
     this.boxTimestamps = new int[2300][2300];
     this.g = 0;
     this.parent = null;
-    State.walls = walls;
+    this.walls = walls;
     this.boxes = boxes;
-    State.boxColors = boxColors;
-    State.goals = goals;
+    this.boxColors = boxColors;
+    this.goals = goals;
     this.globalConstraints = new ArrayList<>(globalConstraints);
-    this.parent = null;
     this.jointAction = null;
-    this.g = 0;
+
+    System.err.println("initial Constructor" + this.toString());
   }
 
   public State(State state, Constraints constraints) {
     this.g = state.g + 1;
-    System.err.print("g : " + this.g);
+    System.err.println("adding constraints Constructor" + this.toString());
 
     this.parent = state; // set parent state
 
-    System.err.print("Constraints global : " + globalConstraints);
+    // System.err.print("Constraints global : " + globalConstraints);
     this.globalConstraints.add(constraints);
-    System.err.print("Constraints added : " + globalConstraints);
+    // System.err.print("Constraints added : " + globalConstraints);
 
     this.agentTimestamps = new int[state.agentTimestamps.length];
     System.arraycopy(state.agentTimestamps, 0, this.agentTimestamps, 0, state.agentTimestamps.length);
@@ -59,6 +63,10 @@ public class State {
   // Precondition: Joint action must be applicable and non-conflicting in parent
   // state.
   private State(State parent, Action[] jointAction) {
+    // Copy parent
+    this.agentRows = Arrays.copyOf(parent.agentRows, parent.agentRows.length);
+    this.agentCols = Arrays.copyOf(parent.agentCols, parent.agentCols.length);
+
     this.agents = new ArrayList<>();
     for (Agent agent : parent.agents) {
       this.agents.add(agent.copy());
@@ -85,10 +93,10 @@ public class State {
     this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
     this.g = parent.g + 1;
 
-    for (int i = 0; i < this.agents.size(); i++) {
-      System.err.print("this.agents.size()"+this.agents.size());
-      Action action = this.jointAction[i];
-      System.err.print("action"+action);
+    for (int i = 0; i < this.jointAction.length; i++) {
+      // System.err.print("this.agents.size()"+this.agents.size());
+      Action action = jointAction[i];
+      // System.err.print("action"+action);
 
       char box;
       int boxRow;
@@ -99,23 +107,23 @@ public class State {
           break;
 
         case Move:
-          this.agents.get(i).row += action.agentRowDelta;
-          this.agents.get(i).col += action.agentColDelta;
-
+          this.agentRows[i] += action.agentRowDelta;
+          this.agentCols[i] += action.agentColDelta;
           this.agentTimestamps[i]++;
 
           break;
 
         case Push:
-          this.agents.get(i).row += action.agentRowDelta;
-          this.agents.get(i).col += action.agentColDelta;
 
-          boxRow = this.agents.get(i).row + action.boxRowDelta;
-          boxCol = this.agents.get(i).col + action.boxColDelta;
-          // System.err.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER PUSH");
+          this.agentRows[i] = this.agentRows[i] + action.agentRowDelta;
+          this.agentCols[i] = this.agentCols[i] + action.agentColDelta;
+          boxRow = this.agentRows[i] + action.boxRowDelta;
+          boxCol = this.agentCols[i] + action.boxColDelta;
           // delete previous state
-          box = this.boxes[this.agents.get(i).row][this.agents.get(i).col];
-          this.boxes[this.agents.get(i).row][this.agents.get(i).col] = 0;
+          box = this.boxes[this.agentRows[i]][this.agentCols[i]];
+
+          this.boxes[this.agentRows[i]][this.agentCols[i]] = 0;
+
           this.boxes[boxRow][boxCol] = box;
           this.boxTimestamps[boxRow][boxCol]++;
           this.agentTimestamps[i]++;
@@ -123,17 +131,17 @@ public class State {
           break;
 
         case Pull:
-
-          boxRow = this.agents.get(i).row;
-          boxCol = this.agents.get(i).col;
+          boxRow = this.agentRows[i];
+          boxCol = this.agentCols[i];
           // System.err.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER PULL");
-          box = this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta];
-          this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] = 0;
-          this.boxes[this.agents.get(i).row][this.agents.get(i).col] = box;
-          this.agents.get(i).row += action.agentRowDelta;
-          this.agents.get(i).col += action.agentColDelta;
+          box = this.boxes[this.agentRows[i] - action.boxRowDelta][this.agentCols[i] - action.boxColDelta];
+          this.boxes[this.agentRows[i] - action.boxRowDelta][this.agentCols[i] - action.boxColDelta] = 0;
+          this.boxes[boxRow][boxCol] = box;
+
+          this.agentRows[i] += action.agentRowDelta;
+          this.agentCols[i] += action.agentColDelta;
           this.boxTimestamps[boxRow][boxCol]--;
-          this.boxTimestamps[this.agents.get(i).row][this.agents.get(i).col]++;
+          this.boxTimestamps[agentRows[i]][agentCols[i]]++;
           this.agentTimestamps[i]++;
           break;
 
@@ -149,26 +157,21 @@ public class State {
     for (int row = 1; row < this.goals.length - 1; row++) {
       for (int col = 1; col < this.goals[row].length - 1; col++) {
         char goal = this.goals[row][col];
-          if ('A' <= goal && goal <= 'Z' && this.boxes[row][col] != goal)
-          {
-            return false;
-          } else if ('0' <= goal && goal <= '9') {
-            int agentId = Character.getNumericValue(goal);
-            for (Agent agent : this.agents) {
-              if (!(agent.id == agentId && agent.row == row && agent.col == col)) {
-                  return false;
-              }
-          }
+        if ('A' <= goal && goal <= 'Z' && this.boxes[row][col] != goal) {
+          return false;
+        } else if ('0' <= goal && goal <= '9' &&
+            !(this.agentRows[goal - '0'] == row && this.agentCols[goal - '0'] == col)) {
+          return false;
         }
       }
+
     }
     return true;
-
   }
 
   public ArrayList<State> getExpandedStates() {
 
-    int numAgents = this.agents.size();
+    int numAgents = this.agentRows.length;
     // System.err.println("numAgents: " + numAgents);
 
     // Determine list of applicable actions for each individual agent.
@@ -182,7 +185,7 @@ public class State {
         }
       }
       applicableActions[agent] = agentActions.toArray(new Action[0]);
-      System.err.println(agentActions.toArray(applicableActions[agent]));
+      // System.err.println(agentActions.toArray(applicableActions[agent]));
     }
 
     // Iterate over joint actions, check conflict and generate child states.
@@ -194,13 +197,13 @@ public class State {
 
       for (int agent = 0; agent < numAgents; ++agent) {
         jointAction[agent] = applicableActions[agent][actionsPermutation[agent]];
-        System.err.println(jointAction[agent]);
+        // System.err.println(jointAction[agent]);
 
       }
 
       if (!this.isConflicting(jointAction)) {
         expandedStates.add(new State(this, jointAction));
-        System.err.println(expandedStates);
+        // System.err.println(expandedStates);
 
       }
 
@@ -226,8 +229,8 @@ public class State {
   }
 
   private boolean isApplicable(int agent, Action action) {
-    int agentRow = this.agents.get(agent).row;
-    int agentCol = this.agents.get(agent).col;
+    int agentRow = this.agentRows[agent];
+    int agentCol = this.agentCols[agent];
     Color agentColor = this.agents.get(agent).color;
     int boxRow;
     int boxCol;
@@ -315,7 +318,7 @@ public class State {
     }
     // check color of box to match the agent
     int boxIndex = this.boxes[boxRow][boxCol] - 'A';
-    if (State.boxColors[boxIndex] == null || !State.boxColors[boxIndex].equals(boxColor)) {
+    if (!this.boxColors[boxIndex].equals(boxColor)) {
       return false;
     }
     return true;
@@ -323,8 +326,8 @@ public class State {
   }
 
   private boolean isConflicting(Action[] jointAction) {
-    System.err.println(this.agents.size());
-    int numAgents = this.agents.size();
+    // System.err.println(this.agents.size());
+    int numAgents = this.agentRows.length;
 
     int[] destinationRows = new int[numAgents]; // row of new cell to become occupied by action
     int[] destinationCols = new int[numAgents]; // column of new cell to become occupied by action
@@ -336,18 +339,16 @@ public class State {
     // Collect cells to be occupied and boxes to be moved
     for (int agent = 0; agent < numAgents; ++agent) {
       Action action = jointAction[agent];
-      int agentRow = this.agents.get(agent).row;
-      System.err.println("agentRow" + agentRow);
-
-      int agentCol = this.agents.get(agent).col;
-      System.err.println("agentCol" + agentCol);
+      int agentRow = this.agentRows[agent];
+      int agentCol = this.agentCols[agent];
+      // System.err.println("agentCol" + agentCol);
       switch (action.type) {
         case NoOp:
-          System.err.println("Noop");
+          // System.err.println("Noop");
           break;
 
         case Move:
-          System.err.println("Move");
+          // System.err.println("Move");
 
           destinationRows[agent] = agentRow + action.agentRowDelta;
           destinationCols[agent] = agentCol + action.agentColDelta;
@@ -355,8 +356,9 @@ public class State {
           boxCols[agent] = agentCol; // Distinct dummy value
           destinationBoxRows[agent] = agentRow + action.agentRowDelta;
           destinationBoxCols[agent] = agentCol + action.agentColDelta;
-          // if (constraintViolated(destinationCols[agent], destinationRows[agent], agentTimestamps[agent])) {
-          //   return true;
+          // if (constraintViolated(destinationCols[agent], destinationRows[agent],
+          // agentTimestamps[agent])) {
+          // return true;
           // }
           break;
 
@@ -374,9 +376,9 @@ public class State {
         }
 
         // Moving into same cell?
-        if (destinationRows[a1] == destinationRows[a2] && 
-        destinationCols[a1] == destinationCols[a2] && 
-        agentTimestamps[a1] == agentTimestamps[a2]) {
+        if (destinationRows[a1] == destinationRows[a2] &&
+            destinationCols[a1] == destinationCols[a2] &&
+            agentTimestamps[a1] == agentTimestamps[a2]) {
           return true;
         }
       }
@@ -390,9 +392,9 @@ public class State {
   }
 
   private char agentAt(int row, int col) {
-    for (Agent agent : this.agents) {
-      if (agent.row == row && agent.col == col) {
-        return (char) ('0' + agent.id);
+    for (int i = 0; i < this.agentRows.length; i++) {
+      if (this.agentRows[i] == row && this.agentCols[i] == col) {
+        return (char) ('0' + i);
       }
     }
     return 0;
@@ -402,26 +404,23 @@ public class State {
     Action[][] plan = new Action[this.g][];
     State state = this;
     while (state.jointAction != null) {
-      plan[state.g-1] = state.jointAction;
+      plan[state.g - 1] = state.jointAction;
       state = state.parent;
     }
-    System.err.println("plan: " + plan);
+    // System.err.println("plan: " + plan);
 
     return plan;
   }
-
   @Override
   public int hashCode() {
     if (this.hash == 0) {
       final int prime = 31;
       int result = 1;
-      result = prime * result + Arrays.hashCode(State.boxColors);
-
-      // include agent positions in hash code calculation
-      for (Agent agent : this.agents) {
-        result = prime * result + agent.row * 31 + agent.col;
-      }
-
+      result = prime * result + Arrays.hashCode(this.boxColors);
+      result = prime * result + Arrays.deepHashCode(this.walls);
+      result = prime * result + Arrays.deepHashCode(this.goals);
+      result = prime * result + Arrays.hashCode(this.agentRows);
+      result = prime * result + Arrays.hashCode(this.agentCols);
       for (int row = 0; row < this.boxes.length; ++row) {
         for (int col = 0; col < this.boxes[row].length; ++col) {
           char c = this.boxes[row][col];
@@ -447,27 +446,19 @@ public class State {
       return false;
     }
     State other = (State) obj;
-
-    // compare each agent in the state
-    for (int i = 0; i < this.agents.size(); i++) {
-      Agent thisAgent = this.agents.get(i);
-      Agent otherAgent = other.agents.get(i);
-      if (thisAgent.row != otherAgent.row || thisAgent.col != otherAgent.col) {
-        return false;
-      }
-    }
-    return true;
+    return Arrays.equals(this.agentRows, other.agentRows) &&
+        Arrays.equals(this.agentCols, other.agentCols) &&
+        Arrays.deepEquals(this.walls, other.walls) &&
+        Arrays.deepEquals(this.boxes, other.boxes) &&
+        Arrays.equals(this.boxColors, other.boxColors) &&
+        Arrays.deepEquals(this.goals, other.goals);
   }
 
   @Override
   public String toString() {
     StringBuilder s = new StringBuilder();
-    s.append("Global Constraints: ");
-    s.append(globalConstraints);
-    s.append("\n");
-
-    for (int row = 0; row < walls.length; row++) {
-      for (int col = 0; col < walls[row].length; col++) {
+    for (int row = 0; row < this.walls.length; row++) {
+      for (int col = 0; col < this.walls[row].length; col++) {
         if (this.boxes[row][col] > 0) {
           s.append(this.boxes[row][col]);
         } else if (this.walls[row][col]) {
@@ -483,7 +474,8 @@ public class State {
     return s.toString();
   }
 
-  private boolean constraintViolated(int agentId,int destCol, int destRow, int timestamp) {
+
+  private boolean constraintViolated(int agentId, int destCol, int destRow, int timestamp) {
     if (globalConstraints == null || globalConstraints.size() == 0) {
       return false;
     }

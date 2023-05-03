@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 // import java.util.Arrays;
 // import java.util.HashSet;
 import java.util.Locale;
@@ -53,7 +54,9 @@ public class SearchClient {
 			++numRows;
 			line = serverMessages.readLine();
 		}
-
+		int numAgents = 0;
+		int[] agentRows = new int[10];
+		int[] agentCols = new int[10];
 		numRows = levelLines.size(); // Add this line
 
 		ArrayList<Agent> agents = new ArrayList<>(10);
@@ -67,6 +70,9 @@ public class SearchClient {
 				if ('0' <= c && c <= '9') {
 					Agent agent = new Agent(c - '0', row, col, agentColors[c- '0']);
 					agents.add(agent);
+					agentRows[c - '0'] = row;
+					agentCols[c - '0'] = col;
+					++numAgents;
 				} else if ('A' <= c && c <= 'Z') {
 					boxes[row][col] = c;
 				} else if (c == '+') {
@@ -74,6 +80,10 @@ public class SearchClient {
 				}
 			}
 		}
+
+		agentRows = Arrays.copyOf(agentRows, numAgents);
+		agentCols = Arrays.copyOf(agentCols, numAgents);
+		// System.err.println(boxes.toString());
 
 		// Read goal state
 		// line is currently "#goal"
@@ -97,7 +107,7 @@ public class SearchClient {
 
 		// // End
 		// // line is currently "#end"
-		return new State(agents, walls, boxes, boxColors, goals);
+		return new State(agentRows, agentCols,agents, walls, boxes, boxColors, goals);
     
 
 	}
@@ -106,7 +116,7 @@ public class SearchClient {
 	public static Action[][] ConflictBasedSearch(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
 
-		return CBS.search(initialState, frontier);
+		return CBS.search(new CBSNode(initialState), frontier);
 
 	}
 
@@ -129,7 +139,7 @@ public class SearchClient {
 		// Parse the level.
 		BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.US_ASCII));
 		State initialState = SearchClient.parseLevel(serverMessages);
-		System.err.println(initialState);
+		// System.err.println(initialState);
 
 		// Select search strategy.
 		Frontier frontier;
@@ -138,16 +148,16 @@ public class SearchClient {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
 				case "-cbs":
 					isConflictBasedSearch = true;
-					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
 					break;
 				case "-bfs":
-					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
 					break;
 				case "-dfs":
 					frontier = new FrontierDFS();
 					break;
 				case "-astar":
-					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
 					break;
 				case "-wastar":
 					int w = 5;
@@ -158,10 +168,10 @@ public class SearchClient {
 							System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
 						}
 					}
-					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
+					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(new CBSNode(initialState), w));
 					break;
 				case "-greedy":
-					frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
+					frontier = new FrontierBestFirst(new HeuristicGreedy(new CBSNode(initialState)));
 					break;
 				default:
 					frontier = new FrontierBFS();
