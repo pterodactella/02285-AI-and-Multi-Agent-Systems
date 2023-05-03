@@ -31,7 +31,7 @@ public class CBS {
 
             while (conflictExists) {
                 conflictExists = false;
-                ArrayList<Constraints> constraints = new ArrayList<>();
+                ArrayList<Constraints> constraints = new ArrayList<Constraints>();
 
                 // Check for conflicts
                 for (int i = 0; i < node.getState().getAgents().size(); i++) {
@@ -54,20 +54,25 @@ public class CBS {
                     }
                 }
 
-                // Create a new state based on the current state and the child constraints
-                State childState = new State(node.getState(), constraints);
-
-                // Search for a plan using Graph Search
-                Action[][] plan = GraphSearch.search(new CBSNode(childState), frontier);
-
-                if (plan != null) {
-                    // Create a new CBSNode object for the plan and add it to the children list
-                    CBSNode child = new CBSNode(childState);
-                    child.setParent(node);
-                    children.add(child);
-                } else {
-                    // No solution was found, return failure
-                    return null;
+                // Create new states for each set of constraints
+                ArrayList<State> childStates = new ArrayList<>();
+                for (Constraints c : constraints) {
+                    State childState = new State(node.getState(), c);
+                    childStates.add(childState);
+                }
+                for (State childState : childStates) {
+                    // Search for a plan using Graph Search
+                    Action[][] plan = GraphSearch.search(new CBSNode(childState, node), frontier);
+                    
+                    if (plan != null) {
+                        // Create a new MACBSNode object for the plan and add it to the children list
+                        CBSNode child = new CBSNode(childState, node);
+                        child.setParent(node);
+                        children.add(child);
+                    } else {
+                        // No solution was found, return failure
+                        return null;
+                    }
                 }
             }
 

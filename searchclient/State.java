@@ -38,13 +38,12 @@ public class State {
     this.globalConstraints = null;
   }
 
-  public State(State state, ArrayList<Constraints> constraints) {
+  public State(State state, Constraints constraints) {
     this.g = state.g + 1;
     this.parent = state; // set parent state
 
-    for (Constraints a : constraints) {
-      this.globalConstraints.add(a);
-    }
+  
+      this.globalConstraints.add(constraints);
     this.agentTimestamps = new int[state.agentTimestamps.length];
     System.arraycopy(state.agentTimestamps, 0, this.agentTimestamps, 0, state.agentTimestamps.length);
     this.boxTimestamps = new int[state.boxTimestamps.length][];

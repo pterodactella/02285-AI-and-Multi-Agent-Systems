@@ -16,11 +16,10 @@ public class CBSNode implements Comparable<CBSNode> {
         this.cost = 0;
     }
 
-    public CBSNode(State state, CBSNode parent, ArrayList<MetaAgent> metaAgents, int cost) {
+    public CBSNode(State state, CBSNode parent) {
         this.state = state;
         this.parent = parent;
-        this.metaAgents = metaAgents;
-        this.cost = cost;
+
     }
 
     public State getState() {
