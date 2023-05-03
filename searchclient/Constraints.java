@@ -31,9 +31,9 @@ public class Constraints {
         return false;
     }
 
-    public boolean isViolated(int destCol, int destRow, int timestamp) {
+    public boolean isViolated(int agentId, int destCol, int destRow, int timestamp) {
         // Check if the constraint is being violated
-        if (destCol == loc_x && destRow == loc_y && timestamp == this.timestamp) {
+        if (agentId == agent1 && destCol == loc_x && destRow == loc_y && timestamp == this.timestamp) {
             // Agent is occupying the cell, so the constraint is being violated
             return true;
         }

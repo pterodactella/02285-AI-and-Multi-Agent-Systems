@@ -26,6 +26,7 @@ public class CBS {
 
             // Generate child nodes by resolving conflicts
             ArrayList<CBSNode> children = new ArrayList<>();
+
             boolean conflictExists = true;
 
             while (conflictExists) {
@@ -38,38 +39,35 @@ public class CBS {
                         if (node.getState().getAgents().get(i).hasConflictWith(node.getState().getAgents().get(j))) {
                             // Resolve conflicts using MACBS
                             conflictExists = true;
-                            ArrayList<Constraints> subConstraints = node.getState().getAgents().get(i).resolveConflictsWith(node.getState().getAgents().get(j), node.getState().getAgentTimestamps());
+                            ArrayList<Constraints> subConstraints = node.getState().getAgents().get(i)
+                                    .resolveConflictsWith(node.getState().getAgents().get(j),
+                                            node.getState().getAgentTimestamps());
 
                             if (subConstraints == null) {
                                 // No solution was found, return failure
                                 return null;
                             }
+                            System.err.println("subConstraints" + subConstraints);
 
                             constraints.addAll(subConstraints);
                         }
                     }
                 }
 
-                if (constraints.isEmpty()) {
-                    // No conflicts, add the current state to the frontier
-                    frontier.add(node);
-                    break;
+                // Create a new state based on the current state and the child constraints
+                State childState = new State(node.getState(), constraints);
+
+                // Search for a plan using Graph Search
+                Action[][] plan = GraphSearch.search(new CBSNode(childState), frontier);
+
+                if (plan != null) {
+                    // Create a new CBSNode object for the plan and add it to the children list
+                    CBSNode child = new CBSNode(childState);
+                    child.setParent(node);
+                    children.add(child);
                 } else {
-                    // Create a new state based on the current state and the child constraints
-                    State childState = new State(node.getState(), constraints);
-
-                    // Search for a plan using Graph Search
-                    Action[][] plan = GraphSearch.search(new CBSNode(childState), frontier);
-
-                    if (plan != null) {
-                        // Create a new CBSNode object for the plan and add it to the children list
-                        CBSNode child = new CBSNode(childState);
-                        child.setParent(node);
-                        children.add(child);
-                    } else {
-                        // No solution was found, return failure
-                        return null;
-                    }
+                    // No solution was found, return failure
+                    return null;
                 }
             }
 
@@ -87,9 +85,8 @@ public class CBS {
             if (++iterations % 10000 == 0) {
                 printSearchStatus(closed, frontier);
             }
-        }
 
-        // No solution was found
+        }
         return null;
     }
 

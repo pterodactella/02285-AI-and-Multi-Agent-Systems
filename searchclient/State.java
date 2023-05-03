@@ -219,7 +219,6 @@ public class State {
         break;
       }
     }
-    Collections.shuffle(expandedStates, State.RNG);
 
     return expandedStates;
   }
@@ -244,7 +243,7 @@ public class State {
         destinationRow = agentRow + action.agentRowDelta;
         destinationCol = agentCol + action.agentColDelta;
 
-        if (this.constraintViolated(destinationRow, destinationCol, currentTime)) {
+        if (this.constraintViolated(agent, destinationRow, destinationCol, currentTime)) {
           return false;
         }
         return this.cellIsFree(destinationRow, destinationCol);
@@ -263,7 +262,7 @@ public class State {
           return false;
         } else if (!this.cellIsFree(boxRow, boxCol)) {
           return false;
-        } else if (constraintViolated(destinationRow, destinationCol, currentTime)) {
+        } else if (constraintViolated(agent, destinationRow, destinationCol, currentTime)) {
           return false;
         }
         return true;
@@ -288,7 +287,7 @@ public class State {
         if (!this.cellIsFree(destinationRow, destinationCol)) {
           return false;
         }
-        if (constraintViolated(destinationRow, destinationCol, currentTime)) {
+        if (constraintViolated(agent, destinationRow, destinationCol, currentTime)) {
           return false;
         }
 
@@ -354,6 +353,9 @@ public class State {
           boxCols[agent] = agentCol; // Distinct dummy value
           destinationBoxRows[agent] = agentRow + action.agentRowDelta;
           destinationBoxCols[agent] = agentCol + action.agentColDelta;
+          // if (constraintViolated(destinationCols[agent], destinationRows[agent], agentTimestamps[agent])) {
+          //   return true;
+          // }
           break;
 
       }
@@ -370,7 +372,9 @@ public class State {
         }
 
         // Moving into same cell?
-        if (destinationRows[a1] == destinationRows[a2] && destinationCols[a1] == destinationCols[a2]) {
+        if (destinationRows[a1] == destinationRows[a2] && 
+        destinationCols[a1] == destinationCols[a2] && 
+        agentTimestamps[a1] == agentTimestamps[a2]) {
           return true;
         }
       }
@@ -380,7 +384,7 @@ public class State {
   }
 
   private boolean cellIsFree(int row, int col) {
-    return !walls[row][col] && boxes[row][col] == 0 && this.agentAt(row, col) == 0;
+    return !this.walls[row][col] && this.boxes[row][col] == 0 && this.agentAt(row, col) == 0;
   }
 
   private char agentAt(int row, int col) {
@@ -477,12 +481,12 @@ public class State {
     return s.toString();
   }
 
-  private boolean constraintViolated(int destCol, int destRow, int timestamp) {
+  private boolean constraintViolated(int agentId,int destCol, int destRow, int timestamp) {
     if (globalConstraints == null || globalConstraints.size() == 0) {
       return false;
     }
     for (int i = 0; i < globalConstraints.size(); i++) {
-      if (globalConstraints.get(i).isViolated(destCol, destRow, timestamp)) {
+      if (globalConstraints.get(i).isViolated(agentId, destCol, destRow, timestamp)) {
         return true;
       }
     }
