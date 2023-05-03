@@ -23,8 +23,8 @@ public class State {
 
   public State(ArrayList<Agent> agents, boolean[][] walls, char[][] boxes, Color[] boxColors, char[][] goals) {
     this.agents = agents;
-    this.agentTimestamps = new int[agents.size()];
-    this.boxTimestamps = new int[boxes.length][agents.size()];
+    this.agentTimestamps = new int[2300];
+    this.boxTimestamps = new int[2300][2300];
     this.g = 0;
     this.parent = null;
     State.walls = walls;
@@ -84,8 +84,10 @@ public class State {
     this.g = parent.g + 1;
 
     for (int i = 0; i < this.agents.size(); i++) {
-      System.err.println("this.agent.size" + this.agents.size());
-      Action action = jointAction[i];
+      System.err.print("this.agents.size()"+this.agents.size());
+      Action action = this.jointAction[i];
+      System.err.print("action"+action);
+
       char box;
       int boxRow;
       int boxCol;
@@ -145,14 +147,15 @@ public class State {
     for (int row = 1; row < this.goals.length - 1; row++) {
       for (int col = 1; col < this.goals[row].length - 1; col++) {
         char goal = this.goals[row][col];
-        if ('A' <= goal && goal <= 'Z' && this.boxes[row][col] != goal) {
-          return false;
-        } else if ('0' <= goal && goal <= '9') {
-          int agentId = Character.getNumericValue(goal);
-          for (Agent agent : this.agents) {
-            if (!(agent.id == agentId && agent.row == row && agent.col == col)) {
-              return false;
-            }
+          if ('A' <= goal && goal <= 'Z' && this.boxes[row][col] != goal)
+          {
+            return false;
+          } else if ('0' <= goal && goal <= '9') {
+            int agentId = Character.getNumericValue(goal);
+            for (Agent agent : this.agents) {
+              if (!(agent.id == agentId && agent.row == row && agent.col == col)) {
+                  return false;
+              }
           }
         }
       }
@@ -183,7 +186,7 @@ public class State {
     // Iterate over joint actions, check conflict and generate child states.
     int[] actionsPermutation = new int[numAgents];
     Action[] jointAction = new Action[numAgents];
-    ArrayList<State> expandedStates = new ArrayList<>(16);
+    ArrayList<State> expandedStates = new ArrayList<>();
 
     while (true) {
 
@@ -390,10 +393,10 @@ public class State {
   }
 
   public Action[][] extractPlan() {
-    Action[][] plan = new Action[this.g + 1][];
+    Action[][] plan = new Action[this.g][];
     State state = this;
     while (state.jointAction != null) {
-      plan[state.g] = state.jointAction;
+      plan[state.g-1] = state.jointAction;
       state = state.parent;
     }
     System.err.println("plan: " + plan);
