@@ -69,6 +69,32 @@ public class Agent {
         return constraints;
     }
     
+    public boolean hasConflictWith(Agent other) {
+        if (this.color == other.color) {
+            // Agents have the same color and can't occupy the same cell at the same time
+            if (this.row == other.row && this.col == other.col) {
+                return true;
+            }
+        } else {
+            // Agents have different colors and can't be at the same cell at the same time
+            if (this.row == other.row && this.col == other.col) {
+                return true;
+            }
+    
+            // Agents have different colors and can't swap places at the same time
+            if (this.row == other.row + 1 && this.col == other.col && other.row == this.row + 1) {
+                return true;
+            } else if (this.row == other.row - 1 && this.col == other.col && other.row == this.row - 1) {
+                return true;
+            } else if (this.row == other.row && this.col == other.col + 1 && other.col == this.col - 1) {
+                return true;
+            } else if (this.row == other.row && this.col == other.col - 1 && other.col == this.col + 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     
     
 }

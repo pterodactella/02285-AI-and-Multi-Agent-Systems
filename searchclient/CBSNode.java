@@ -1,21 +1,27 @@
 package searchclient;
 
+import java.util.ArrayList;
 
 public class CBSNode implements Comparable<CBSNode> {
 
-    public State state; // The state of the node
+    private State state; // The state of the node
     private CBSNode parent;
-
-    public CBSNode(State state, CBSNode parent) {
-        this.state = state;
-        this.parent = parent;
-    }
+    private ArrayList<MetaAgent> metaAgents; // The meta-agents of the node
+    private int cost; // The cost of the node
 
     public CBSNode(State state) {
         this.state = state;
-        this.parent=null;
+        this.parent = null;
+        this.metaAgents = null;
+        this.cost = 0;
     }
 
+    public CBSNode(State state, CBSNode parent, ArrayList<MetaAgent> metaAgents, int cost) {
+        this.state = state;
+        this.parent = parent;
+        this.metaAgents = metaAgents;
+        this.cost = cost;
+    }
 
     public State getState() {
         return state;
@@ -25,13 +31,15 @@ public class CBSNode implements Comparable<CBSNode> {
         return parent;
     }
 
+    public void setParent(CBSNode parent) {
+        this.parent= parent;
+    }
+
+    public ArrayList<MetaAgent> getMetaAgents() {
+        return metaAgents;
+    }
+
     public int getCost() {
-        int cost = 0;
-        CBSNode currentNode = this;
-        while (currentNode.getParent() != null) {
-            cost++;
-            currentNode = currentNode.getParent();
-        }
         return cost;
     }
 

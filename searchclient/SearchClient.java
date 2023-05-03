@@ -113,7 +113,7 @@ public class SearchClient {
 	public static Action[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
 
-		return GraphSearch.search(initialState, frontier);
+		return GraphSearch.search(new CBSNode(initialState), frontier);
 	}
 
 	public static void main(String[] args) throws IOException {

@@ -15,15 +15,12 @@ public class State {
   private char[][] boxes;
   private static char[][] goals;
   private static Color[] boxColors;
-  private final State parent;
+  private State parent;
   private Action[] jointAction;
-  private final int g;
+  private int g;
   private int hash = 0;
   private ArrayList<Constraints> globalConstraints = new ArrayList<Constraints>();
 
-  // Constructs an initial state.
-  // Arguments are not copied, and therefore should not be modified after being
-  // passed in.
   public State(ArrayList<Agent> agents, boolean[][] walls, char[][] boxes, Color[] boxColors, char[][] goals) {
     this.agents = agents;
     this.agentTimestamps = new int[agents.size()];
@@ -31,20 +28,22 @@ public class State {
     this.g = 0;
     this.parent = null;
     State.walls = walls;
-    this.boxes = new char[boxes.length][];
-    System.err.println("Boxes: " + boxes);
-    for (int i = 0; i < boxes.length; i++) {
-      this.boxes[i] = Arrays.copyOf(boxes[i], boxes[i].length);
-    }
+    this.boxes = boxes;
     State.boxColors = boxColors;
     State.goals = goals;
     this.globalConstraints = new ArrayList<>(globalConstraints);
+    this.parent = null;
+    this.jointAction = null;
+    this.g = 0;
+    this.globalConstraints = null;
   }
 
-  public State(State state, Constraints constraints) {
+  public State(State state, ArrayList<Constraints> constraints) {
     this.g = state.g + 1;
     this.parent = state; // set parent state
-    this.globalConstraints.add(constraints);
+    for (Constraints a: constraints) {
+      this.globalConstraints.add(a);
+    }
     this.agentTimestamps = new int[state.agentTimestamps.length];
     System.arraycopy(state.agentTimestamps, 0, this.agentTimestamps, 0, state.agentTimestamps.length);
     this.boxTimestamps = new int[state.boxTimestamps.length][state.boxTimestamps[0].length];
@@ -72,26 +71,17 @@ public class State {
     for (int i = 0; i < parent.boxes.length; i++) {
       this.boxes[i] = Arrays.copyOf(parent.boxes[i], parent.boxes[i].length);
     }
-
+    this.globalConstraints = new ArrayList<>();
+    
     this.globalConstraints.addAll(parent.globalConstraints);
 
     this.parent = parent;
-    if (jointAction != null && jointAction.length > 0) {
-      this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
-    } else {
-      this.jointAction = new Action[0];
-    }
+    this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
     this.g = parent.g + 1;
 
     for (int i = 0; i < this.agents.size(); i++) {
       Agent agent = this.agents.get(i);
-      Action action = null;
-      if (jointAction != null && jointAction.length > i) {
-        action = jointAction[i];
-      }
-      if (action == null) {
-        continue;
-      }
+      Action action = jointAction[i];
       char box;
       int boxRow;
       int boxCol;
@@ -111,6 +101,7 @@ public class State {
         case Push:
           agent.row += action.agentRowDelta;
           agent.col += action.agentColDelta;
+
           boxRow = agent.row + action.boxRowDelta;
           boxCol = agent.col + action.boxColDelta;
           // System.err.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER PUSH");
@@ -194,15 +185,16 @@ public class State {
     // Determine list of applicable actions for each individual agent.
     Action[][] applicableActions = new Action[numAgents][];
     for (int agent = 0; agent < numAgents; ++agent) {
+      applicableActions[agent] = new Action[0];
 
       ArrayList<Action> agentActions = new ArrayList<>(Action.values().length);
       for (Action action : Action.values()) {
-        if (isApplicable(agent, action)) {
+        if (this.isApplicable(agent, action)) {
           agentActions.add(action);
         }
 
       }
-      applicableActions[agent] = agentActions.toArray(new Action[0]);
+      applicableActions[agent] = agentActions.size() > 0 ? agentActions.toArray(new Action[0]) : new Action[]{Action.NoOp};
       // System.err.println("Applicable actions for agent " + agent + ": " +
       //     Arrays.toString(applicableActions[agent]));
 
@@ -241,7 +233,6 @@ public class State {
       }
     }
 
-    Collections.shuffle(expandedStates, State.RNG);
     return expandedStates;
   }
 
@@ -350,60 +341,50 @@ public class State {
     return true;
 
   }
-
   private boolean isConflicting(Action[] jointAction) {
     int numAgents = this.agents.size();
 
-    int[][] newPositions = new int[numAgents][2];
-    int[][] boxPositions = new int[numAgents][2];
-    int[][] newBoxPositions = new int[numAgents][2];
+    int[] destinationRows = new int[numAgents]; // row of new cell to become occupied by action
+    int[] destinationCols = new int[numAgents]; // column of new cell to become occupied by action
+    int[] boxRows = new int[numAgents]; // current row of box moved by action
+    int[] boxCols = new int[numAgents]; // current column of box moved by action
+    int[] destinationBoxRows = new int[numAgents]; // destination row of box moved by action
+    int[] destinationBoxCols = new int[numAgents]; // destination column of box moved by action
 
-    int numNonNoOpAgents = 0;
-    for (int i = 0; i < numAgents; i++) {
-      if (jointAction[i] != Action.NoOp) {
-        numNonNoOpAgents++;
+    // Collect cells to be occupied and boxes to be moved
+    for (int agent = 0; agent < numAgents; ++agent) {
+      Action action = jointAction[agent];
+      int agentRow = this.agents.get(agent).row;
+      int agentCol = this.agents.get(agent).col;
+
+      switch (action.type) {
+        case NoOp:
+          break;
+
+        case Move:
+          destinationRows[agent] = agentRow + action.agentRowDelta;
+          destinationCols[agent] = agentCol + action.agentColDelta;
+          boxRows[agent] = agentRow; // Distinct dummy value
+          boxCols[agent] = agentCol; // Distinct dummy value
+          destinationBoxRows[agent] = agentRow + action.agentRowDelta;
+          destinationBoxCols[agent] = agentCol + action.agentColDelta;
+          break;
+
       }
     }
 
-    int nonNoOpIndex = 0;
-    for (int i = 0; i < numAgents; i++) {
-      Action action = jointAction[i];
-      int agentRow = this.agents.get(i).row;
-      int agentCol = this.agents.get(i).col;
-
-      if (action != Action.NoOp) {
-        newPositions[nonNoOpIndex][0] = agentRow + action.agentRowDelta;
-        newPositions[nonNoOpIndex][1] = agentCol + action.agentColDelta;
-
-        if (this.isBoxAt(newPositions[nonNoOpIndex][0], newPositions[nonNoOpIndex][1], this.agents.get(i).color)) {
-          boxPositions[nonNoOpIndex][0] = newPositions[nonNoOpIndex][0];
-          boxPositions[nonNoOpIndex][1] = newPositions[nonNoOpIndex][1];
-          newBoxPositions[nonNoOpIndex][0] = newPositions[nonNoOpIndex][0] + action.agentRowDelta;
-          newBoxPositions[nonNoOpIndex][1] = newPositions[nonNoOpIndex][1] + action.agentColDelta;
-        }
-
-        nonNoOpIndex++;
+    for (int a1 = 0; a1 < numAgents; ++a1) {
+      if (jointAction[a1] == Action.NoOp) {
+        continue;
       }
-    }
 
-    for (int i = 0; i < numNonNoOpAgents; i++) {
-      for (int j = i + 1; j < numNonNoOpAgents; j++) {
-        if (Arrays.equals(newPositions[i], newPositions[j])) {
-          return true;
-        }
-        if (Arrays.equals(boxPositions[i], boxPositions[j])) {
-          return true;
+      for (int a2 = a1 + 1; a2 < numAgents; ++a2) {
+        if (jointAction[a2] == Action.NoOp) {
+          continue;
         }
 
-        if (Arrays.equals(boxPositions[i], newPositions[j])) {
-          return true;
-        }
-
-        if (Arrays.equals(newBoxPositions[i], boxPositions[j])) {
-          return true;
-        }
-
-        if (Arrays.equals(newBoxPositions[i], newPositions[j])) {
+        // Moving into same cell?
+        if (destinationRows[a1] == destinationRows[a2] && destinationCols[a1] == destinationCols[a2]) {
           return true;
         }
       }
@@ -411,6 +392,7 @@ public class State {
 
     return false;
   }
+
 
   private boolean cellIsFree(int row, int col) {
     return !walls[row][col] && boxes[row][col] == 0 && this.agentAt(row, col) == 0;
