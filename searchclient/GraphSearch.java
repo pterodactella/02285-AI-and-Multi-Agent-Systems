@@ -18,10 +18,10 @@ public class GraphSearch {
       }
 
       CBSNode node = frontier.pop();
-      System.err.println("CBSNode" + node);
+      // System.err.println("CBSNode" + node);
 
       if (node.getState().isGoalState()) {
-        System.err.println("CBSNode state" + node.getState());
+        // System.err.println("CBSNode state" + node.getState());
         return node.getState().extractPlan();
       }
 

@@ -15,8 +15,10 @@ public class CBS {
 
         // Initialize the set of already-explored nodes
         HashSet<CBSNode> closed = new HashSet<>();
-
+        Action[][] combinedSearchPlan =new Action[initialState.getState().agentRows.length][0];
+        int agent = 0;
         while (!frontier.isEmpty()) {
+            
             System.err.println("froniter not empty");
 
             // Pop the lowest-cost node from the frontier
@@ -42,9 +44,10 @@ public class CBS {
             }
             if (!conflictExists) {
                 System.err.println("NO CONFLICTS");
-                System.err.println(GraphSearch.search(initialState, frontier));
-                System.err.println("oh no it got past it");
-                return GraphSearch.search(initialState, frontier);
+                System.err.println("oh no");
+                combinedSearchPlan[agent][0] = GraphSearch.search(initialState, frontier);
+                agent++;
+                continue;
             }
             // Generate child nodes by resolving conflicts
             ArrayList<CBSNode> children = new ArrayList<>();
