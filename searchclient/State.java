@@ -35,15 +35,18 @@ public class State {
     this.parent = null;
     this.jointAction = null;
     this.g = 0;
-    this.globalConstraints = null;
   }
 
   public State(State state, Constraints constraints) {
     this.g = state.g + 1;
+    System.err.print("g : " + this.g);
+
     this.parent = state; // set parent state
 
-  
-      this.globalConstraints.add(constraints);
+    System.err.print("Constraints global : " + globalConstraints);
+    this.globalConstraints.add(constraints);
+    System.err.print("Constraints added : " + globalConstraints);
+
     this.agentTimestamps = new int[state.agentTimestamps.length];
     System.arraycopy(state.agentTimestamps, 0, this.agentTimestamps, 0, state.agentTimestamps.length);
     this.boxTimestamps = new int[state.boxTimestamps.length][];

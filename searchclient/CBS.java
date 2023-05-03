@@ -57,22 +57,15 @@ public class CBS {
                 // Create new states for each set of constraints
                 ArrayList<State> childStates = new ArrayList<>();
                 for (Constraints c : constraints) {
-                    State childState = new State(node.getState(), c);
+                    // Create a new state with the updated constraints
+                    State childState = new State(node.getState(), c); // Clone the parent state
                     childStates.add(childState);
                 }
+
+                // Create new child nodes for each child state
                 for (State childState : childStates) {
-                    // Search for a plan using Graph Search
-                    Action[][] plan = GraphSearch.search(new CBSNode(childState, node), frontier);
-                    
-                    if (plan != null) {
-                        // Create a new MACBSNode object for the plan and add it to the children list
-                        CBSNode child = new CBSNode(childState, node);
-                        child.setParent(node);
-                        children.add(child);
-                    } else {
-                        // No solution was found, return failure
-                        return null;
-                    }
+                    CBSNode childNode = new CBSNode(childState);
+                    children.add(childNode);
                 }
             }
 
