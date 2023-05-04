@@ -1,13 +1,13 @@
 package searchclient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class CBS {
 
-    public static Action[][] search(CBSNode initialState, Frontier frontier) {
+    public static HashMap<Integer, Action[][]> search(CBSNode initialState, Frontier frontier) {
         int iterations = 0;
-
 
         // Initialize the frontier with the root node
         frontier.add(initialState);
@@ -15,18 +15,20 @@ public class CBS {
 
         // Initialize the set of already-explored nodes
         HashSet<CBSNode> closed = new HashSet<>();
-        Action[][] combinedSearchPlan =new Action[initialState.getState().agentRows.length][0];
-        int agent = 0;
+        HashMap<Integer, Action[][]> agentPlans = new HashMap<Integer, Action[][]>();
+
         while (!frontier.isEmpty()) {
-            
+
             System.err.println("froniter not empty");
 
             // Pop the lowest-cost node from the frontier
             CBSNode node = frontier.pop();
-            // System.err.println("CBSNode" + node);
+            System.err.println("CBSNode pop" + node);
 
             if (node.getState().isGoalState()) {
-                return node.getState().extractPlan();
+                agentPlans = node.getState().extractPlan();
+                System.err.println("agentPlans" + agentPlans);
+                return agentPlans;
             }
 
             // Check for conflicts
@@ -42,64 +44,68 @@ public class CBS {
                     break;
                 }
             }
-            if (!conflictExists) {
-                System.err.println("NO CONFLICTS");
-                System.err.println("oh no");
-                combinedSearchPlan[agent][0] = GraphSearch.search(initialState, frontier);
-                agent++;
-                continue;
-            }
-            // Generate child nodes by resolving conflicts
             ArrayList<CBSNode> children = new ArrayList<>();
-            ArrayList<Constraints> constraints = new ArrayList<>();
-            for (int i = 0; i < node.getState().getAgents().size(); i++) {
-                for (int j = i + 1; j < node.getState().getAgents().size(); j++) {
-                    if (node.getState().getAgents().get(i).hasConflictWith(node.getState().getAgents().get(j))) {
-                        // Resolve conflicts using MACBS
-                        ArrayList<Constraints> subConstraints = node.getState().getAgents().get(i)
-                                .resolveConflictsWith(node.getState().getAgents().get(j),
-                                        node.getState().getAgentTimestamps());
-
-                        if (subConstraints == null) {
-                            // No solution was found, return failure
-                            return null;
-                        }
-
-                        constraints.addAll(subConstraints);
+            if (!conflictExists) {
+                // No conflicts, search for each agent individually
+                for (int i = 0; i < node.getState().agentRows.length; i++) {
+                    if (!agentPlans.containsKey(i)) {
+                        // The plan for this agent has not been computed yet
+                        Action[][] agentPlan = GraphSearch.search(node, i, frontier);
+                        agentPlans.put(i, agentPlan);
                     }
                 }
-            }
-            // Create new states for each set of constraints
-            ArrayList<State> childStates = new ArrayList<>();
-            for (Constraints c : constraints) {
-                // Create a new state with the updated constraints
-                State childState = new State(node.getState(), c); // Clone the parent state
-                childStates.add(childState);
-            }
+            } else {
+                // Generate child nodes by resolving conflicts
+                ArrayList<Constraints> constraints = new ArrayList<>();
+                for (int i = 0; i < node.getState().getAgents().size(); i++) {
+                    for (int j = i + 1; j < node.getState().getAgents().size(); j++) {
+                        if (node.getState().getAgents().get(i).hasConflictWith(node.getState().getAgents().get(j))) {
+                            // Resolve conflicts using MACBS
+                            ArrayList<Constraints> subConstraints = node.getState().getAgents().get(i)
+                                    .resolveConflictsWith(node.getState().getAgents().get(j),
+                                            node.getState().getAgentTimestamps());
 
-            // Create new child nodes for each child state
-            for (State childState : childStates) {
-                CBSNode childNode = new CBSNode(childState);
-                children.add(childNode);
-            }
+                            if (subConstraints == null) {
+                                // No solution was found, return failure
+                                return null;
+                            }
 
-            // Add child nodes to the frontier if they have not been explored before
-            for (CBSNode child : children) {
-                if (!closed.contains(child)) {
-                    frontier.add(child);
+                            constraints.addAll(subConstraints);
+                        }
+                    }
                 }
-            }
+                // Create new states for each set of constraints
+                ArrayList<State> childStates = new ArrayList<>();
+                for (Constraints c : constraints) {
+                    // Create a new state with the updated constraints
+                    State childState = new State(node.getState(), c); // Clone the parent state
+                    childStates.add(childState);
+                }
 
-            // Add the current node to the closed set
-            closed.add(node);
+                // Create new child nodes for each child state
+                for (State childState : childStates) {
+                    CBSNode nodeChild = new CBSNode(childState);
+                    children.add(nodeChild);
+                }
 
-            // Print a status message every 10000 iteration
-            if (++iterations % 10000 == 0) {
-                printSearchStatus(closed, frontier);
+                // Add child nodes to the frontier if they have not been explored before
+                for (CBSNode child : children) {
+                    if (!closed.contains(child)) {
+                        frontier.add(child);
+                    }
+                }
+
+                // Add the current node to the closed set
+                closed.add(node);
+
+                // Print a status message every 10000 iteration
+                if (++iterations % 10000 == 0) {
+                    printSearchStatus(closed, frontier);
+                }
             }
 
         }
-        return null;
+        return agentPlans;
     }
 
     private static long startTime = System.nanoTime();

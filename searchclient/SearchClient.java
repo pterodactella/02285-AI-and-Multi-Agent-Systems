@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 // import java.util.Arrays;
 // import java.util.HashSet;
 import java.util.Locale;
@@ -68,7 +69,7 @@ public class SearchClient {
 				char c = line.charAt(col);
 
 				if ('0' <= c && c <= '9') {
-					Agent agent = new Agent(c - '0', row, col, agentColors[c- '0']);
+					Agent agent = new Agent(c - '0', row, col, agentColors[c - '0']);
 					agents.add(agent);
 					agentRows[c - '0'] = row;
 					agentCols[c - '0'] = col;
@@ -89,7 +90,7 @@ public class SearchClient {
 		// line is currently "#goal"
 		char[][] goals = new char[numRows][numCols];
 		line = serverMessages.readLine();
-		
+
 		int row = 0;
 		while (!line.startsWith("#")) {
 			// System.err.println(line);
@@ -107,23 +108,15 @@ public class SearchClient {
 
 		// // End
 		// // line is currently "#end"
-		return new State(agentRows, agentCols,agents, walls, boxes, boxColors, goals);
-    
+		return new State(agentRows, agentCols, agents, walls, boxes, boxColors, goals);
 
 	}
-	
 
-	public static Action[][] ConflictBasedSearch(State initialState, Frontier frontier) {
+	public static HashMap<Integer, Action[][]> ConflictBasedSearch(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
 
 		return CBS.search(new CBSNode(initialState), frontier);
 
-	}
-
-	public static Action[][] search(State initialState, Frontier frontier) {
-		System.err.format("Starting %s.\n", frontier.getName());
-
-		return GraphSearch.search(new CBSNode(initialState), frontier);
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -143,11 +136,9 @@ public class SearchClient {
 
 		// Select search strategy.
 		Frontier frontier;
-		boolean isConflictBasedSearch = false;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
 				case "-cbs":
-					isConflictBasedSearch = true;
 					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
 					break;
 				case "-bfs":
@@ -185,37 +176,29 @@ public class SearchClient {
 		}
 
 		// Run search.
-		Action[][] plan;
-		if (isConflictBasedSearch) {
-			System.err.println("Running Conflict Based Search");
-			try {
-				plan = SearchClient.ConflictBasedSearch(initialState, frontier);
-				System.err.println("Found CBS plan");
-			} catch (OutOfMemoryError ex) {
-				System.err.println("Maximum memory usage exceeded.");
-				plan = null;
-			}
-		} else {
-			try {
-				plan = SearchClient.search(initialState, frontier);
-			} catch (OutOfMemoryError ex) {
-				System.err.println("Maximum memory usage exceeded.");
-				plan = null;
-			}
+		HashMap<Integer, Action[][]> plan;
+		System.err.println("Running Conflict Based Search");
+		try {
+			plan = SearchClient.ConflictBasedSearch(initialState, frontier);
+			System.err.println("Found CBS plan");
+		} catch (OutOfMemoryError ex) {
+			System.err.println("Maximum memory usage exceeded.");
+			plan = null;
 		}
 
 		// Print plan to server.
 		if (plan == null) {
 			System.err.println("Unable to solve level.");
 			System.exit(0);
-		} 
-		else {
-			System.err.format("Found solution of length %,d.\n", plan.length);
-
-			for (Action[] jointAction : plan) {
-				System.out.print(jointAction[0].name);
-				for (int action = 1; action < jointAction.length; ++action) {
-					System.out.print("|");
+		} else if (plan.size() == 1) {
+			System.err.println("only one agent solution");
+			// System.err.println("plan" + plan.get(0).length);
+			// If there is only one agent, print its plan.
+			for (Action[] jointAction : plan.get(0)) {
+				// System.err.print("jointAction" + jointAction[0].name);
+				for (int action = 0; action < jointAction.length; ++action) {
+					// System.out.print("|");
+					System.err.println("jointAction[action]" +jointAction[action]);
 					System.out.print(jointAction[action].name);
 				}
 				System.out.println();
@@ -223,6 +206,23 @@ public class SearchClient {
 				// the server.
 				serverMessages.readLine();
 			}
+		} else {
+			System.err.format("Found solution of length %,d.\n", plan.size());
+			for (int i = 0; i < plan.size(); i ++) {
+				for (Action[] jointAction : plan.get(i)) {
+					
+					System.out.print(jointAction[0].name);
+					for (int action = 1; action < jointAction.length; ++action) {
+						System.out.print("|");
+						System.out.print(jointAction[action].name);
+					}
+					System.out.println();
+					// We must read the server's response to not fill up the stdin buffer and block
+					// the server.
+					serverMessages.readLine();
+				}
+			}
+			
 		}
 
 	}

@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 public class GraphSearch {
 
-  public static Action[][] search(CBSNode initialNode, Frontier frontier) {
+  public static Action[][] search(CBSNode initialNode, int agentID, Frontier frontier) {
     int iterations = 0;
     HashSet<State> expanded = new HashSet<>();
 
@@ -21,8 +21,8 @@ public class GraphSearch {
       // System.err.println("CBSNode" + node);
 
       if (node.getState().isGoalState()) {
-        // System.err.println("CBSNode state" + node.getState());
-        return node.getState().extractPlan();
+        System.err.println("getState().extractPlan().get(0)" + node.getState().extractPlan().get(agentID));
+        return node.getState().extractPlan().get(agentID);
       }
 
       expanded.add(node.getState());

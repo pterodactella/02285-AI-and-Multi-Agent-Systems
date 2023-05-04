@@ -7,16 +7,20 @@ public class Agent {
     public int row;
     public int col;
     public Color color;
+    public Action[] solution;
 
     public Agent(int id, int row, int col, Color color) {
         this.id = id;
         this.row = row;
         this.col = col;
         this.color = color;
+        this.solution = null;
     }
 
     public Agent copy() {
         Agent copy = new Agent(this.id, this.row, this.col, this.color);
+        copy.solution = this.solution; // also copy the solution
+
         return copy;
     }
 

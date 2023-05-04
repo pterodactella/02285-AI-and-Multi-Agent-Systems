@@ -3,6 +3,7 @@ package searchclient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 
 public class State {
@@ -38,12 +39,12 @@ public class State {
     this.globalConstraints = new ArrayList<>(globalConstraints);
     this.jointAction = null;
 
-    System.err.println("initial Constructor" + this.toString());
+    // System.err.println("initial Constructor" + this.toString());
   }
 
   public State(State state, Constraints constraints) {
     this.g = state.g + 1;
-    System.err.println("adding constraints Constructor" + this.toString());
+    // System.err.println("adding constraints Constructor" + this.toString());
 
     this.parent = state; // set parent state
 
@@ -172,6 +173,7 @@ public class State {
   public ArrayList<State> getExpandedStates() {
 
     int numAgents = this.agentRows.length;
+
     // System.err.println("numAgents: " + numAgents);
 
     // Determine list of applicable actions for each individual agent.
@@ -185,6 +187,7 @@ public class State {
         }
       }
       applicableActions[agent] = agentActions.toArray(new Action[0]);
+
       // System.err.println(agentActions.toArray(applicableActions[agent]));
     }
 
@@ -202,8 +205,8 @@ public class State {
       }
 
       if (!this.isConflicting(jointAction)) {
+
         expandedStates.add(new State(this, jointAction));
-        // System.err.println(expandedStates);
 
       }
 
@@ -400,17 +403,41 @@ public class State {
     return 0;
   }
 
-  public Action[][] extractPlan() {
-    Action[][] plan = new Action[this.g][];
-    State state = this;
-    while (state.jointAction != null) {
-      plan[state.g - 1] = state.jointAction;
-      state = state.parent;
-    }
-    // System.err.println("plan: " + plan);
+  public HashMap<Integer, Action[][]> extractPlan() {
+    HashMap<Integer, Action[][]> agentPlans = new HashMap<>();
 
-    return plan;
+    State state = this;
+    while (state.jointAction != null)
+        {
+          for (int i = 0; i < state.agentRows.length; i++) {
+            if (!agentPlans.containsKey(i)) {
+              agentPlans.put(i, new Action[state.g][]);
+              // System.err.println("agentPlans in for loop" + agentPlans.get(0));
+      
+            }
+            agentPlans.get(i)[state.g - 1] = new Action[] {state.jointAction[i]};
+            // System.err.println("agentPlans: after for loop" + agentPlans.get(0));
+      
+            state = state.parent;
+        }
+  
+    }
+
+    return agentPlans;
   }
+
+  // public Action[][] extractPlan() {
+  // Action[][] plan = new Action[this.g][];
+  // State state = this;
+  // while (state.jointAction != null) {
+  // plan[state.g - 1] = state.jointAction;
+  // state = state.parent;
+  // }
+  // // System.err.println("plan: " + plan);
+
+  // return plan;
+  // }
+
   @Override
   public int hashCode() {
     if (this.hash == 0) {
@@ -473,7 +500,6 @@ public class State {
     }
     return s.toString();
   }
-
 
   private boolean constraintViolated(int agentId, int destCol, int destRow, int timestamp) {
     if (globalConstraints == null || globalConstraints.size() == 0) {
