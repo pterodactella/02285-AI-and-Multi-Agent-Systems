@@ -41,24 +41,51 @@ public class State {
 
     // System.err.println("initial Constructor" + this.toString());
   }
+public State(State parent, Constraints constraints) {
+    // System.err.println("constraints state Constructor" + this.toString());
 
-  public State(State state, Constraints constraints) {
-    this.g = state.g + 1;
-    // System.err.println("adding constraints Constructor" + this.toString());
+    // Copy parent
+    if (parent != null) {
+        this.agentRows = Arrays.copyOf(parent.agentRows, parent.agentRows.length);
+        this.agentCols = Arrays.copyOf(parent.agentCols, parent.agentCols.length);
 
-    this.parent = state; // set parent state
+        this.agents = new ArrayList<>();
+        for (Agent agent : parent.agents) {
+            this.agents.add(agent.copy());
+        }
 
-    // System.err.print("Constraints global : " + globalConstraints);
-    this.globalConstraints.add(constraints);
-    // System.err.print("Constraints added : " + globalConstraints);
+        this.agentTimestamps = Arrays.copyOf(parent.agentTimestamps, parent.agentTimestamps.length);
+        this.boxTimestamps = new int[parent.boxTimestamps.length][];
+        for (int i = 0; i < parent.boxTimestamps.length; i++) {
+            this.boxTimestamps[i] = Arrays.copyOf(parent.boxTimestamps[i], parent.boxTimestamps[i].length);
+        }
 
-    this.agentTimestamps = new int[state.agentTimestamps.length];
-    System.arraycopy(state.agentTimestamps, 0, this.agentTimestamps, 0, state.agentTimestamps.length);
-    this.boxTimestamps = new int[state.boxTimestamps.length][];
-    for (int i = 0; i < state.boxTimestamps.length; i++) {
-      this.boxTimestamps[i] = Arrays.copyOf(state.boxTimestamps[i], state.boxTimestamps[i].length);
+        this.boxes = new char[parent.boxes.length][];
+        for (int i = 0; i < parent.boxes.length; i++) {
+            this.boxes[i] = Arrays.copyOf(parent.boxes[i], parent.boxes[i].length);
+        }
+
+        this.globalConstraints = new ArrayList<>(parent.globalConstraints);
+        this.globalConstraints.add(constraints);
+
+        this.parent = parent;
+        this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
+        this.g = parent.g + 1;
+    } else {
+        // Initialize fields without copying from parent
+        this.agentRows = new int[0];
+        this.agentCols = new int[0];
+        this.agents = new ArrayList<>();
+        this.agentTimestamps = new int[2300];
+        this.boxTimestamps = new int[2300][2300];
+        this.boxes = new char[0][0];
+        this.globalConstraints = new ArrayList<>(Arrays.asList(constraints));
+        this.parent = null;
+        this.jointAction = new Action[0];
+        this.g = 0;
     }
-  }
+}
+
 
   // Constructs the state resulting from applying jointAction in parent.
   // Precondition: Joint action must be applicable and non-conflicting in parent
@@ -205,7 +232,6 @@ public class State {
       }
 
       if (!this.isConflicting(jointAction)) {
-
         expandedStates.add(new State(this, jointAction));
 
       }
@@ -227,7 +253,7 @@ public class State {
         break;
       }
     }
-
+    Collections.shuffle(expandedStates, State.RNG);
     return expandedStates;
   }
 
@@ -352,20 +378,66 @@ public class State {
 
         case Move:
           // System.err.println("Move");
-
           destinationRows[agent] = agentRow + action.agentRowDelta;
           destinationCols[agent] = agentCol + action.agentColDelta;
           boxRows[agent] = agentRow; // Distinct dummy value
           boxCols[agent] = agentCol; // Distinct dummy value
           destinationBoxRows[agent] = agentRow + action.agentRowDelta;
           destinationBoxCols[agent] = agentCol + action.agentColDelta;
-          // if (constraintViolated(destinationCols[agent], destinationRows[agent],
-          // agentTimestamps[agent])) {
-          // return true;
-          // }
+          break;
+
+        case Push:
+          destinationRows[agent] = agentRow + action.agentRowDelta;
+          destinationCols[agent] = agentCol + action.agentColDelta;
+          boxRows[agent] = agentRow + action.boxRowDelta;
+          boxCols[agent] = agentCol + action.boxColDelta;
+          destinationBoxRows[agent] = boxRows[agent] + action.boxRowDelta;
+          destinationBoxCols[agent] = boxCols[agent] + action.boxColDelta;
+          break;
+
+        case Pull:
+          destinationRows[agent] = agentRow + action.agentRowDelta;
+          destinationCols[agent] = agentCol + action.agentColDelta;
+          boxRows[agent] = agentRow - action.boxRowDelta;
+          boxCols[agent] = agentCol - action.boxColDelta;
+          destinationBoxRows[agent] = boxRows[agent] + action.boxRowDelta;
+          destinationBoxCols[agent] = boxCols[agent] + action.boxColDelta;
           break;
 
       }
+      for (int a1 = 0; a1 < numAgents; ++a1) {
+        if (jointAction[a1].type == ActionType.NoOp) {
+          continue;
+        }
+  
+        for (int a2 = a1 + 1; a2 < numAgents; ++a2) {
+          if (jointAction[a2].type == ActionType.NoOp) {
+            continue;
+          }
+  
+          // Moving into same cell?
+          if (destinationRows[a1] == destinationRows[a2] &&
+              destinationCols[a1] == destinationCols[a2]) {
+            return true;
+          }
+  
+          // Check if an agent is moving into the cell that another agent's box is being pushed or pulled into
+          if (destinationRows[a1] == destinationBoxRows[a2] &&
+              destinationCols[a1] == destinationBoxCols[a2]) {
+            return true;
+          }
+  
+          // Check if an agent is moving into the cell that another agent's box is currently in
+          if (destinationRows[a1] == boxRows[a2] &&
+              destinationCols[a1] == boxCols[a2]) {
+            return true;
+          }
+        }
+      }
+  
+      return false;
+
+
     }
 
     for (int a1 = 0; a1 < numAgents; ++a1) {
@@ -380,8 +452,7 @@ public class State {
 
         // Moving into same cell?
         if (destinationRows[a1] == destinationRows[a2] &&
-            destinationCols[a1] == destinationCols[a2] &&
-            agentTimestamps[a1] == agentTimestamps[a2]) {
+            destinationCols[a1] == destinationCols[a2]) {
           return true;
         }
       }
@@ -405,22 +476,20 @@ public class State {
 
   public HashMap<Integer, Action[][]> extractPlan() {
     HashMap<Integer, Action[][]> agentPlans = new HashMap<>();
-
     State state = this;
-    while (state.jointAction != null)
-        {
-          for (int i = 0; i < state.agentRows.length; i++) {
-            if (!agentPlans.containsKey(i)) {
-              agentPlans.put(i, new Action[state.g][]);
-              // System.err.println("agentPlans in for loop" + agentPlans.get(0));
-      
-            }
-            agentPlans.get(i)[state.g - 1] = new Action[] {state.jointAction[i]};
-            // System.err.println("agentPlans: after for loop" + agentPlans.get(0));
-      
-            state = state.parent;
+    while (state.jointAction != null) {
+      for (int i = 0; i < state.agentRows.length; i++) {
+        if (!agentPlans.containsKey(i)) {
+          agentPlans.put(i, new Action[state.g][]);
+          System.err.println("agentPlans in for loop" + agentPlans.get(i));
+
         }
-  
+        agentPlans.get(i)[state.g - 1] = new Action[] { state.jointAction[i] };
+        System.err.println("agentPlans: after for loop" + agentPlans.get(i));
+
+        state = state.parent;
+      }
+
     }
 
     return agentPlans;
@@ -522,11 +591,11 @@ public class State {
   }
 
   public char[][] getGoals() {
-    return State.goals;
+    return this.goals;
   }
 
   public boolean[][] getWalls() {
-    return State.walls;
+    return this.walls;
   }
 
   public char[][] getBoxes() {

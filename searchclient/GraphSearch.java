@@ -18,7 +18,9 @@ public class GraphSearch {
       }
 
       CBSNode node = frontier.pop();
-      // System.err.println("CBSNode" + node);
+      // System.err.println("Graph search CBSNode" + node);
+      // System.err.println("Graph search CBSNode state");
+      // System.err.println(node.getState());
 
       if (node.getState().isGoalState()) {
         System.err.println("getState().extractPlan().get(0)" + node.getState().extractPlan().get(agentID));
@@ -28,8 +30,11 @@ public class GraphSearch {
       expanded.add(node.getState());
 
       for (State child : node.getState().getExpandedStates()) {
+        // System.err.println("expanded" + expanded);
+        System.err.println("child state" + child);
+
         if (!expanded.contains(child)) {
-          frontier.add(new CBSNode(child));
+          frontier.add(new CBSNode(child, node));
           expanded.add(child);
         }
       }
@@ -39,7 +44,7 @@ public class GraphSearch {
         printSearchStatus(expanded, frontier);
       }
     }
-    
+
   }
 
   private static long startTime = System.nanoTime();

@@ -11,7 +11,7 @@ public class CBS {
 
         // Initialize the frontier with the root node
         frontier.add(initialState);
-        System.err.println("froniter empty" + frontier.isEmpty());
+        // System.err.println("froniter empty" + frontier.isEmpty());
 
         // Initialize the set of already-explored nodes
         HashSet<CBSNode> closed = new HashSet<>();
@@ -19,20 +19,24 @@ public class CBS {
 
         while (!frontier.isEmpty()) {
 
-            System.err.println("froniter not empty");
+            // System.err.println("froniter not empty");
 
             // Pop the lowest-cost node from the frontier
             CBSNode node = frontier.pop();
-            System.err.println("CBSNode pop" + node);
+            // System.err.println("CBSNode pop");
+            // System.err.println(node);
 
             if (node.getState().isGoalState()) {
+                // System.err.println("Goal state found");
                 agentPlans = node.getState().extractPlan();
-                System.err.println("agentPlans" + agentPlans);
+                // System.err.println("agentPlans" + agentPlans);
                 return agentPlans;
             }
 
             // Check for conflicts
             boolean conflictExists = false;
+            // System.err.println("conflict doesnt exist");
+
             for (int i = 0; i < node.getState().getAgents().size(); i++) {
                 for (int j = i + 1; j < node.getState().getAgents().size(); j++) {
                     if (node.getState().getAgents().get(i).hasConflictWith(node.getState().getAgents().get(j))) {
@@ -41,6 +45,8 @@ public class CBS {
                     }
                 }
                 if (conflictExists) {
+                    // System.err.println("conflict exists");
+
                     break;
                 }
             }
@@ -48,9 +54,13 @@ public class CBS {
             if (!conflictExists) {
                 // No conflicts, search for each agent individually
                 for (int i = 0; i < node.getState().agentRows.length; i++) {
+
                     if (!agentPlans.containsKey(i)) {
+                        // System.err.println("plan doesnt exist for agent " + i);
+
                         // The plan for this agent has not been computed yet
                         Action[][] agentPlan = GraphSearch.search(node, i, frontier);
+                        // System.err.println("agent plan" + agentPlan);
                         agentPlans.put(i, agentPlan);
                     }
                 }

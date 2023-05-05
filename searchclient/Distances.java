@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class Distances {
-
+	private int[] agentRows;
+	private int[] agentCols;
 	private char[][] goals;
 	private char[][] boxes;
 	protected HashMap<Character, int[]> coordinates;
@@ -28,22 +29,22 @@ public abstract class Distances {
 		this.coordinates = new HashMap<>();
 
 		
-		for(int i=0; i<this.boxes.length; i++) {
-			for(int j=0; j<this.boxes[i].length; j++) {
-				if('A' <= this.boxes[i][j] && this.boxes[i][j] <= 'Z') {
-				coordinates.put((char) this.boxes[i][j], new int[] {i,j, 0, 0});
+		for(int i=0; i<boxes.length; i++) {
+			for(int j=0; j<boxes[i].length; j++) {
+				if('A' <= boxes[i][j] && boxes[i][j] <= 'Z') {
+				coordinates.put((char) boxes[i][j], new int[] {i,j, 0, 0});
 				}
 			}
 		}
 
-		for(int i=0; i<this.goals.length; i++) {
-			for(int j=0; j<this.goals[i].length; j++) {
+		for(int i=0; i<goals.length; i++) {
+			for(int j=0; j<goals[i].length; j++) {
 //				if ('0' <= this.goals[i][j] && this.goals[i][j] <= '9') {
 //					coordinates.get(this.goals[i][j])[2] = i;
 //					coordinates.get(this.goals[i][j])[3] = j;
-				if('A' <= this.goals[i][j] && this.goals[i][j] <= 'Z') {
-					coordinates.get(this.goals[i][j])[2] = i;
-					coordinates.get(this.goals[i][j])[3] = j;
+				if('A' <= goals[i][j] && goals[i][j] <= 'Z') {
+					coordinates.get(goals[i][j])[2] = i;
+					coordinates.get(goals[i][j])[3] = j;
 					
 					
 				}

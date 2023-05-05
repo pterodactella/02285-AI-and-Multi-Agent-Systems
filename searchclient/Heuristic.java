@@ -15,7 +15,7 @@ public abstract class Heuristic
         // System.err.println("calculate manhattan distance");
 
     	Distances d = new ManhattanDistance(node.getState().getGoals(), node.getState().getBoxes());
-   	// System.err.println("d= " + d.calculate());
+   	    // System.err.println("d= " + d.calculate());
         return d.calculate();
     }
 

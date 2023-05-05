@@ -56,8 +56,8 @@ public class SearchClient {
 			line = serverMessages.readLine();
 		}
 		int numAgents = 0;
-		int[] agentRows = new int[10];
-		int[] agentCols = new int[10];
+		int[] agentRows = new int[20];
+		int[] agentCols = new int[20];
 		numRows = levelLines.size(); // Add this line
 
 		ArrayList<Agent> agents = new ArrayList<>(10);
@@ -139,7 +139,7 @@ public class SearchClient {
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
 				case "-cbs":
-					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
+					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(new CBSNode(initialState), 5));
 					break;
 				case "-bfs":
 					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
