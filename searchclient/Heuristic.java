@@ -1,32 +1,27 @@
 package searchclient;
 
-// import java.util.ArrayList;
 import java.util.Comparator;
 
 public abstract class Heuristic
-        implements Comparator<CBSNode>
+        implements Comparator<State>
 {
-    public Heuristic(CBSNode initialState)
+    public Heuristic(State initialState)
     {
+        // Here's a chance to pre-process the static parts of the level.
     }
 
-    
-    public int h(CBSNode node) {
-        // System.err.println("calculate manhattan distance");
-
-    	Distances d = new ManhattanDistance(node.getState().getGoals(), node.getState().getBoxes());
-   	    // System.err.println("d= " + d.calculate());
+    public int h(State s)
+    {
+    	Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
+//    	System.out.println("d=" );
+//    	System.out.println(d.calculate());
         return d.calculate();
     }
 
+    public abstract int f(State s);
 
-
-    public abstract int f(CBSNode s);
-
-    
-    
     @Override
-    public int compare(CBSNode s1, CBSNode s2)
+    public int compare(State s1, State s2)
     {
         return this.f(s1) - this.f(s2);
     }
@@ -35,23 +30,21 @@ public abstract class Heuristic
 class HeuristicAStar
         extends Heuristic
 {
-    public HeuristicAStar(CBSNode initialState)
+    public HeuristicAStar(State initialState)
     {
-
         super(initialState);
     }
 
     @Override
-    public int f(CBSNode s)
+    public int f(State s)
     {
-        // System.err.println("f: " + s.getState().g + this.h(s));
-        return s.getState().g + this.h(s);
+        return s.g() + this.h(s);
     }
 
     @Override
     public String toString()
     {
-        return "A* evaluation" ;
+        return "A* evaluation";
     }
 }
 
@@ -60,16 +53,16 @@ class HeuristicWeightedAStar
 {
     private int w;
 
-    public HeuristicWeightedAStar(CBSNode initialState, int w)
+    public HeuristicWeightedAStar(State initialState, int w)
     {
         super(initialState);
         this.w = w;
     }
 
     @Override
-    public int f(CBSNode s)
+    public int f(State s)
     {
-        return s.getState().g() + this.w * this.h(s);
+        return s.g() + this.w * this.h(s);
     }
 
     @Override
@@ -82,13 +75,13 @@ class HeuristicWeightedAStar
 class HeuristicGreedy
         extends Heuristic
 {
-    public HeuristicGreedy(CBSNode initialState)
+    public HeuristicGreedy(State initialState)
     {
         super(initialState);
     }
 
     @Override
-    public int f(CBSNode s)
+    public int f(State s)
     {
         return this.h(s);
     }
@@ -100,32 +93,3 @@ class HeuristicGreedy
         return "greedy evaluation";
     }
 }
-
-// class HeuristicMeta extends Heuristic {
-
-//     // private int[] pathLength;
-
-//     public HeuristicMeta(CBSNode initialState) {
-//         super(initialState);
-//     }
-
-//     @Override
-//     public int f(CBSNode s)
-//     {
-//         int total = 0;
-//         for (State expanded : s.getState().getExpandedStates()) {
-//             total += this.h(expanded);
-//             if (this.h(expanded) < this.h(s) ) {
-//                 return total - this.h(expanded);
-//             }
-//         }
-//         return total - this.h(s);
-//     }
-
-//     @Override public String toString() {
-//         return "HeuristicMeta";
-//     }
-
-// }
-
-// }

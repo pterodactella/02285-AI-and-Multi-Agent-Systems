@@ -6,9 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-// import java.util.Arrays;
-// import java.util.HashSet;
+import java.util.HashSet;
 import java.util.Locale;
 
 public class SearchClient {
@@ -56,11 +54,9 @@ public class SearchClient {
 			line = serverMessages.readLine();
 		}
 		int numAgents = 0;
-		int[] agentRows = new int[20];
-		int[] agentCols = new int[20];
-		numRows = levelLines.size(); // Add this line
+		int[] agentRows = new int[10];
+		int[] agentCols = new int[10];
 
-		ArrayList<Agent> agents = new ArrayList<>(10);
 		boolean[][] walls = new boolean[numRows][numCols];
 		char[][] boxes = new char[numRows][numCols];
 		for (int row = 0; row < numRows; ++row) {
@@ -69,8 +65,6 @@ public class SearchClient {
 				char c = line.charAt(col);
 
 				if ('0' <= c && c <= '9') {
-					Agent agent = new Agent(c - '0', row, col, agentColors[c - '0']);
-					agents.add(agent);
 					agentRows[c - '0'] = row;
 					agentCols[c - '0'] = col;
 					++numAgents;
@@ -81,19 +75,15 @@ public class SearchClient {
 				}
 			}
 		}
-
 		agentRows = Arrays.copyOf(agentRows, numAgents);
 		agentCols = Arrays.copyOf(agentCols, numAgents);
-		// System.err.println(boxes.toString());
 
 		// Read goal state
 		// line is currently "#goal"
 		char[][] goals = new char[numRows][numCols];
 		line = serverMessages.readLine();
-
 		int row = 0;
 		while (!line.startsWith("#")) {
-			// System.err.println(line);
 			for (int col = 0; col < line.length(); ++col) {
 				char c = line.charAt(col);
 
@@ -106,17 +96,51 @@ public class SearchClient {
 			line = serverMessages.readLine();
 		}
 
-		// // End
-		// // line is currently "#end"
-		return new State(agentRows, agentCols, agents, walls, boxes, boxColors, goals);
+		// End
+		// line is currently "#end"
+
+		for (int boxCol = 0; boxCol < boxColors.length; ++boxCol) {
+			boolean foundBoxColor = false;
+			for (int agentCol = 0; agentCol < agentColors.length; ++agentCol) {
+				if (boxColors[boxCol] == agentColors[agentCol]) {
+					foundBoxColor = true;
+					break;
+				}
+			}
+			if (!foundBoxColor) {
+				SearchClient.replaceBoxWithWall(walls, boxes, (char) ('A' + boxCol));
+			}
+		}
+		SearchClient.printMatrix(walls);
+		
+		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
+	}
+
+	public static void printMatrix(boolean[][] walls) {
+		for (int i = 0; i < walls.length; i++) {
+			for (int j = 0; j < walls[i].length; j++) {
+				System.err.print(walls[i][j] + " ");
+			}
+			System.err.println();
+		}
 
 	}
 
-	public static HashMap<Integer, Action[][]> ConflictBasedSearch(State initialState, Frontier frontier) {
+	public static void replaceBoxWithWall(boolean[][] walls, char[][] boxes, char replacedChar) {
+		for (int row = 0; row < boxes.length; ++row) {
+			for (int col = 0; col < boxes[row].length; ++col) {
+				if (boxes[row][col] == replacedChar) {
+					boxes[row][col] = 0;
+					walls[row][col] = true;
+				}
+			}
+		}
+	}
+
+	public static Action[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
 
-		return CBS.search(new CBSNode(initialState), frontier);
-
+		return GraphSearch.search(initialState, frontier);
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -132,42 +156,38 @@ public class SearchClient {
 		// Parse the level.
 		BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.US_ASCII));
 		State initialState = SearchClient.parseLevel(serverMessages);
-		// System.err.println(initialState);
 
 		// Select search strategy.
 		Frontier frontier;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
-				case "-cbs":
-					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
-					break;
-				case "-bfs":
-					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
-					break;
-				case "-dfs":
-					frontier = new FrontierDFS();
-					break;
-				case "-astar":
-					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
-					break;
-				case "-wastar":
-					int w = 5;
-					if (args.length > 1) {
-						try {
-							w = Integer.parseUnsignedInt(args[1]);
-						} catch (NumberFormatException e) {
-							System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
-						}
+			case "-bfs":
+				frontier = new FrontierBFS();
+				break;
+			case "-dfs":
+				frontier = new FrontierDFS();
+				break;
+			case "-astar":
+				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+				break;
+			case "-wastar":
+				int w = 5;
+				if (args.length > 1) {
+					try {
+						w = Integer.parseUnsignedInt(args[1]);
+					} catch (NumberFormatException e) {
+						System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
 					}
-					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(new CBSNode(initialState), w));
-					break;
-				case "-greedy":
-					frontier = new FrontierBestFirst(new HeuristicGreedy(new CBSNode(initialState)));
-					break;
-				default:
-					frontier = new FrontierBFS();
-					System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
-							+ "-greedy to set the search strategy.");
+				}
+				frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
+				break;
+			case "-greedy":
+				frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
+				break;
+			default:
+				frontier = new FrontierBFS();
+				System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
+						+ "-greedy to set the search strategy.");
 			}
 		} else {
 			frontier = new FrontierBFS();
@@ -175,12 +195,10 @@ public class SearchClient {
 					+ "set the search strategy.");
 		}
 
-		// Run search.
-		HashMap<Integer, Action[][]> plan;
-		System.err.println("Running Conflict Based Search");
+		// Search for a plan.
+		Action[][] plan;
 		try {
-			plan = SearchClient.ConflictBasedSearch(initialState, frontier);
-			System.err.println("Found CBS plan");
+			plan = SearchClient.search(initialState, frontier);
 		} catch (OutOfMemoryError ex) {
 			System.err.println("Maximum memory usage exceeded.");
 			plan = null;
@@ -190,15 +208,13 @@ public class SearchClient {
 		if (plan == null) {
 			System.err.println("Unable to solve level.");
 			System.exit(0);
-		} else if (plan.size() == 1) {
-			System.err.println("only one agent solution");
-			// System.err.println("plan" + plan.get(0).length);
-			// If there is only one agent, print its plan.
-			for (Action[] jointAction : plan.get(0)) {
-				// System.err.print("jointAction" + jointAction[0].name);
-				for (int action = 0; action < jointAction.length; ++action) {
-					// System.out.print("|");
-					System.err.println("jointAction[action]" +jointAction[action]);
+		} else {
+			System.err.format("Found solution of length %,d.\n", plan.length);
+
+			for (Action[] jointAction : plan) {
+				System.out.print(jointAction[0].name);
+				for (int action = 1; action < jointAction.length; ++action) {
+					System.out.print("|");
 					System.out.print(jointAction[action].name);
 				}
 				System.out.println();
@@ -206,24 +222,6 @@ public class SearchClient {
 				// the server.
 				serverMessages.readLine();
 			}
-		} else {
-			System.err.format("Found solution of length %,d.\n", plan.size());
-			for (int i = 0; i < plan.size(); i ++) {
-				for (Action[] jointAction : plan.get(i)) {
-					
-					System.out.print(jointAction[0].name);
-					for (int action = 1; action < jointAction.length; ++action) {
-						System.out.print("|");
-						System.out.print(jointAction[action].name);
-					}
-					System.out.println();
-					// We must read the server's response to not fill up the stdin buffer and block
-					// the server.
-					serverMessages.readLine();
-				}
-			}
-			
 		}
-
 	}
 }

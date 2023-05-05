@@ -1,7 +1,7 @@
 package searchclient;
 
 import java.util.Locale;
- 
+
 public enum Color
 {
     Blue,

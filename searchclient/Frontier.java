@@ -5,49 +5,58 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
-public interface Frontier {
-    void add(CBSNode node);
-    CBSNode pop();
+public interface Frontier
+{
+    void add(State state);
+    State pop();
     boolean isEmpty();
     int size();
-    boolean contains(CBSNode node);
+    boolean contains(State state);
     String getName();
 }
 
-class FrontierBFS implements Frontier {
-    private final ArrayDeque<CBSNode> queue = new ArrayDeque<>(65536);
-    private final HashSet<CBSNode> set = new HashSet<>(65536);
+class FrontierBFS
+        implements Frontier
+{
+    private final ArrayDeque<State> queue = new ArrayDeque<>(65536);
+    private final HashSet<State> set = new HashSet<>(65536);
 
     @Override
-    public void add(CBSNode node) {
-        this.queue.addLast(node);
-        this.set.add(node);
+    public void add(State state)
+    {
+        this.queue.addLast(state);
+        this.set.add(state);
     }
 
     @Override
-    public CBSNode pop() {
-        CBSNode node = this.queue.pollFirst();
-        this.set.remove(node);
-        return node;
+    public State pop()
+    {
+        State state = this.queue.pollFirst();
+        this.set.remove(state);
+        return state;
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return this.queue.isEmpty();
     }
 
     @Override
-    public int size() {
+    public int size()
+    {
         return this.queue.size();
     }
 
     @Override
-    public boolean contains(CBSNode node) {
-        return this.set.contains(node);
+    public boolean contains(State state)
+    {
+        return this.set.contains(state);
     }
 
     @Override
-    public String getName() {
+    public String getName()
+    {
         return "breadth-first search";
     }
 }
@@ -55,20 +64,20 @@ class FrontierBFS implements Frontier {
 class FrontierDFS
         implements Frontier
 {
-    private final  Stack<CBSNode> stack = new Stack<>();
-    private final  HashSet<CBSNode> set = new HashSet<>(65536);
+    private final  Stack<State> stack = new Stack<>();
+    private final  HashSet<State> set = new HashSet<>(65536);
     
     @Override
-    public void add(CBSNode state)
+    public void add(State state)
     {
         this.stack.add(state);
         this.set.add(state);
     }
 
     @Override
-    public CBSNode pop()
+    public State pop()
     {
-        CBSNode n = this.stack.pop();
+        State n = this.stack.pop();
         this.set.remove(n);
         return n;
     }
@@ -86,7 +95,7 @@ class FrontierDFS
     }
 
     @Override
-    public boolean contains(CBSNode state)
+    public boolean contains(State state)
     {
     	return this.set.contains(state);
     }
@@ -97,47 +106,57 @@ class FrontierDFS
         return "depth-first search";
     }
 }
-class FrontierBestFirst implements Frontier {
+
+class FrontierBestFirst
+        implements Frontier
+{
     private Heuristic heuristic;
-    private final PriorityQueue<CBSNode> priorityQueue;
-    private final HashSet<CBSNode> set;
+    private final  PriorityQueue<State> priorityQueue;
+    private final  HashSet<State> set;
 
-    public FrontierBestFirst(Heuristic h) {
+    public FrontierBestFirst(Heuristic h)
+    {
         this.heuristic = h;
-        this.priorityQueue = new PriorityQueue<CBSNode>(this.heuristic);
-        this.set = new HashSet<CBSNode>(65536);
+        this.priorityQueue = new PriorityQueue<State>(this.heuristic);
+        this.set = new HashSet<State>(65536);
     }
 
     @Override
-    public void add(CBSNode node) {
-        this.priorityQueue.add(node);
-        this.set.add(node);
+    public void add(State state)
+    {
+        this.priorityQueue.add(state);
+        this.set.add(state);
     }
 
     @Override
-    public CBSNode pop() {
-        CBSNode node = this.priorityQueue.poll();
-        this.set.remove(node);
-        return node;
+    public State pop()
+    {
+        State state = this.priorityQueue.poll();
+        this.set.remove(state);
+        return state;
     }
 
     @Override
-    public boolean isEmpty() {
-        return this.priorityQueue.isEmpty();
+    public boolean isEmpty()
+    {
+    	return this.priorityQueue.isEmpty();
     }
 
     @Override
-    public int size() {
-        return this.priorityQueue.size();
+    public int size()
+    {
+    	return this.priorityQueue.size();
     }
 
     @Override
-    public boolean contains(CBSNode node) {
-        return this.set.contains(node);
+    public boolean contains(State state)
+    {
+    	return this.set.contains(state);
     }
 
     @Override
-    public String getName() {
+    public String getName()
+    {
         return String.format("best-first search using %s", this.heuristic.toString());
     }
 }
