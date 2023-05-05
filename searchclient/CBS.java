@@ -56,11 +56,11 @@ public class CBS {
                 for (int i = 0; i < node.getState().agentRows.length; i++) {
 
                     if (!agentPlans.containsKey(i)) {
-                        // System.err.println("plan doesnt exist for agent " + i);
+                        System.err.println("plan doesnt exist for agent " + i);
 
                         // The plan for this agent has not been computed yet
                         Action[][] agentPlan = GraphSearch.search(node, i, frontier);
-                        // System.err.println("agent plan" + agentPlan);
+                        System.err.println("agent plan" + agentPlan);
                         agentPlans.put(i, agentPlan);
                     }
                 }

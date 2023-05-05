@@ -72,20 +72,3 @@ class ManhattanDistance extends Distances {
         return sum;
     }
 }
-
-class EuclideanDistanceWithoutRoot extends Distances {
-    public EuclideanDistanceWithoutRoot( char[][] goals, char[][] boxes) {
-		super(goals, boxes);
-	}
-
-
-    @Override
-    public int calculate() {
-        int sum = 0;
-        for (HashMap.Entry<Character, int[]> set : this.coordinates.entrySet()) {
-            int[] location = set.getValue();
-            sum += Math.pow(location[2] - location[0], 2) + Math.pow(location[3] - location[1], 2);
-        }
-        return sum;
-    }
-}

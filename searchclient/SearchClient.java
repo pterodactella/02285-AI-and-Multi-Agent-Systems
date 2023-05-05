@@ -139,7 +139,7 @@ public class SearchClient {
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
 				case "-cbs":
-					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(new CBSNode(initialState), 5));
+					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
 					break;
 				case "-bfs":
 					frontier = new FrontierBestFirst(new HeuristicAStar(new CBSNode(initialState)));
