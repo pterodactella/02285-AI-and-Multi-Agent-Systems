@@ -1,10 +1,10 @@
 package searchclient.CBS;
-
-import java.util.Stack;
-
+// import java.util.Stack;
 import searchclient.Action;
 import searchclient.State;
-import searchclient.CBS.Constraint;
+// import searchclient.CBS.Constraint;
+import java.util.PriorityQueue;
+import java.util.Comparator;
 
 public class PathFinder {
 	private State initialState;
@@ -17,14 +17,20 @@ public class PathFinder {
 		CBSNode root = new CBSNode(this.initialState);
 		root.solution = root.findPlan();
 		root.cost = root.sumCosts();
-		
-		//TODO: Replace with priority qyueyue
-		Stack<CBSNode> open = new Stack<>();
+
+		//TODO: Replace with priority queue (Done)
+		// Stack<CBSNode> open = new Stack<>();
+		PriorityQueue<CBSNode> open = new PriorityQueue<>(new Comparator<CBSNode>() {
+			@Override
+			public int compare(CBSNode n1, CBSNode n2) {
+				return Integer.compare(n1.cost, n2.cost);
+			}
+		});
 		open.add(root);
 		
 		
-		while(!open.empty()) {
-			CBSNode p = open.pop();
+		while(!open.isEmpty()) {
+			CBSNode p = open.poll();
 			Conflict c = p.findFirstConflict();
 			
 			
@@ -39,11 +45,17 @@ public class PathFinder {
 				 a.solution = new Action[p.solution.length][];
 				 for(int i = 0; i < p.solution.length; i++)
 					    a.solution[i] = p.solution[i].clone();
-				 //TODO: Recalculate only for one(agentIndex)
-				 a.solution = a.findPlan();
-				 a.cost = a.sumCosts();
+						
+				//TODO: Recalculate only for one(agentIndex) (Done)
+				//  a.solution = a.findPlan();
+				//  a.cost = a.sumCosts();
+
+				Action[][] individualPlans = a.findPlan();
+				a.solution[agentIndex] = individualPlans[agentIndex];
+				a.cost = a.sumCosts();
 				 
-				 //TODO: use a number instead of infinity
+				 //TODO: use a number instead of infinity (Done) 
+				 a.cost = Integer.MAX_VALUE;
 				 open.add(a);
 			 }
 		}
@@ -52,3 +64,4 @@ public class PathFinder {
 	}
 
 }
+

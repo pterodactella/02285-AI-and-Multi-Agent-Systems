@@ -8,20 +8,7 @@ public class GraphSearch {
 
     public static Action[][] search(State initialState, Frontier frontier)
     {
-        boolean outputFixedSolution = false;
-
-        if (outputFixedSolution) {
-            //Part 1:
-            //The agents will perform the sequence of actions returned by this method.
-            //Try to solve a few levels by hand, enter the found solutions below, and run them:
-
-            return new Action[][] {
-                {Action.MoveS},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveS},
-            };
-        } else {
+        
             //Part 2:
             //Now try to implement the Graph-Search algorithm from R&N figure 3.7
             //In the case of "failure to find a solution" you should return null.
@@ -66,7 +53,6 @@ public class GraphSearch {
 
                 //Your code here... Don't forget to print out the stats when a solution has been found (see above)
             }
-        }
     }
 
 
