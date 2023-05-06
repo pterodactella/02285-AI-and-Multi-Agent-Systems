@@ -119,7 +119,7 @@ public class SearchClient {
 	public static void printMatrix(boolean[][] walls) {
 		for (int i = 0; i < walls.length; i++) {
 			for (int j = 0; j < walls[i].length; j++) {
-				System.err.print(walls[i][j] + " ");
+				// System.err.print(walls[i][j] + " ");
 			}
 			System.err.println();
 		}

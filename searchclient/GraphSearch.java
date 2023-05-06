@@ -9,20 +9,6 @@ public class GraphSearch {
     public static Action[][] search(State initialState, Frontier frontier)
     {
         
-            //Part 2:
-            //Now try to implement the Graph-Search algorithm from R&N figure 3.7
-            //In the case of "failure to find a solution" you should return null.
-            //Some useful methods on the state class which you will need to use are:
-            //state.isGoalState() - Returns true if the state is a goal state.
-            //state.extractPlan() - Returns the Array of actions used to reach this state.
-            //state.getExpandedStates() - Returns an ArrayList<State> containing the states reachable from the current state.
-            //You should also take a look at Frontier.java to see which methods the Frontier interface exposes
-            //
-            //printSearchStates(expanded, frontier): As you can see below, the code will print out status 
-            //(#expanded states, size of the frontier, #generated states, total time used) for every 10000th node generated.
-            //You should also make sure to print out these stats when a solution has been found, so you can keep 
-            //track of the exact total number of states generated!!
-
 
             int iterations = 0;
 
