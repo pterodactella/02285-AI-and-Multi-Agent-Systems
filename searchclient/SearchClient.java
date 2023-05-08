@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 
+import searchclient.CBS.CBSNode;
+
 public class SearchClient {
 	public static State parseLevel(BufferedReader serverMessages) throws IOException {
 		// We can assume that the level file is conforming to specification, since the
@@ -119,7 +121,7 @@ public class SearchClient {
 	public static void printMatrix(boolean[][] walls) {
 		for (int i = 0; i < walls.length; i++) {
 			for (int j = 0; j < walls[i].length; j++) {
-				// System.err.print(walls[i][j] + " ");
+				System.err.print(walls[i][j] + " ");
 			}
 			System.err.println();
 		}
@@ -139,8 +141,11 @@ public class SearchClient {
 
 	public static Action[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
+		CBSNode root = new CBSNode(initialState);
+		root.solution = root.findPlan();
 
-		return GraphSearch.search(initialState, frontier);
+//		return GraphSearch.search(initialState, frontier);
+		return null;
 	}
 
 	public static void main(String[] args) throws IOException {
