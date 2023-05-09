@@ -204,6 +204,55 @@ public class State
         return true;
     }
 
+    public boolean isGoalState(int agentIndex)
+{
+    int agentRow = this.agentRows[agentIndex];
+    int agentCol = this.agentCols[agentIndex];
+    char agentGoal = this.goals[agentRow][agentCol];
+
+    // Check if the agent is already at its goal state
+    if (this.boxes[agentRow][agentCol] == agentGoal) {
+        return true;
+    }
+
+    // Check if any other agent is blocking the path to the goal state
+    for (int row = 1; row < this.goals.length - 1; row++) {
+        for (int col = 1; col < this.goals[row].length - 1; col++) {
+            char goal = this.goals[row][col];
+
+            if (goal == agentGoal) {
+                // This is the agent's goal state
+                if (!(row == agentRow && col == agentCol)) {
+                    // Check if any other agent is blocking the path to the goal state
+                    int dx = Integer.signum(col - agentCol);
+                    int dy = Integer.signum(row - agentRow);
+                    int x = agentCol + dx;
+                    int y = agentRow + dy;
+
+                    while (x != col || y != row) {
+                        if (this.boxes[y][x] != ' ' && this.boxes[y][x] != agentGoal) {
+                            // Another agent is blocking the path to the goal state
+                            return false;
+                        }
+                        x += dx;
+                        y += dy;
+                    }
+                }
+            } else if ('A' <= goal && goal <= 'Z' && this.boxes[row][col] != goal) {
+                // A box is not on its goal
+                return false;
+            } else if ('0' <= goal && goal <= '9' &&
+                    !(this.agentRows[goal - '0'] == row && this.agentCols[goal - '0'] == col)) {
+                // An agent is not at its goal
+                return false;
+            }
+        }
+    }
+
+    // All boxes are on their goals and all agents are at their goals or not blocking
+    return true;
+}
+
     public ArrayList<State> getExpandedStates()
     {
         int numAgents = this.agentRows.length;

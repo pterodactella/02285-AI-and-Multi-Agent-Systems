@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import searchclient.CBS.CBSNode;
+import searchclient.CBS.PlanStep;
 import searchclient.Heuristic;
 
 public class SearchClient {
@@ -115,7 +116,7 @@ public class SearchClient {
 			}
 		}
 		SearchClient.printMatrix(walls);
-		
+
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
 
@@ -140,13 +141,13 @@ public class SearchClient {
 		}
 	}
 
-	public static Action[][] search(State initialState, Frontier frontier) {
+	public static PlanStep[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
 		CBSNode root = new CBSNode(initialState);
 		root.solution = root.findPlan();
 
-//		return GraphSearch.search(initialState, frontier);
-		return null;
+		// return GraphSearch.search(initialState, frontier);
+		return root.solution;
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -167,38 +168,38 @@ public class SearchClient {
 		Frontier frontier;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
-			case "-cbs":
-				CBSNode cbsNode = new CBSNode(initialState);
-				cbsNode.findPlan(); 
-				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
-				break;
-			case "-bfs":
-				frontier = new FrontierBFS();
-				break;
-			case "-dfs":
-				frontier = new FrontierDFS();
-				break;
-			case "-astar":
-				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
-				break;
-			case "-wastar":
-				int w = 5;
-				if (args.length > 1) {
-					try {
-						w = Integer.parseUnsignedInt(args[1]);
-					} catch (NumberFormatException e) {
-						System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
+				case "-cbs":
+					CBSNode cbsNode = new CBSNode(initialState);
+					cbsNode.findPlan();
+					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					break;
+				case "-bfs":
+					frontier = new FrontierBFS();
+					break;
+				case "-dfs":
+					frontier = new FrontierDFS();
+					break;
+				case "-astar":
+					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					break;
+				case "-wastar":
+					int w = 5;
+					if (args.length > 1) {
+						try {
+							w = Integer.parseUnsignedInt(args[1]);
+						} catch (NumberFormatException e) {
+							System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
+						}
 					}
-				}
-				frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
-				break;
-			case "-greedy":
-				frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
-				break;
-			default:
-				frontier = new FrontierBFS();
-				System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
-						+ "-greedy to set the search strategy.");
+					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
+					break;
+				case "-greedy":
+					frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
+					break;
+				default:
+					frontier = new FrontierBFS();
+					System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
+							+ "-greedy to set the search strategy.");
 			}
 
 		} else {
@@ -208,7 +209,7 @@ public class SearchClient {
 		}
 
 		// Search for a plan.
-		Action[][] plan;
+		PlanStep[][] plan;
 		try {
 			plan = SearchClient.search(initialState, frontier);
 		} catch (OutOfMemoryError ex) {
@@ -223,11 +224,11 @@ public class SearchClient {
 		} else {
 			System.err.format("Found solution of length %,d.\n", plan.length);
 
-			for (Action[] jointAction : plan) {
-				System.out.print(jointAction[0].name);
+			for (PlanStep[] jointAction : plan) {
+				System.out.print(jointAction[0].action.name);
 				for (int action = 1; action < jointAction.length; ++action) {
 					System.out.print("|");
-					System.out.print(jointAction[action].name);
+					System.out.print(jointAction[action].action.name);
 				}
 				System.out.println();
 				// We must read the server's response to not fill up the stdin buffer and block
