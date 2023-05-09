@@ -19,9 +19,13 @@ public class PathFinder implements Comparator<CBSNode> {
 		CBSNode root = new CBSNode(this.initialState);
 		root.solution = root.findPlan();
 		root.cost = root.sumCosts();
-
-		// TODO: Replace with priority qyueyue
-		PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
+		//  use priority queue
+		PriorityQueue<CBSNode> open = new PriorityQueue<>(new Comparator<CBSNode>() {
+			@Override
+			public int compare(CBSNode n1, CBSNode n2) {
+				return Integer.compare(n1.cost, n2.cost);
+			}
+		});
 		open.add(root);
 
 		while (!open.isEmpty()) {
@@ -39,13 +43,19 @@ public class PathFinder implements Comparator<CBSNode> {
 				a.solution = new PlanStep[p.solution.length][];
 				for (int i = 0; i < p.solution.length; i++)
 					a.solution[i] = p.solution[i].clone();
-				// TODO: Recalculate only for one(agentIndex)
-				a.solution = a.findPlan();
+
+					
+				// Recalculate only for one(agentIndex)
+				PlanStep[][] individualPlans = a.findPlan();
+				a.solution[agentIndex] = individualPlans[agentIndex];
 				a.cost = a.sumCosts();
 
-				// TODO: use a number instead of infinity
+				// use a number instead of infinity
+				a.cost = Integer.MAX_VALUE;
 				open.add(a);
+				
 			}
+			
 		}
 
 		return null;

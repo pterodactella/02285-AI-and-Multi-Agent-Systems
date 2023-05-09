@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import searchclient.CBS.CBSNode;
+import searchclient.Heuristic;
 
 public class SearchClient {
 	public static State parseLevel(BufferedReader serverMessages) throws IOException {
@@ -166,6 +167,11 @@ public class SearchClient {
 		Frontier frontier;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
+			case "-cbs":
+				CBSNode cbsNode = new CBSNode(initialState);
+				cbsNode.findPlan(); 
+				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+				break;
 			case "-bfs":
 				frontier = new FrontierBFS();
 				break;
@@ -194,6 +200,7 @@ public class SearchClient {
 				System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
 						+ "-greedy to set the search strategy.");
 			}
+
 		} else {
 			frontier = new FrontierBFS();
 			System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or -greedy to "

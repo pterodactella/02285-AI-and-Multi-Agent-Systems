@@ -22,7 +22,7 @@ Starting the server using the searchclient:
     $ java -jar mavis.jar -l levels/SAD1.lvl -c "java searchclient.SearchClient" -g -s 150 -t 180
 
 The searchclient uses the BFS strategy by default. Use arguments -dfs, -astar, -wastar, or -greedy to set alternative search strategies (after you implement them). For instance, to use DFS on the same level as above:
-    $ java -jar mavis.jar -l levels/SAD1.lvl -c "java searchclient.SearchClient -dfs" -g -s 150 -t 180
+    $ java -jar mavis.jar -l levels/MAPF00.lvl -c "java searchclient.SearchClient -cbs" -g -s 150 -t 180
 
 Memory settings:
     * Unless your hardware is unable to support this, you should let the JVM allocate at least 4GB of memory for the searchclient *
