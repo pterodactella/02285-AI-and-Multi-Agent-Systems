@@ -157,7 +157,9 @@ public class ConstraintState {
 			for (int col = 1; col < this.goals[row].length - 1; col++) {
 				char goal = this.goals[row][col];
 
-				if ('A' <= goal && goal <= 'Z' && ConstraintState.boxColors[goal - 'A'] == ConstraintState.agentColors[this.agent] && this.boxes[row][col] != goal) {
+				if ('A' <= goal && goal <= 'Z'
+						&& ConstraintState.boxColors[goal - 'A'] == ConstraintState.agentColors[this.agent]
+						&& this.boxes[row][col] != goal) {
 					return false;
 				} else if (goal == this.agent + '0'
 						&& !(this.agentRows[goal - '0'] == row && this.agentCols[goal - '0'] == col)) {
@@ -182,41 +184,15 @@ public class ConstraintState {
 			}
 		}
 		Action[] applicableActions = agentActions.toArray(new Action[0]);
+//		for (Action a: applicableActions) {
+//			System.err.print(a + "; ");
+//		}
+//		System.err.println();
 
 		// Iterate over joint actions, check conflict and generate child states.
 //		Action[] jointAction = new Action[numAgents];
 //		int[] actionsPermutation = new int[numAgents];
 		ArrayList<ConstraintState> expandedStates = new ArrayList<>(16);
-
-//		while (true) {
-//			for (int agent = 0; agent < numAgents; ++agent) {
-//				jointAction[agent] = applicableActions[agent][actionsPermutation[agent]];
-//			}
-//
-////            if (!this.isConflicting(jointAction))
-////            {
-//			expandedStates.add(new ConstraintState(this, jointAction));
-////            }
-//
-//			// Advance permutation
-//			boolean done = false;
-//			for (int agent = 0; agent < numAgents; ++agent) {
-//				if (actionsPermutation[agent] < applicableActions[agent].length - 1) {
-//					++actionsPermutation[agent];
-//					break;
-//				} else {
-//					actionsPermutation[agent] = 0;
-//					if (agent == numAgents - 1) {
-//						done = true;
-//					}
-//				}
-//			}
-//
-//			// Last permutation?
-//			if (done) {
-//				break;
-//			}
-//		}
 
 		for (Action nextAction : applicableActions) {
 			expandedStates.add(new ConstraintState(this, nextAction));
@@ -226,9 +202,16 @@ public class ConstraintState {
 	}
 
 	private boolean violatesConstraints(int agentCol, int agentRow) {
+//		System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " + this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
+//		for (Constraint constr: this.constraints) {
+//			System.err.print(constr.toString() + "; ");
+//		}
+//		System.err.println("\n");
+		
 		for (Constraint constraint : this.constraints) {
-			if (this.timestamp == constraint.timestamp && constraint.locationX == agentCol
+			if (this.timestamp == constraint.timestamp - 1 && constraint.locationX == agentCol
 					&& constraint.locationY == agentRow) {
+//				System.err.println("VIOLATES CONSTRAINT: " + constraint);
 				return true;
 			}
 		}
@@ -251,10 +234,14 @@ public class ConstraintState {
 		case Move:
 			destinationRow = agentRow + action.agentRowDelta;
 			destinationCol = agentCol + action.agentColDelta;
+
+			if (!this.cellIsFree(destinationRow, destinationCol)) {
+				return false;
+			}
 			if (violatesConstraints(destinationCol, destinationRow)) {
 				return false;
 			}
-			return this.cellIsFree(destinationRow, destinationCol);
+			return true;
 
 		case Push:
 			destinationRow = agentRow + action.agentRowDelta;
@@ -458,7 +445,8 @@ public class ConstraintState {
 				&& Arrays.equals(this.agentColors, other.agentColors) && Arrays.deepEquals(this.walls, other.walls)
 				&& Arrays.deepEquals(this.boxes, other.boxes) && Arrays.equals(this.boxColors, other.boxColors)
 				&& Arrays.deepEquals(this.goals, other.goals) && this.agent == other.agent
-				&& this.constraints.equals(other.constraints);
+				&& this.constraints.equals(other.constraints)
+				&& this.timestamp == other.timestamp;
 	}
 
 	@Override

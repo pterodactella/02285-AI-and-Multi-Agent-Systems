@@ -10,6 +10,8 @@ import searchclient.CBS.Constraint;
 
 public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
+	private static int triedTimes = 0;
+	private static final int MAX_DEBUG_TRIALS=3;
 
 	public PathFinder(State initialState) {
 		this.initialState = initialState;
@@ -18,14 +20,10 @@ public class PathFinder implements Comparator<CBSNode> {
 	public PlanStep[][] solveCBS() {
 		CBSNode root = new CBSNode(this.initialState);
 		root.solution = root.findPlan();
-		root.cost = root.sumCosts();
-		//  use priority queue
-		PriorityQueue<CBSNode> open = new PriorityQueue<>(new Comparator<CBSNode>() {
-			@Override
-			public int compare(CBSNode n1, CBSNode n2) {
-				return Integer.compare(n1.cost, n2.cost);
-			}
-		});
+		root.totalCost = root.sumCosts();
+
+		// TODO: Replace with priority qyueyue
+		PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
 		open.add(root);
 
 		while (!open.isEmpty()) {
@@ -35,27 +33,32 @@ public class PathFinder implements Comparator<CBSNode> {
 			if (c == null) {
 				return p.solution;
 			}
+			
+			System.err.println("Conflict found: " + c.toString());
+			PathFinder.triedTimes++;
+			System.err.println("#########################################");
+			
+//			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
+//				System.exit(0);
+//			}
 
 			for (int agentIndex : c.agentIndexes) {
-				CBSNode a = new CBSNode(this.initialState);
+				CBSNode a = new CBSNode(p);
 				a.constraints.add(new Constraint(agentIndex, c.locationX, c.locationY, c.timestamp));
 				// a.solution = p.solution
-				a.solution = new PlanStep[p.solution.length][];
-				for (int i = 0; i < p.solution.length; i++)
-					a.solution[i] = p.solution[i].clone();
-
-					
-				// Recalculate only for one(agentIndex)
-				PlanStep[][] individualPlans = a.findPlan();
-				a.solution[agentIndex] = individualPlans[agentIndex];
-				a.cost = a.sumCosts();
-
-				// use a number instead of infinity
-				a.cost = Integer.MAX_VALUE;
-				open.add(a);
 				
+//				System.err.println("CONSTRAINTS FOR: " + agentIndex + ". TIMESTAMP: " + c.timestamp + ": ");
+//				for (Constraint constr: a.constraints) {
+//					System.err.print(constr.toString());
+//				}
+//				System.err.println();
+//				a.findIndividualPlan(agentIndex, a.solution);
+				a.solution = a.findPlan();
+				a.totalCost = a.sumCosts();
+
+				// TODO: use a number instead of infinity
+				open.add(a);
 			}
-			
 		}
 
 		return null;
@@ -63,7 +66,7 @@ public class PathFinder implements Comparator<CBSNode> {
 
 	@Override
 	public int compare(CBSNode n1, CBSNode n2) {
-		return Integer.compare(n1.cost, n2.cost);
+		return Integer.compare(n1.totalCost, n2.totalCost);
 	}
 
 }
