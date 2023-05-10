@@ -1,61 +1,72 @@
 package searchclient.CBS;
-// import java.util.Stack;
-import searchclient.Action;
-import searchclient.State;
-// import searchclient.CBS.Constraint;
+
 import java.util.PriorityQueue;
+import java.util.Stack;
 import java.util.Comparator;
 
-public class PathFinder {
+import searchclient.Action;
+import searchclient.State;
+import searchclient.CBS.Constraint;
+
+public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
-	
+	private static int triedTimes = 0;
+	private static final int MAX_DEBUG_TRIALS=3;
+
 	public PathFinder(State initialState) {
 		this.initialState = initialState;
 	}
-	
-	public Action[][] solveCBS() {
+
+	public PlanStep[][] solveCBS() {
 		CBSNode root = new CBSNode(this.initialState);
 		root.solution = root.findPlan();
-		root.cost = root.sumCosts();
+		root.totalCost = root.sumCosts();
 
-		PriorityQueue<CBSNode> open = new PriorityQueue<>(new Comparator<CBSNode>() {
-			@Override
-			public int compare(CBSNode n1, CBSNode n2) {
-				return Integer.compare(n1.cost, n2.cost);
-			}
-		});
+		// TODO: Replace with priority qyueyue
+		PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
 		open.add(root);
-		
-		
-		while(!open.isEmpty()) {
+
+		while (!open.isEmpty()) {
 			CBSNode p = open.poll();
 			Conflict c = p.findFirstConflict();
-			
-			
-			if(c == null) {
+
+			if (c == null) {
 				return p.solution;
 			}
 			
-			 for (int agentIndex : c.agentIndexes) {
-				 CBSNode a = new CBSNode(this.initialState);
-				 a.constraints.add(new Constraint(agentIndex,c.locationX,c.locationY,c.timestamp));
+			System.err.println("Conflict found: " + c.toString());
+			PathFinder.triedTimes++;
+			System.err.println("#########################################");
+			
+//			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
+//				System.exit(0);
+//			}
 
-				 a.solution = new Action[p.solution.length][];
-				 for(int i = 0; i < p.solution.length; i++)
-					    a.solution[i] = p.solution[i].clone();
-						
+			for (int agentIndex : c.agentIndexes) {
+				CBSNode a = new CBSNode(p);
+				a.constraints.add(new Constraint(agentIndex, c.locationX, c.locationY, c.timestamp));
+				// a.solution = p.solution
+				
+//				System.err.println("CONSTRAINTS FOR: " + agentIndex + ". TIMESTAMP: " + c.timestamp + ": ");
+//				for (Constraint constr: a.constraints) {
+//					System.err.print(constr.toString());
+//				}
+//				System.err.println();
+//				a.findIndividualPlan(agentIndex, a.solution);
+				a.solution = a.findPlan();
+				a.totalCost = a.sumCosts();
 
-				Action[][] individualPlans = a.findPlan();
-				a.solution[agentIndex] = individualPlans[agentIndex];
-				a.cost = a.sumCosts();
-				 
-				 a.cost = Integer.MAX_VALUE;
-				 open.add(a);
-			 }
+				// TODO: use a number instead of infinity
+				open.add(a);
+			}
 		}
-		
+
 		return null;
 	}
 
-}
+	@Override
+	public int compare(CBSNode n1, CBSNode n2) {
+		return Integer.compare(n1.totalCost, n2.totalCost);
+	}
 
+}
