@@ -1,14 +1,14 @@
 package searchclient.CBS;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.PriorityQueue;
+// import java.util.Arrays;
+// import java.util.HashSet;
+// import java.util.PriorityQueue;
 
-import searchclient.Action;
-import searchclient.Frontier;
-import searchclient.GraphSearch;
-import searchclient.Heuristic;
+// import searchclient.Action;
+// import searchclient.Frontier;
+// import searchclient.GraphSearch;
+// import searchclient.Heuristic;
 import searchclient.State;
 
 public class CBSNode {
@@ -57,9 +57,9 @@ public class CBSNode {
 						continue;
 					agentsPositions = new int[] { this.solution[i][j].locationX, this.solution[i][j].locationY,
 							this.solution[i][k].locationX, this.solution[i][k].locationY };
-//					System.err.println("The agents positions are: ")
-//					if(agentsPositions[0] == -1 || agentsPositions[1] == -1)
-//						continue;
+					// System.err.println("The agents positions are: ")
+					// if(agentsPositions[0] == -1 || agentsPositions[1] == -1)
+					// 	continue;
 					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
 						return new Conflict(j, k, agentsPositions[0], agentsPositions[1], i);
 					}
@@ -78,7 +78,7 @@ public class CBSNode {
 
 		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
-//		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
+		//		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
 		System.err.println("THE PLAN FOR: " + agentIndex);
 		for (PlanStep step : plan) {
 			System.err.println("Step: " + step.toString());
@@ -100,10 +100,10 @@ public class CBSNode {
 		for (int i = 0; i < numberOfAgents; i++) {
 
 			findIndividualPlan(i, individualPlans);
-//			System.out.println("THE PLAN FOR: " + i);
-//			for (PlanStep step : plan) {
-//				System.out.println("Step: " + step.toString());
-//			}
+			//			System.out.println("THE PLAN FOR: " + i);
+			//			for (PlanStep step : plan) {
+			//				System.out.println("Step: " + step.toString());
+			//			}
 			// TODO: Add search with constraint
 
 		}
