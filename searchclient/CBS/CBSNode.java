@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 
 import searchclient.Action;
+import searchclient.Color;
 import searchclient.Frontier;
 import searchclient.GraphSearch;
 import searchclient.Heuristic;
@@ -94,7 +95,7 @@ public class CBSNode {
 	}
 
 	public PlanStep[][] findPlan() {
-		int numberOfAgents = state.agentRows.length;
+		int numberOfAgents = this.state.agentRows.length;
 		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
 		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
 
