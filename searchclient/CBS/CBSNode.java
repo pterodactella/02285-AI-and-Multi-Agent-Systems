@@ -16,109 +16,106 @@ public class CBSNode {
 	public State state;
 	public ArrayList<Constraint> constraints;
 	public PlanStep[][] solution;
-	public int cost;
+	public int[] costs;
 	private int longestPath;
+	public int totalCost;
 
 	public CBSNode(State state) {
 		this.state = state;
 		this.constraints = new ArrayList<>();
 		this.solution = null;
-		this.cost = 0;
+		this.costs = new int[state.agentRows.length];
+		this.totalCost = 0;
+	}
+	
+	public CBSNode(CBSNode parent) {
+		this.state = parent.state;
+		this.constraints = new ArrayList<>();
+		for(Constraint constr : parent.constraints) {
+			this.constraints.add(new Constraint(constr));
+		}
+		
+		this.solution = new PlanStep[parent.solution.length][];
+		for (int i = 0; i < parent.solution.length; i++) {
+			this.solution[i] = new PlanStep[parent.solution[i].length];
+			for (int j = 0; j < parent.solution[i].length; j++) {
+				this.solution[i][j] = new PlanStep(parent.solution[i][j]);
+			}
+		}
+		
+		this.costs = parent.costs.clone();
+		this.totalCost = 0;
 	}
 
 	public Conflict findFirstConflict() {
-		for (int i = 0; i < this.longestPath; i++) {
-			for (int j = 0; j < this.solution.length; j++) {
-				for (int k = j; k < this.solution.length; k++) {
-					PlanStep step1 = (i < this.solution[j].length) ? this.solution[j][i]
-							: this.solution[j][this.solution[j].length - 1];
-					PlanStep step2 = (i < this.solution[k].length) ? this.solution[k][i]
-							: this.solution[k][this.solution[k].length - 1];
-
-					if (step1.action != Action.NoOp && step2.action != Action.NoOp
-							&& (step1.action.agentRowDelta != 0 || step1.action.agentColDelta != 0 ||
-									step2.action.agentRowDelta != 0 || step2.action.agentColDelta != 0)) {
-						int agent1Row = this.state.agentRows[j];
-						int agent1Col = this.state.agentCols[j];
-						int newRow1 = agent1Row + step1.action.agentRowDelta;
-						int newCol1 = agent1Col + step1.action.agentColDelta;
-
-						int agent2Row = this.state.agentRows[k];
-						int agent2Col = this.state.agentCols[k];
-						int newRow2 = agent2Row + step2.action.agentRowDelta;
-						int newCol2 = agent2Col + step2.action.agentColDelta;
-
-						// Check if agents are occupying each other's goal positions
-						boolean agent1AtAgent2Goal = this.state.goals[newRow1][newCol1] == state.boxes[agent2Row][agent2Col];
-						boolean agent2AtAgent1Goal = this.state.goals[newRow2][newCol2] == state.boxes[agent1Row][agent1Col];
-
-						if ((agent1AtAgent2Goal || agent2AtAgent1Goal) &&
-								this.state.isGoalState(j) &&
-								this.state.isGoalState(k)) {
-							// Conflict found: agents are blocking each other's goal positions
-							return new Conflict(j, k, newRow1, newCol1, i);
-						}
+		int[] agentsPositions = null;
+		for (int i = 1; i < this.longestPath; i++) {
+			for (int j = 0; j < this.solution[i].length; j++) {
+				if(this.solution[i][j].locationX == -1)
+					continue;
+				for (int k = j + 1; k < this.solution[i].length; k++) {
+					if(this.solution[i][k].locationX == -1)
+						continue;
+					agentsPositions = new int[] { this.solution[i][j].locationX, this.solution[i][j].locationY,
+							this.solution[i][k].locationX, this.solution[i][k].locationY };
+//					System.err.println("The agents positions are: ")
+//					if(agentsPositions[0] == -1 || agentsPositions[1] == -1)
+//						continue;
+					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
+						return new Conflict(j, k, agentsPositions[0], agentsPositions[1], i);
 					}
 				}
 			}
 		}
+
+		// TODO: findConflct
 		return null;
+
 	}
 
-// TODO: change goals for one agent only
-	public State createConstraintStateForAgent(int agentIndex) {
-		// Create a new ArrayList of constraints to store the constraints for the
-		// specified agent
-		// ArrayList<Constraint> agentConstraints = new ArrayList<>();
+	public void findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
 
-		// // Add all the constraints that involve the specified agent to the
-		// // agentConstraints ArrayList
-		// for (Constraint constraint : constraints) {
-		// 	if (constraint.agentIndex == agentIndex) {
-		// 		agentConstraints.add(constraint);
-		// 	}
-		// }
+		ConstraintState constraintState = new ConstraintState(this.state, agentIndex, this.constraints, 0);
 
-		// // Create a new ConstraintState object and initialize it with the necessary
-		// // state variables
-		// ConstraintState agentState = new ConstraintState(this.state, agentIndex, agentConstraints, 0);
-		// agentState.agentColors = new Color[] { this.state.agentColors[agentIndex] };
+		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
+//		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
+		System.err.println("THE PLAN FOR: " + agentIndex);
+		for (PlanStep step : plan) {
+			System.err.println("Step: " + step.toString());
+		}
+		if (plan != null && plan.length > this.longestPath) {
+			this.longestPath = plan.length;
+		}
 
-		// return agentState;
-		return this.state;
+		individualPlans[agentIndex] = plan;
+		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
+
 	}
 
 	public PlanStep[][] findPlan() {
 		int numberOfAgents = this.state.agentRows.length;
 		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
-		// System.err.println("NUMBER OF AGENTS" + numberOfAgents);
+		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
 
 		for (int i = 0; i < numberOfAgents; i++) {
 
-			// System.err.println("THE STATE for " + i + " IS: \n" + state.toString());
-			ConstraintState constraintState = new ConstraintState(state, i, this.constraints, 0);
-			// State stateForAgent = createStateForAgent(i);
-			ConstraintFrontier frontier = new ConstraintFrontierBestFirst(
-					new ConstraintHeuristicAStar(constraintState));
-			PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, i);
-			System.err.println("plan for agent " + i + " is: " + Arrays.toString(plan));
-			if (plan != null && plan.length > this.longestPath) {
-				this.longestPath = plan.length;
-			}
-			individualPlans[i] = plan;
-			// System.out.println("THE PLAN FOR: " + i);
-			for (PlanStep step : plan) {
-				System.out.println("Step: " + step.toString());
-			}
+			findIndividualPlan(i, individualPlans);
+//			System.out.println("THE PLAN FOR: " + i);
+//			for (PlanStep step : plan) {
+//				System.out.println("Step: " + step.toString());
+//			}
 			// TODO: Add search with constraint
+
 		}
+
 		return PlanStep.mergePlans(individualPlans);
 	}
 
 	public int sumCosts() {
 		int sum = 0;
-		for (int i = 0; i < this.solution.length; i++) {
-			sum += this.solution[i].length;
+		for (int i = 0; i < this.costs.length; i++) {
+			sum += this.costs[i];
 		}
 		return sum;
 	}
@@ -139,6 +136,16 @@ class Conflict {
 		this.locationY = locationY;
 		this.timestamp = timestamp;
 
+	}
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		s.append("locationX: " + locationX + "; ");
+		s.append("locationY: " + locationY + "; ");
+		s.append("agentB: " + agentIndexes[1] + "; ");
+		s.append("agentA: " + agentIndexes[0] + "; ");
+		s.append("timestamp: " + timestamp + "; ");
+		return s.toString();
 	}
 
 }

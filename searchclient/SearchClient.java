@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import searchclient.CBS.CBSNode;
+import searchclient.CBS.PathFinder;
 import searchclient.CBS.PlanStep;
-import searchclient.Heuristic;
 
 public class SearchClient {
 	public static State parseLevel(BufferedReader serverMessages) throws IOException {
@@ -143,11 +143,10 @@ public class SearchClient {
 
 	public static PlanStep[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
-		CBSNode root = new CBSNode(initialState);
-		root.solution = root.findPlan();
+		PathFinder solver = new PathFinder(initialState);
 
-		// return GraphSearch.search(initialState, frontier);
-		return root.solution;
+//		return GraphSearch.search(initialState, frontier);
+		return solver.solveCBS();
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -168,40 +167,37 @@ public class SearchClient {
 		Frontier frontier;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
-				case "-cbs":
-					CBSNode cbsNode = new CBSNode(initialState);
-					cbsNode.findPlan();
-					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
-					break;
-				case "-bfs":
-					frontier = new FrontierBFS();
-					break;
-				case "-dfs":
-					frontier = new FrontierDFS();
-					break;
-				case "-astar":
-					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
-					break;
-				case "-wastar":
-					int w = 5;
-					if (args.length > 1) {
-						try {
-							w = Integer.parseUnsignedInt(args[1]);
-						} catch (NumberFormatException e) {
-							System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
-						}
+			case "-cbs":
+				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+				break;
+			case "-bfs":
+				frontier = new FrontierBFS();
+				break;
+			case "-dfs":
+				frontier = new FrontierDFS();
+				break;
+			case "-astar":
+				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+				break;
+			case "-wastar":
+				int w = 5;
+				if (args.length > 1) {
+					try {
+						w = Integer.parseUnsignedInt(args[1]);
+					} catch (NumberFormatException e) {
+						System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
 					}
-					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
-					break;
-				case "-greedy":
-					frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
-					break;
-				default:
-					frontier = new FrontierBFS();
-					System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
-							+ "-greedy to set the search strategy.");
+				}
+				frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
+				break;
+			case "-greedy":
+				frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
+				break;
+			default:
+				frontier = new FrontierBFS();
+				System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
+						+ "-greedy to set the search strategy.");
 			}
-
 		} else {
 			frontier = new FrontierBFS();
 			System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or -greedy to "
@@ -225,10 +221,17 @@ public class SearchClient {
 			System.err.format("Found solution of length %,d.\n", plan.length);
 
 			for (PlanStep[] jointAction : plan) {
+				System.err.print(jointAction[0].action.name);
+				for (int action = 1; action < jointAction.length; ++action) {
+					System.err.print("|");
+					System.err.println(jointAction[action].action.name);
+				}
+				System.err.println();
+				
 				System.out.print(jointAction[0].action.name);
 				for (int action = 1; action < jointAction.length; ++action) {
 					System.out.print("|");
-					System.out.print(jointAction[action].action.name);
+					System.out.println(jointAction[action].action.name);
 				}
 				System.out.println();
 				// We must read the server's response to not fill up the stdin buffer and block
