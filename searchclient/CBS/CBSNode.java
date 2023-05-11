@@ -26,14 +26,14 @@ public class CBSNode {
 		this.costs = new int[state.agentRows.length];
 		this.totalCost = 0;
 	}
-	
+
 	public CBSNode(CBSNode parent) {
 		this.state = parent.state;
 		this.constraints = new ArrayList<>();
-		for(Constraint constr : parent.constraints) {
+		for (Constraint constr : parent.constraints) {
 			this.constraints.add(new Constraint(constr));
 		}
-		
+
 		this.solution = new PlanStep[parent.solution.length][];
 		for (int i = 0; i < parent.solution.length; i++) {
 			this.solution[i] = new PlanStep[parent.solution[i].length];
@@ -41,7 +41,7 @@ public class CBSNode {
 				this.solution[i][j] = new PlanStep(parent.solution[i][j]);
 			}
 		}
-		
+
 		this.costs = parent.costs.clone();
 		this.totalCost = 0;
 	}
@@ -50,16 +50,16 @@ public class CBSNode {
 		int[] agentsPositions = null;
 		for (int i = 1; i < this.longestPath; i++) {
 			for (int j = 0; j < this.solution[i].length; j++) {
-				if(this.solution[i][j].locationX == -1)
+				if (this.solution[i][j].locationX == -1)
 					continue;
 				for (int k = j + 1; k < this.solution[i].length; k++) {
-					if(this.solution[i][k].locationX == -1)
+					if (this.solution[i][k].locationX == -1)
 						continue;
 					agentsPositions = new int[] { this.solution[i][j].locationX, this.solution[i][j].locationY,
 							this.solution[i][k].locationX, this.solution[i][k].locationY };
-//					System.err.println("The agents positions are: ")
-//					if(agentsPositions[0] == -1 || agentsPositions[1] == -1)
-//						continue;
+					// System.err.println("The agents positions are: ")
+					// if(agentsPositions[0] == -1 || agentsPositions[1] == -1)
+					// continue;
 					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
 						return new Conflict(j, k, agentsPositions[0], agentsPositions[1], i);
 					}
@@ -78,7 +78,8 @@ public class CBSNode {
 
 		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
-//		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
+		// System.err.println("plan for agent " + agentIndex + " is: " +
+		// Arrays.toString(plan));
 		System.err.println("THE PLAN FOR: " + agentIndex);
 		for (PlanStep step : plan) {
 			System.err.println("Step: " + step.toString());
@@ -100,10 +101,6 @@ public class CBSNode {
 		for (int i = 0; i < numberOfAgents; i++) {
 
 			findIndividualPlan(i, individualPlans);
-//			System.out.println("THE PLAN FOR: " + i);
-//			for (PlanStep step : plan) {
-//				System.out.println("Step: " + step.toString());
-//			}
 			// TODO: Add search with constraint
 
 		}
@@ -118,6 +115,7 @@ public class CBSNode {
 		}
 		return sum;
 	}
+	
 }
 
 class Conflict {
@@ -136,6 +134,7 @@ class Conflict {
 		this.timestamp = timestamp;
 
 	}
+
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();

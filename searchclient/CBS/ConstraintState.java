@@ -72,7 +72,7 @@ public class ConstraintState {
 		this.constraints = constraints;
 		this.timestamp = timestamp;
 		this.agent = agent;
-		System.err.println("Agent is: " + agent);
+		// System.err.println("Agent is: " + agent);
 
 	}
 
@@ -167,7 +167,7 @@ public class ConstraintState {
 				}
 			}
 		}
-		System.err.println("Goal State for: " + this.agent + ":\n" + this.toString());
+		// System.err.println("Goal State for: " + this.agent + ":\n" + this.toString());
 		return true;
 	}
 
