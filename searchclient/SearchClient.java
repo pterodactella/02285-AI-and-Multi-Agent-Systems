@@ -146,7 +146,7 @@ public class SearchClient {
 
 	public static PlanStep[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
-		PathFinder solver = new PathFinder(initialState);
+		PathFinder solver = new PathFinder(initialState, preprocess(initialState));
 
 		return solver.solveCBS();
 	}
@@ -164,7 +164,6 @@ public class SearchClient {
 		// Parse the level.
 		BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.US_ASCII));
 		State initialState = SearchClient.parseLevel(serverMessages);
-		preprocess(initialState);
 		// Select search strategy.
 		Frontier frontier;
 		if (args.length > 0) {

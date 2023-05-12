@@ -3,8 +3,11 @@ package searchclient.CBS;
 import java.util.PriorityQueue;
 import java.util.Stack;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 import searchclient.Action;
+import searchclient.Color;
 import searchclient.State;
 import searchclient.CBS.Constraint;
 
@@ -16,11 +19,13 @@ import searchclient.CBS.Constraint;
 
 public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
+	private HashMap<Color, List<Integer>> preprocessedData;
 	private static int triedTimes = 0;
 	private static final int MAX_DEBUG_TRIALS = 3;
 
-	public PathFinder(State initialState) {
+	public PathFinder(State initialState,  HashMap<Color, List<Integer>> preprocessedData) {
 		this.initialState = initialState;
+		this.preprocessedData = preprocessedData;
 	}
 
 	public PlanStep[][] solveCBS() {
@@ -42,13 +47,7 @@ public class PathFinder implements Comparator<CBSNode> {
 			System.err.println("Conflict found: " + c.toString());
 			PathFinder.triedTimes++;
 			System.err.println("#########################################");
-			int[] delayAndAgentToDelay = calculateDelay(c, p.solution);
-			if (delayAndAgentToDelay[1] > 0) {
-					p.solution = introduceDelay(p.solution, delayAndAgentToDelay[0], delayAndAgentToDelay[1]);
-					p.totalCost = p.sumCosts();
-					printDelayedPlans(p.solution);
 
-				}
 			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
 				System.exit(0);
 			}
@@ -66,6 +65,8 @@ public class PathFinder implements Comparator<CBSNode> {
 				// System.err.println();
 				// a.findIndividualPlan(agentIndex, a.solution);
 				a.solution = a.findPlan();
+				System.err.println("plan found");
+
 				a.totalCost = a.sumCosts();
 
 				// TODO: use a number instead of infinity
@@ -82,53 +83,4 @@ public class PathFinder implements Comparator<CBSNode> {
 	}
 
 
-	private int[] calculateDelay(Conflict conflict, PlanStep[][] individualPlans) {
-		int delay = 0;
-		int agentIndex1 = conflict.agentIndexes[0];
-		int agentIndex2 = conflict.agentIndexes[1];
-	
-		// Determine the agent with lower priority 
-		int agentToDelay = agentIndex1 > agentIndex2 ? agentIndex1 : agentIndex2;
-		int otherAgent = agentIndex1 < agentIndex2 ? agentIndex1 : agentIndex2;
-	
-		// Calculate the delay as the difference between the plan lengths of the agents
-		delay = individualPlans[otherAgent].length - individualPlans[agentToDelay].length;
-	
-		return new int[]{agentToDelay, delay};
-	}
-	private PlanStep[][] introduceDelay(PlanStep[][] plans, int agentToDelay, int delay) {
-		// Introduce a delay for the agent with lower priority by extending its plan with NoOps
-		PlanStep[][] delayedPlans = new PlanStep[plans.length][];
-		for (int i = 0; i < plans.length; i++) {
-			if (i == agentToDelay) {
-				int numSteps = plans[i].length + delay;
-				delayedPlans[i] = new PlanStep[numSteps];
-				System.arraycopy(plans[i], 0, delayedPlans[i], 0, plans[i].length);
-				for (int j = plans[i].length; j < numSteps; j++) {
-					delayedPlans[i][j] = new PlanStep(Action.NoOp, plans[i][plans[i].length - 1].locationX,
-							plans[i][plans[i].length - 1].locationY, j);
-				}
-			} else {
-				delayedPlans[i] = plans[i];
-			}
-		}
-		return delayedPlans;
-	}
-
-
-	private void printDelayedPlans(PlanStep[][] delayedPlans) {
-		System.err.println("Delayeeeeeeeeeeeddddddd plans:");
-		for (int i = 0; i < delayedPlans.length; i++) {
-			System.err.print("Agent " + i + ": ");
-			for (int j = 0; j < delayedPlans[i].length; j++) {
-				System.err.print(delayedPlans[i][j].toString() + ", ");
-			}
-			System.err.println();
-		}
-	}
-	
-
 }
-
-
-
