@@ -161,13 +161,13 @@ public class CBSNode {
 				}
 			}
 
-			// Step 2: Implement a conflict selection strategy
+			// Implement a conflict selection strategy
 			Conflict selectedConflict = selectConflict(conflicts);
 
 			if (selectedConflict == null) {
 				hasConflicts = false;
 			} else {
-				// Step 3: Use an adaptive approach to decide when to add constraints or delay
+				// Use an adaptive approach to decide when to add constraints or delay
 				// agents
 				int[] delayInfo = calculateDelay(selectedConflict, individualPlans);
 				int agentToDelay = delayInfo[0];

@@ -65,13 +65,13 @@ public class PlanStep {
 			}
 		}
 		
-		// for (int i = 0; i < mergedPlans.length; i++) {
-		// 	for (int j = 0; j < mergedPlans[i].length; j++) {
-		// 		System.err.print("[" + mergedPlans[i][j].toString() + "]" + " ");
+		for (int i = 0; i < mergedPlans.length; i++) {
+			for (int j = 0; j < mergedPlans[i].length; j++) {
+				System.err.print("[" + mergedPlans[i][j].toString() + "]" + " ");
 				
-		// 	}
-		// 	System.err.println();
-		// }
+			}
+			System.err.println();
+		}
 
 
 		return mergedPlans;
