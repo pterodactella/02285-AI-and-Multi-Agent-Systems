@@ -224,18 +224,16 @@ public class SearchClient {
 				System.err.print(jointAction[0].action.name);
 				for (int action = 1; action < jointAction.length; ++action) {
 					System.err.print("|");
-					System.err.println(jointAction[action].action.name);
+					System.err.print(jointAction[action].action.name);
 					System.err.print("|");
-					System.err.println(jointAction[action].action.name);
+					System.err.print(jointAction[action].action.name);
 				}
 				System.err.println();
 
 				System.out.print(jointAction[0].action.name);
 				for (int action = 1; action < jointAction.length; ++action) {
 					System.out.print("|");
-					System.out.println(jointAction[action].action.name);
-					System.out.print("|");
-					System.out.println(jointAction[action].action.name);
+					System.out.print(jointAction[action].action.name);
 				}
 				System.out.println();
 				// We must read the server's response to not fill up the stdin buffer and block
