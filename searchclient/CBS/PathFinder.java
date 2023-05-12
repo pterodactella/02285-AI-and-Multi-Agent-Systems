@@ -16,14 +16,7 @@ public class PathFinder implements Comparator<CBSNode> {
 
 	public PathFinder(State initialState) {
 		this.initialState = initialState;
-		// int[] temp ={1};
-		// this.initialState.agentRows= temp} ;
-		this.initialStateForStorage = new InitialState();
-		// System.err.println("==========================: " + initialStateForStorage.getInitialState().agentRowsInitial.length);
-		// for (int i = 0; i < 2; i++) {
-		// 	System.out.print(",i: "+i+ " "+ initialStateForStorage.getInitialState().agentColsInitial[i]);
-		// }
-
+		this.initialStateForStorage =	new InitialState(initialState.agentRows, initialState.agentCols, initialState.agentColors, initialState.walls, initialState.boxes, initialState.boxColors, initialState.goals);
 	}
 
 	public PlanStep[][] solveCBS() {
@@ -40,6 +33,12 @@ public class PathFinder implements Comparator<CBSNode> {
 			Conflict c = p.findFirstConflict();
 
 			if (c == null) {
+				// for(int i=0; i<2; i++) {
+				// 	for(int j=0; j<p.solution.length; j++) {
+				// 		System.err.println("agent "+i+": "+p.solution[j][i].toString());
+				// 	}
+				// 	System.err.println();
+				// }
 				return p.solution;
 			}
 			

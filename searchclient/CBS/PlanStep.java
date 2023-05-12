@@ -41,11 +41,11 @@ public class PlanStep {
 		int numAgents = individualPlans.length;
 
 		for (PlanStep[] plan : individualPlans) {
-//			for (PlanStep step : plan) {
+
 			if (plan != null) {
 				maxTimestamp = Math.max(maxTimestamp, plan[plan.length - 1].timestamp);
 			}
-//			}
+
 		}
 
 		PlanStep[][] mergedPlans = new PlanStep[maxTimestamp + 1][numAgents];

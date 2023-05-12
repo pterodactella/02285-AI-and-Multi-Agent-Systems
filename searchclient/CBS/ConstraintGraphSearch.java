@@ -14,9 +14,12 @@ public class ConstraintGraphSearch {
 
     public static PlanStep[] search(CBSNode cbsNode, ConstraintFrontier frontier, int agent)
     {
-            State specificState = createSpecificState(cbsNode, frontier, agent);
+            // State specificState = createSpecificState(cbsNode, frontier, agent);
 
             int iterations = 0;
+
+            System.out.print(cbsNode.state.toString());
+
 
             frontier.add(new ConstraintState(cbsNode.state, agent, cbsNode.constraints, 0)); // Original version
             // frontier.add(new ConstraintState(specificState, agent, cbsNode.constraints, 0));  // New version
