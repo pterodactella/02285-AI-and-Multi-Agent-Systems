@@ -60,8 +60,8 @@ public class SearchClient {
 			line = serverMessages.readLine();
 		}
 		int numAgents = 0;
-		int[] agentRows = new int[10];
-		int[] agentCols = new int[10];
+		int[] agentRows = new int[20];
+		int[] agentCols = new int[20];
 
 		boolean[][] walls = new boolean[numRows][numCols];
 		char[][] boxes = new char[numRows][numCols];
@@ -119,7 +119,6 @@ public class SearchClient {
 		}
 		//This code prints out all the true false stuff
 		// SearchClient.printMatrix(walls);
-
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
 
@@ -280,6 +279,7 @@ private static HashMap<Color, List<Integer>> preprocess(State initialState) {
                 }
             }
         }
+	
     }
     for (Color color : agentBoxDistances.keySet()) {
         List<Integer> distances = agentBoxDistances.get(color);
