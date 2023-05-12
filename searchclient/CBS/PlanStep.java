@@ -11,12 +11,16 @@ public class PlanStep {
 	int locationX;
 	int locationY;
 	int timestamp;
+	int originalX;
+	int originalY;
 
-	public PlanStep(Action action, int locationX, int locationY, int timestamp) {
+	public PlanStep(Action action, int locationX, int locationY, int timestamp, int originalX, int originalY) {
 		this.action = action;
 		this.locationX = locationX;
 		this.locationY = locationY;
 		this.timestamp = timestamp;
+		this.originalX = originalX;
+		this.originalY = originalY;
 	}
 	
 	public PlanStep(PlanStep copy) {
@@ -24,6 +28,8 @@ public class PlanStep {
 		this.locationX = copy.locationX;
 		this.locationY = copy.locationY;
 		this.timestamp = copy.timestamp;
+		this.originalX = copy.originalX;
+		this.originalY = copy.originalY;
 	}
 
 	@Override
@@ -33,6 +39,8 @@ public class PlanStep {
 		s.append("locationX: " + locationX + "; ");
 		s.append("locationY: " + locationY + "; ");
 		s.append("timestamp: " + timestamp + "; ");
+		s.append("originalX: " + originalX + "; ");
+		s.append("originalY: " + originalY + "; ");
 		return s.toString();
 	}
 
@@ -51,7 +59,7 @@ public class PlanStep {
 		PlanStep[][] mergedPlans = new PlanStep[maxTimestamp + 1][numAgents];
 		for (int t = 0; t <= maxTimestamp; t++) {
 			for (int agent = 0; agent < numAgents; agent++) {
-				mergedPlans[t][agent] = new PlanStep(Action.NoOp, -1, -1, t);
+				mergedPlans[t][agent] = new PlanStep(Action.NoOp, -1, -1, t, -1, -1);
 			}
 		}
 
