@@ -24,12 +24,6 @@ public class ConstraintGraphSearch {
             	}
             	ConstraintState s = frontier.pop();
             	if(s.isGoalState()) {
-//            		for (ConstraintState v : expanded) {
-//            			if (v.timestamp == 4) {
-//            				System.err.println(v.toString());
-//            				System.err.println();
-//            			}
-//            		}
             		return s.extractPlan();
             	}
             	expanded.add(s);
