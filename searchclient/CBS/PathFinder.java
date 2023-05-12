@@ -43,6 +43,7 @@ public class PathFinder implements Comparator<CBSNode> {
 
 			if (c == null) {
 				return p.solution;
+				
 			}
 
 			System.err.println("Conflict found: " + c.toString());

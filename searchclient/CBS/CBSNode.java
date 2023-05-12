@@ -126,14 +126,14 @@ public class CBSNode {
 			System.err.println("Step: " + step.toString());
 		}
 		if (plan != null && plan.length > this.longestPath) {
-			System.err.println("THE PLAN is not null and it is longer");
+			// System.err.println("THE PLAN is not null and it is longer");
 			this.longestPath = plan.length;
 		}
 
 		individualPlans[agentIndex] = plan;
 
 		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
-		System.err.println("this.costs[agentIndex]: " + this.costs[agentIndex]);
+		// System.err.println("this.costs[agentIndex]: " + this.costs[agentIndex]);
 
 	}
 
@@ -188,7 +188,12 @@ public class CBSNode {
 			}
 		}
 
+
 		this.solution = PlanStep.mergePlans(individualPlans); // Update the solution field
+		PlanStep[] agent0solution = this.solution[1];
+		for (PlanStep p: agent0solution) {
+			System.err.println("agent solution at 1" + p.toString());
+		}
 		return this.solution;
 	}
 
@@ -293,42 +298,6 @@ public class CBSNode {
 
 		return newPlan;
 	}
-
-	// private PlanStep[] introduceDelay(PlanStep[] plan, int agentToDelay, int
-	// delay, int ConflictTimestamp) {
-	// // Introduce a delay for the agent with lower priority by extending its plan
-	// // with NoOps
-	// System.err.println("Introducing delay " + delay + " for agent: " +
-	// agentToDelay);
-
-	// int numSteps = plan.length + delay;
-	// PlanStep[] delayedPlan = new PlanStep[numSteps];
-
-	// // Find the index where the delay should be introduced
-	// int delayIndex = ConflictTimestamp;
-
-	// // Copy actions before the delay
-	// System.arraycopy(plan, 0, delayedPlan, 0, delayIndex);
-
-	// // Insert NoOps at the delay index
-	// for (int i = 0; i < delay; i++) {
-	// delayedPlan[delayIndex + i] = new PlanStep(Action.NoOp, plan[delayIndex -
-	// 1].locationX,
-	// plan[delayIndex - 1].locationY, delayIndex + i);
-	// }
-
-	// // Copy actions after the delay
-	// System.arraycopy(plan, delayIndex, delayedPlan, delayIndex + delay,
-	// plan.length - delayIndex);
-
-	// // Print the delayed plan
-	// System.err.println("Delayed plan for agent " + agentToDelay + ": ");
-	// for (PlanStep step : delayedPlan) {
-	// System.err.println("Step: " + step.toString());
-	// }
-
-	// return delayedPlan;
-	// }
 
 	public int sumCosts() {
 		int sum = 0;

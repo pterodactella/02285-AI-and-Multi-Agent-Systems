@@ -117,7 +117,7 @@ public class SearchClient {
 				SearchClient.replaceBoxWithWall(walls, boxes, (char) ('A' + boxCol));
 			}
 		}
-		//This code prints out all the true false stuff
+		// This code prints out all the true false stuff
 		// SearchClient.printMatrix(walls);
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
@@ -227,7 +227,6 @@ public class SearchClient {
 					System.err.println(jointAction[action].action.name);
 				}
 				System.err.println();
-
 				System.out.print(jointAction[0].action.name);
 				for (int action = 1; action < jointAction.length; ++action) {
 					System.out.print("|");
@@ -241,56 +240,55 @@ public class SearchClient {
 		}
 	}
 
-private static HashMap<Color, List<Integer>> preprocess(State initialState) {
-    HashMap<Color, List<Integer>> agentBoxDistances = new HashMap<>();
+	private static HashMap<Color, List<Integer>> preprocess(State initialState) {
+		HashMap<Color, List<Integer>> agentBoxDistances = new HashMap<>();
 
-    for (int agentIndex = 0; agentIndex < initialState.agentRows.length; agentIndex++) {
-        Color agentColor = initialState.agentColors[agentIndex];
-        if (!agentBoxDistances.containsKey(agentColor)) {
-            agentBoxDistances.put(agentColor, new ArrayList<>());
-        }
+		for (int agentIndex = 0; agentIndex < initialState.agentRows.length; agentIndex++) {
+			Color agentColor = initialState.agentColors[agentIndex];
+			if (!agentBoxDistances.containsKey(agentColor)) {
+				agentBoxDistances.put(agentColor, new ArrayList<>());
+			}
 
-        int agentRow = initialState.agentRows[agentIndex];
-        int agentCol = initialState.agentCols[agentIndex];
+			int agentRow = initialState.agentRows[agentIndex];
+			int agentCol = initialState.agentCols[agentIndex];
 
-        for (int row = 0; row < initialState.boxes.length; row++) {
-            for (int col = 0; col < initialState.boxes[row].length; col++) {
-                char box = initialState.boxes[row][col];
-                if (box != 0 && initialState.boxColors[box - 'A'] == agentColor) {
-                    int goalRow = -1;
-                    int goalCol = -1;
-                    for (int goalRowIdx = 0; goalRowIdx < initialState.goals.length; goalRowIdx++) {
-                        for (int goalColIdx = 0; goalColIdx < initialState.goals[goalRowIdx].length; goalColIdx++) {
-                            if (initialState.goals[goalRowIdx][goalColIdx] == box) {
-                                goalRow = goalRowIdx;
-                                goalCol = goalColIdx;
-                                break;
-                            }
-                        }
-                        if (goalRow != -1 && goalCol != -1) {
-                            break;
-                        }
-                    }
-                    int agentDistance = Math.abs(agentRow - goalRow) + Math.abs(agentCol - goalCol);
-                    agentBoxDistances.get(agentColor).add(agentDistance);
+			for (int row = 0; row < initialState.boxes.length; row++) {
+				for (int col = 0; col < initialState.boxes[row].length; col++) {
+					char box = initialState.boxes[row][col];
+					if (box != 0 && initialState.boxColors[box - 'A'] == agentColor) {
+						int goalRow = -1;
+						int goalCol = -1;
+						for (int goalRowIdx = 0; goalRowIdx < initialState.goals.length; goalRowIdx++) {
+							for (int goalColIdx = 0; goalColIdx < initialState.goals[goalRowIdx].length; goalColIdx++) {
+								if (initialState.goals[goalRowIdx][goalColIdx] == box) {
+									goalRow = goalRowIdx;
+									goalCol = goalColIdx;
+									break;
+								}
+							}
+							if (goalRow != -1 && goalCol != -1) {
+								break;
+							}
+						}
+						int agentDistance = Math.abs(agentRow - goalRow) + Math.abs(agentCol - goalCol);
+						agentBoxDistances.get(agentColor).add(agentDistance);
 
-                    int boxDistance = Math.abs(row - goalRow) + Math.abs(col - goalCol);
-                    agentBoxDistances.get(agentColor).add(boxDistance);
-                }
-            }
-        }
-	
-    }
-    for (Color color : agentBoxDistances.keySet()) {
-        List<Integer> distances = agentBoxDistances.get(color);
-        System.err.println("Agent-Goal distances for color " + color + ": " + distances.subList(0, distances.size() / 2));
-        System.err.println("Box-Goal distances for color " + color + ": " + distances.subList(distances.size() / 2, distances.size()));
-    }
+						int boxDistance = Math.abs(row - goalRow) + Math.abs(col - goalCol);
+						agentBoxDistances.get(agentColor).add(boxDistance);
+					}
+				}
+			}
 
-    return agentBoxDistances;
-}
+		}
+		for (Color color : agentBoxDistances.keySet()) {
+			List<Integer> distances = agentBoxDistances.get(color);
+			System.err.println(
+					"Agent-Goal distances for color " + color + ": " + distances.subList(0, distances.size() / 2));
+			System.err.println("Box-Goal distances for color " + color + ": "
+					+ distances.subList(distances.size() / 2, distances.size()));
+		}
 
-	
+		return agentBoxDistances;
+	}
 
-	
 }
