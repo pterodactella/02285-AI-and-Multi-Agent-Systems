@@ -1,10 +1,16 @@
 package searchclient.CBS;
 
+
+
+
+
 import java.util.ArrayList;
 // import java.util.Arrays;
 // import java.util.HashSet;
 // import java.util.PriorityQueue;
+import java.util.Arrays;
 
+import searchclient.Color;
 // import searchclient.Action;
 // import searchclient.Frontier;
 // import searchclient.GraphSearch;
@@ -18,6 +24,7 @@ public class CBSNode {
 	public int[] costs;
 	private int longestPath;
 	public int totalCost;
+	private InitialState initialStateForStorage;
 
 	public CBSNode(State state) {
 		this.state = state;
@@ -74,9 +81,14 @@ public class CBSNode {
 
 	public void findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
 
-		ConstraintState constraintState = new ConstraintState(this.state, agentIndex, this.constraints, 0);
+		// Construct a state with the constructor that takes arguments
+		State searchSpecificState = createSpecificState(agentIndex);
 
+		ConstraintState constraintState = new ConstraintState(searchSpecificState, agentIndex, this.constraints, 0); // we create a state here
 		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+
+		// WE need to create the specific maps here since we have the index here 
+		// and call search on it
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
 		//		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
 		System.err.println("THE PLAN FOR: " + agentIndex);
@@ -90,7 +102,8 @@ public class CBSNode {
 		individualPlans[agentIndex] = plan;
 		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
 
-	}
+	};
+
 
 	public PlanStep[][] findPlan() {
 		int numberOfAgents = state.agentRows.length;
@@ -109,6 +122,146 @@ public class CBSNode {
 		}
 
 		return PlanStep.mergePlans(individualPlans);
+	}
+
+	public PlanStep[][] findPlans() {
+		initialStateForStorage = new InitialState();
+
+		int numberOfAgents = state.agentRows.length;
+		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
+		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
+
+		for (int i = 0; i < numberOfAgents; i++) {
+
+			findIndividualPlan(i, individualPlans);
+			//			System.out.println("THE PLAN FOR: " + i);
+			//			for (PlanStep step : plan) {
+			//				System.out.println("Step: " + step.toString());
+			//			}
+			// TODO: Add search with constraint
+
+		}
+
+		return PlanStep.mergePlans(individualPlans);
+	}
+
+	public State createSpecificState(  int agent) {
+		System.out.println("!!!!!!!!!!!!!!!!!Creating specific state for agent: " + agent);
+		// Create a new state with only the appropriately colored agents
+		// Find the color of the agent  
+		Color agentColor = State.agentColors[agent];
+		System.out.println("Agent color: " + agentColor);
+		// Find everything from that color
+		ArrayList<Integer> sameColoredAgents = new ArrayList<>(State.agentColors.length);
+		// agents
+		for (int i = 0; i < State.agentColors.length; i++) {
+			 if (State.agentColors[i] == agentColor) {
+				  sameColoredAgents.add(i);
+			 }
+		}
+		// boxes
+		ArrayList<Integer> sameColoredBoxes = new ArrayList<>(State.boxColors.length);
+		for (int i = 0; i < State.boxColors.length; i++) {
+			 if (State.boxColors[i] == agentColor) {
+				  sameColoredBoxes.add(i);
+			 }
+		}
+
+		System.out.println("================================ Index of agent: " + agent +",  Color of agent: " + agentColor+ ", Same colored agents: " + sameColoredAgents + ",  Same colored boxes: " + sameColoredBoxes);
+
+      InitialStateObject initialStateObject = initialStateForStorage.getInitialState();
+
+
+		// TODO: Initialize these variables
+		int[] newAgentRows = new int[sameColoredAgents.size() ];
+		int[] newAgentCols =  new int[sameColoredAgents.size() ];
+		Color[] newAgentColors = new Color[sameColoredAgents.size() ]; 
+		// Color[] newAgentColors = { agentColor, agentColor}; //FIX this
+		boolean[][] newWalls = initialStateObject.wallsIntial ;
+		char[][] newBoxes = initialStateObject.boxesInitial; ;
+		Color[] newBoxColors = initialStateObject.boxColors ;
+		char[][] newGoals = initialStateObject.goals ;
+
+		// Set the agent details
+		newAgentRows = setAgentRows(initialStateObject, sameColoredAgents);
+		newAgentCols = setAgentCols(initialStateObject, sameColoredAgents);
+		newAgentColors = setAgentColors(initialStateObject, sameColoredAgents);
+
+		System.out.println("newAgentRows: "+ Arrays.toString(newAgentRows));
+
+		// TODO set box details
+		// TODO set extra walls
+		setExtraWalls(initialStateObject, sameColoredAgents, newWalls);
+
+
+
+		// TODO: create new state, for this new spcificState class is rqeuired WITHOUT THE STATIC fields!
+		// Create a new state with only the appropriately colored elements
+		State newState = new State(newAgentRows, newAgentCols, newAgentColors, newWalls, newBoxes, newBoxColors, newGoals);
+
+		System.out.println("========================================================================");
+		System.out.println(newState.toString() );
+
+		System.out.println("========================================================================");
+		// State newState = cbsNode.state;
+
+		return newState;
+	}
+
+	// TODO set Box details
+
+	private int[] setAgentRows(InitialStateObject initialStateObject, ArrayList agentIndexes  ) {
+		int [] agentRowsFilled = new int[agentIndexes.size() ];
+		// debug
+
+		System.out.println("length of the same colored agents: "+ agentIndexes.size() );
+		for (int i = 0; i < agentIndexes.size(); i++) {
+			// debug
+			// System.out.println("agentRowsInitial.get(i): "+i+": " + initialStateObject.agentRowsInitial[i]);
+			agentRowsFilled[i] = initialStateObject.agentRowsInitial[i];
+		}
+		return agentRowsFilled;
+	}
+
+	private int[] setAgentCols(InitialStateObject initialStateObject, ArrayList agentIndexes) {
+		int [] agentColsFilled = new int[agentIndexes.size() ];
+		for (int i = 0; i < agentIndexes.size(); i++) {
+			// debug
+			System.out.println("agentColsInitial.get(i): "+i+": " + initialStateObject.agentColsInitial[i]);
+
+			agentColsFilled[i] = initialStateObject.agentColsInitial[i];
+		}
+		return agentColsFilled;
+	}
+
+	private Color[] setAgentColors(InitialStateObject initialStateObject, ArrayList agentIndexes ) {
+		Color [] agentColorsFilled = new Color[agentIndexes.size() ];
+		for (int i = 0; i < agentIndexes.size(); i++) {
+			// debug
+			System.out.println("agentColors.get(i): "+i+": " + initialStateObject.agentColors[i]);
+			agentColorsFilled[i] = initialStateObject.agentColors[i];
+		}
+		return agentColorsFilled;
+	}
+
+
+	private void setExtraWalls(InitialStateObject initialStateObject, ArrayList agentIndexes, boolean[][] newWalls  ) {
+		// for (int i = 0; i < agentIndexes.size(); i++) {
+		// 	System.out.println("agentIndexes: "+ agentIndexes.get(i));
+		// }
+		
+
+		for (int i = 1; i < initialStateObject.agentColsInitial.length+1; i++) {
+			// if not agentIndexes  have i set it as aa wall
+			if ( !agentIndexes.contains(i-1) ) {
+				// debug
+				// System.out.println("coordinates: "+ initialStateObject.agentRowsInitial[i-1]+ "; "+ initialStateObject.agentColsInitial[i-1]);
+				newWalls[initialStateObject.agentRowsInitial[i-1]] [initialStateObject.agentColsInitial[i-1]] = true;
+			}
+		}
+
+
+
 	}
 
 	public int sumCosts() {

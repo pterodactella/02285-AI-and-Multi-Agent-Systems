@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import searchclient.CBS.CBSNode;
+import searchclient.CBS.InitialState;
 import searchclient.CBS.PathFinder;
 import searchclient.CBS.PlanStep;
 
@@ -117,6 +118,7 @@ public class SearchClient {
 		}
 		SearchClient.printMatrix(walls);
 
+		new InitialState(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
 

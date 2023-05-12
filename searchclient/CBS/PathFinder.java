@@ -10,16 +10,25 @@ import searchclient.State;
 
 public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
+	private InitialState initialStateForStorage;
 	private static int triedTimes = 0;
 	private static final int MAX_DEBUG_TRIALS=3;
 
 	public PathFinder(State initialState) {
 		this.initialState = initialState;
+		// int[] temp ={1};
+		// this.initialState.agentRows= temp} ;
+		this.initialStateForStorage = new InitialState();
+		// System.err.println("==========================: " + initialStateForStorage.getInitialState().agentRowsInitial.length);
+		// for (int i = 0; i < 2; i++) {
+		// 	System.out.print(",i: "+i+ " "+ initialStateForStorage.getInitialState().agentColsInitial[i]);
+		// }
+
 	}
 
 	public PlanStep[][] solveCBS() {
 		CBSNode root = new CBSNode(this.initialState);
-		root.solution = root.findPlan();
+		root.solution = root.findPlans( ); // FINDPLAN IS USED HERE
 		root.totalCost = root.sumCosts();
 
 
@@ -53,7 +62,7 @@ public class PathFinder implements Comparator<CBSNode> {
 				//				}
 				//				System.err.println();
 				//				a.findIndividualPlan(agentIndex, a.solution);
-				a.solution = a.findPlan();
+				a.solution = a.findPlan(); // FINDPLAN IS USED HERE
 				a.totalCost = a.sumCosts();
 
 				// TODO: use a number instead of infinity
