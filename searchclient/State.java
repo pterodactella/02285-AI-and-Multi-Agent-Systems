@@ -1,11 +1,10 @@
 package searchclient;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
-
-import searchclient.CBS.Constraint;
 
 public class State
 {
@@ -18,7 +17,6 @@ public class State
     public int[] agentRows;
     public int[] agentCols;
     public static Color[] agentColors;
-    
 
     /*
         The walls, boxes, and goals arrays are indexed from the top-left of the level, row-major order (row, col).
@@ -49,13 +47,11 @@ public class State
  
     public final State parent;
     public final Action[] jointAction;
-    private int g;
+    private final int g;
 
     private int hash = 0;
 
     public int cost;
-
-    public ArrayList<Constraint> constraints = new ArrayList<Constraint>();
 
 
     // Constructs an initial state.
@@ -75,83 +71,6 @@ public class State
         this.jointAction = null;
         this.g = 0;
     }
-    //new state Constructor for single agent
-    public State(State parent, int agentIndex,
-                char[][] goals, ArrayList<Constraint> constraints, Action[] jointAction
-    )
-    {
-        this.agentRows = Arrays.copyOf(parent.agentRows, parent.agentRows.length);
-        this.agentCols = Arrays.copyOf(parent.agentCols, parent.agentCols.length);
-        this.goals = goals;
-        this.boxes = new char[parent.boxes.length][];
-        for (int i = 0; i < parent.boxes.length; i++)
-        {
-            this.boxes[i] = Arrays.copyOf(parent.boxes[i], parent.boxes[i].length);
-        }
-
-        // Set own parameters
-        this.parent = parent;
-        this.g = parent.g + 1;
-        this.constraints = constraints;
-        this.jointAction = Arrays.copyOf(jointAction, jointAction.length);
-        this.g = parent.g + 1;
-
-        // Apply each action
-        int numAgents = this.agentRows.length;
-        for (int agent = 0; agent < numAgents; ++agent)
-        {
-            Action action = jointAction[agent];
-            char box;
-            int boxRow;
-            int boxCol;
-
-            switch (action.type)
-            {
-                case NoOp:
-                    break;
-
-                case Move:
-                    this.agentRows[agent] += action.agentRowDelta;
-                    this.agentCols[agent] += action.agentColDelta;
-
-                    break;
-                    
-                case Push:
-                	this.agentRows[agent] = this.agentRows[agent] + action.agentRowDelta;
-                	this.agentCols[agent] = this.agentCols[agent] + action.agentColDelta;
-             
-                	boxRow = this.agentRows[agent] + action.boxRowDelta;
-                	boxCol = this.agentCols[agent] + action.boxColDelta;
-                	//delete previous state
-                	box = this.boxes[this.agentRows[agent]][this.agentCols[agent]];
-                	
-                	this.boxes[this.agentRows[agent]][this.agentCols[agent]] = 0;
-                	
-                	this.boxes[boxRow][boxCol] = box;
-                	
-                    break;
-                    
-                case Pull:
-                	
-                	boxRow = this.agentRows[agent];
-                	boxCol = this.agentCols[agent];
-//                	System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
-
-                	box = this.boxes[this.agentRows[agent] - action.boxRowDelta][this.agentCols[agent] - action.boxColDelta];
-                	this.boxes[this.agentRows[agent] - action.boxRowDelta][this.agentCols[agent] - action.boxColDelta] = 0;
-                	this.boxes[boxRow][boxCol] = box;
-                	
-                	this.agentRows[agent] += action.agentRowDelta;
-                	this.agentCols[agent] += action.agentColDelta;
-                	
-        
-                	break;
-                	
-                	
-            }
-        }
-    }
-
 
 
     // Constructs the state resulting from applying jointAction in parent.
@@ -209,6 +128,23 @@ public class State
                     
                 case Pull:
                 	
+//                	System.out.println(action.agentRowDelta + " " + action.agentColDelta + " ACTIONS");
+//                	System.out.println(action.boxRowDelta + " " + action.boxColDelta + " BOXES ACTION");
+//                	
+//                	System.out.println(this.agentRows[agent] + " " + this.agentCols[agent] + "Coordinates");
+//                	
+//                	for (int i = 0; i < this.boxes.length; i++) {
+//                  		 
+//                        // Loop through all elements of current row
+//                        for (int j = 0; j < this.boxes[i].length; j++)
+//                        	
+//                            System.out.print((int)this.boxes[i][j] + " " );
+//                        System.out.println("");
+//                	}
+//                	
+//                	System.out.println((this.agentRows[agent] - action.boxRowDelta) + " " + (this.agentCols[agent] - action.boxColDelta) + "BOX COORDINATES Before ACTION");
+                	
+                	
                 	boxRow = this.agentRows[agent];
                 	boxCol = this.agentCols[agent];
 //                	System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
@@ -220,6 +156,19 @@ public class State
                 	this.agentRows[agent] += action.agentRowDelta;
                 	this.agentCols[agent] += action.agentColDelta;
                 	
+
+                	
+
+//                	System.out.println(this.agentRows[agent] + " " + this.agentCols[agent] + "Coordinates");
+//                	
+//                	for (int i = 0; i < this.boxes.length; i++) {
+//                  		 
+//                        // Loop through all elements of current row
+//                        for (int j = 0; j < this.boxes[i].length; j++)
+//                        	
+//                            System.out.print((int)this.boxes[i][j] + " " );
+//                        System.out.println("");
+//                	}
         
                 	break;
                 	
@@ -284,6 +233,7 @@ public class State
         {
             for (int agent = 0; agent < numAgents; ++agent)
             {
+           
                 jointAction[agent] = applicableActions[agent][actionsPermutation[agent]];
             }
 
@@ -360,7 +310,54 @@ public class State
             		return false;
             	}
             	return true;
+        	
+            	
+            	
+//            	if(!(this.boxes[agentRow - 1][agentCol] >= 'A' && this.boxes[agentRow - 1][agentCol] <= 'Z') && 
+//            			!(this.boxes[agentRow + 1][agentCol] >= 'A' && this.boxes[agentRow + 1][agentCol] <= 'Z') && 
+//            			!(this.boxes[agentRow][agentCol - 1] >= 'A' && this.boxes[agentRow][agentCol - 1] <= 'Z') && 
+//            			!(this.boxes[agentRow][agentCol + 1] >= 'A' && this.boxes[agentRow][agentCol + 1] <= 'Z') ) {
+//            		return false;
+//            	}
+            	
+//            	boxRow = this.agentRows[agent] - action.boxRowDelta;
+//            	boxCol = this.agentCols[agent] - action.boxColDelta;
 
+//            	box = this.boxes[boxRow][boxCol];
+//            	System.out.println(box + "WTFF");
+//            	int boxColorIndexForPush = box - 'A';
+//            	System.out.println(boxColorIndexForPush + "" + agentColor);
+//            	
+//            	if(boxRow + action.boxRowDelta < 0 || boxCol + action.boxColDelta < 0) {
+//            		return false;
+//            	}
+//            	
+//            	
+//            	System.out.println(agentRow + " " + agentCol);
+//            	
+//            	for (int i = 0; i < this.boxes.length; i++) {
+//            		 
+//                    // Loop through all elements of current row
+//                    for (int j = 0; j < this.boxes[i].length; j++)
+//                    	
+//                        System.out.print((int)this.boxes[i][j] + " " );
+//                    System.out.println("");
+//            	}
+//            	
+//            	//if there is a wall or there is a box
+//            	if(this.walls[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] || !(this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] == 0)) {
+//            		return false;
+//            	}
+//            	
+//            	
+//                if(!this.boxColors[boxColorIndexForPush].equals(agentColor) ) {
+//                	return false;
+//                }
+//            	
+//            	this.boxes[boxRow][boxCol] = 0;
+//            	this.boxes[boxRow - action.boxRowDelta][boxCol - action.boxColDelta] = box;
+//            	System.out.println(box + "da pan aici");
+            	
             	
             case Pull:
             	

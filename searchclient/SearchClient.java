@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 
+import searchclient.CBS.CBSNode;
+import searchclient.CBS.PathFinder;
+import searchclient.CBS.PlanStep;
+
 public class SearchClient {
 	public static State parseLevel(BufferedReader serverMessages) throws IOException {
 		// We can assume that the level file is conforming to specification, since the
@@ -112,14 +116,14 @@ public class SearchClient {
 			}
 		}
 		SearchClient.printMatrix(walls);
-		
+
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
 
 	public static void printMatrix(boolean[][] walls) {
 		for (int i = 0; i < walls.length; i++) {
 			for (int j = 0; j < walls[i].length; j++) {
-				// System.err.print(walls[i][j] + " ");
+				System.err.print(walls[i][j] + " ");
 			}
 			System.err.println();
 		}
@@ -137,10 +141,12 @@ public class SearchClient {
 		}
 	}
 
-	public static Action[][] search(State initialState, Frontier frontier) {
+	public static PlanStep[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
+		PathFinder solver = new PathFinder(initialState);
 
-		return GraphSearch.search(initialState, frontier);
+//		return GraphSearch.search(initialState, frontier);
+		return solver.solveCBS();
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -161,6 +167,9 @@ public class SearchClient {
 		Frontier frontier;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
+			case "-cbs":
+				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+				break;
 			case "-bfs":
 				frontier = new FrontierBFS();
 				break;
@@ -196,7 +205,7 @@ public class SearchClient {
 		}
 
 		// Search for a plan.
-		Action[][] plan;
+		PlanStep[][] plan;
 		try {
 			plan = SearchClient.search(initialState, frontier);
 		} catch (OutOfMemoryError ex) {
@@ -211,13 +220,20 @@ public class SearchClient {
 		} else {
 			System.err.format("Found solution of length %,d.\n", plan.length);
 
-			for (Action[] jointAction : plan) {
-				System.out.print(jointAction[0].name);
+			for (PlanStep[] jointAction : plan) {
+//				System.err.print(jointAction[0].action.name);
+//				for (int action = 1; action < jointAction.length; ++action) {
+//					System.err.print("|");
+//					System.err.println(jointAction[action].action.name);
+//				}
+//				System.err.println();
+//				
+				System.out.print(jointAction[0].action.name);
 				for (int action = 1; action < jointAction.length; ++action) {
 					System.out.print("|");
-					System.out.print(jointAction[action].name);
+					System.out.println(jointAction[action].action.name);
 				}
-				System.out.println();
+//				System.out.println();
 				// We must read the server's response to not fill up the stdin buffer and block
 				// the server.
 				serverMessages.readLine();
