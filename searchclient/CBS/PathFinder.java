@@ -18,7 +18,6 @@ public class PathFinder implements Comparator<CBSNode> {
 
 	public PathFinder(State initialState) {
 		this.initialState = initialState;
-		this.preprocessedData = preprocessedData;
 	}
 
 	public PlanStep[][] solveCBS() {
