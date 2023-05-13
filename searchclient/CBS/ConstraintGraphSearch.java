@@ -36,9 +36,9 @@ public class ConstraintGraphSearch {
 				}
 
                 //Print a status message every 10000 iteration
-                if (++iterations % 10000 == 0) {
-                    printSearchStatus(expanded, frontier);
-                }
+//                if (++iterations % 10000 == 0) {
+//                    printSearchStatus(expanded, frontier);
+//                }
 
                 //Your code here... Don't forget to print out the stats when a solution has been found (see above)
             }
