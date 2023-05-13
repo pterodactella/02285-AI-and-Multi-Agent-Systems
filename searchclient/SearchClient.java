@@ -223,20 +223,22 @@ public class SearchClient {
 			System.err.format("Found solution of length %,d.\n", plan.length);
 
 			for (PlanStep[] jointAction : plan) {
-				int temp1= jointAction.length;
-				System.err.print(jointAction[0].action.name);
-				for (int action = 1; action < jointAction.length; ++action) {
-					System.err.print("|");
-					System.err.print(jointAction[action].action.name);
-				}
-				System.err.println();
+				// System.err.print(jointAction[0].action.name);
+				// for (int action = 1; action < jointAction.length; ++action) {
+				// 	System.err.print("|");
+				// 	System.err.println(jointAction[action].action.name);
+				// }
+				// System.err.println();
+				StringBuilder sb = new StringBuilder();
+				sb.append(jointAction[0].action.name);
 				
-				System.out.print(jointAction[0].action.name);
 				for (int action = 1; action < jointAction.length; ++action) {
-					System.out.print("|");
-					System.out.print(jointAction[action].action.name);
+	
+					sb.append("|");
+					sb.append(jointAction[action].action.name);
 				}
-				System.out.println();
+				
+				System.out.println(sb.toString());
 				// We must read the server's response to not fill up the stdin buffer and block
 				// the server.
 				serverMessages.readLine();

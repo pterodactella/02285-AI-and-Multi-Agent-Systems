@@ -233,6 +233,7 @@ public class State
         {
             for (int agent = 0; agent < numAgents; ++agent)
             {
+           
                 jointAction[agent] = applicableActions[agent][actionsPermutation[agent]];
             }
 
