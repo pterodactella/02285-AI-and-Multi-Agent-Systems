@@ -2,8 +2,14 @@ package searchclient.CBS;
 
 import java.util.PriorityQueue;
 import java.util.Stack;
+
+import searchclient.Color;
+import searchclient.State;
+
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
