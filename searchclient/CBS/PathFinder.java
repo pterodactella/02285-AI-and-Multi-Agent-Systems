@@ -10,6 +10,7 @@ import searchclient.Logger;
 import searchclient.Memory;
 import searchclient.State;
 import searchclient.CBS.Constraint;
+import searchclient.CBS.CBSNode.Conflict;;
 
 public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
@@ -105,7 +106,6 @@ public class PathFinder implements Comparator<CBSNode> {
 
 		return null;
 	}
-
 
 	@Override
 	public int compare(CBSNode n1, CBSNode n2) {
