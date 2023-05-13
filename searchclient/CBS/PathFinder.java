@@ -8,7 +8,9 @@ import searchclient.State;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import searchclient.Action;
 import searchclient.Logger;
@@ -20,8 +22,9 @@ public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
 	private static int triedTimes = 0;
 	private static final int MAX_DEBUG_TRIALS = 4;
+	private HashMap<Color, List<Integer>> preprocessedData;
 
-	public PathFinder(State initialState) {
+	public PathFinder(State initialState, HashMap<Color, List<Integer>> preprocessedData) {
 		this.initialState = initialState;
 		this.preprocessedData = preprocessedData;
 	}
