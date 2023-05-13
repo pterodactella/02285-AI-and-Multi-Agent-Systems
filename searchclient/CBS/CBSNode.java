@@ -2,7 +2,9 @@ package searchclient.CBS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.PriorityQueue;
 
 import searchclient.Action;
@@ -109,6 +111,10 @@ public class CBSNode {
 
 	public void findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
 
+		if (agentIndex < 0 || agentIndex >= individualPlans.length) {
+			System.err.println("Invalid agent index: " + agentIndex);
+			return;
+		}
 		ConstraintState constraintState = new ConstraintState(this.state, agentIndex, this.constraints, 0);
 
 		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
@@ -120,11 +126,14 @@ public class CBSNode {
 			System.err.println("Step: " + step.toString());
 		}
 		if (plan != null && plan.length > this.longestPath) {
+			// System.err.println("THE PLAN is not null and it is longer");
 			this.longestPath = plan.length;
 		}
 
 		individualPlans[agentIndex] = plan;
+
 		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
+		// System.err.println("this.costs[agentIndex]: " + this.costs[agentIndex]);
 
 	}
 
@@ -134,41 +143,73 @@ public class CBSNode {
 		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
 
 		for (int i = 0; i < numberOfAgents; i++) {
-
 			findIndividualPlan(i, individualPlans);
-
-			// TODO: Add search with constraint
-
 		}
-		int agentToDelay = -1;
-		int delay = 0;
+
 		boolean hasConflicts = true;
 		while (hasConflicts) {
-			hasConflicts = false;
+			System.err.println("hasConflicts in loop: " + hasConflicts);
+
+			// Step 1: Identify and store all conflicts in the current solution
+			List<Conflict> conflicts = new ArrayList<>();
 			for (int i = 0; i < numberOfAgents; i++) {
 				for (int j = i + 1; j < numberOfAgents; j++) {
 					Conflict conflict = findConflict(individualPlans[i], individualPlans[j], i, j);
 					if (conflict != null) {
-						int[] delayInfo = calculateDelay(conflict, individualPlans);
-						agentToDelay = delayInfo[0];
-						delay = delayInfo[1];
-						if (delay > 0) {
-							individualPlans[agentToDelay] = introduceDelay(individualPlans[agentToDelay], agentToDelay,
-									delay, conflict.timestamp);
-							this.costs[agentToDelay] = individualPlans[agentToDelay].length - 1;
-							System.err.println("individual agent plan after delay " + individualPlans[agentToDelay]);
-							hasConflicts = true; // Set to true to recheck the conflicts after the delay is introduced
-							break; // Break the inner loop to restart conflict checking from the beginning
-						}
+						conflicts.add(conflict);
 					}
 				}
-				if (hasConflicts) {
-					break; // Break the outer loop to restart conflict checking from the beginning
+			}
+
+			// Implement a conflict selection strategy
+			Conflict selectedConflict = selectConflict(conflicts);
+
+			if (selectedConflict == null) {
+				hasConflicts = false;
+			} else {
+				// Use an adaptive approach to decide when to add constraints or delay
+				// agents
+				int[] delayInfo = calculateDelay(selectedConflict, individualPlans);
+				int agentToDelay = delayInfo[0];
+				int delay = delayInfo[1];
+				System.err.println("delay is " + delay);
+
+				if (delay > 0) {
+					individualPlans[agentToDelay] = delayIndividualPlan(agentToDelay, delay, individualPlans);
+					this.costs[agentToDelay] = individualPlans[agentToDelay][individualPlans[agentToDelay].length
+							- 1].timestamp;
+				} else {
+					// Add a constraint for the agent at the conflict timestamp
+					Constraint constraint = new Constraint(selectedConflict.agentIndexes[0], selectedConflict.locationX,
+							selectedConflict.locationY, selectedConflict.timestamp);
+					this.constraints.add(constraint);
+					findIndividualPlan(selectedConflict.agentIndexes[0], individualPlans); // Replan for the agent
 				}
 			}
 		}
+
+
 		this.solution = PlanStep.mergePlans(individualPlans); // Update the solution field
+		PlanStep[] agent0solution = this.solution[1];
+		for (PlanStep p: agent0solution) {
+			System.err.println("agent solution at 1" + p.toString());
+		}
 		return this.solution;
+	}
+
+	private Conflict selectConflict(List<Conflict> conflicts) {
+		// Implement a conflict selection strategy here
+		return conflicts.stream()
+				.max(Comparator.comparingInt(c -> calculateBacktrackSteps(c, solution)))
+				.orElse(null);
+	}
+
+	private int calculateBacktrackSteps(Conflict conflict, PlanStep[][] solution) {
+		int agentIndex1 = conflict.agentIndexes[0];
+		int agentIndex2 = conflict.agentIndexes[1];
+		int backtrackSteps = Math.max(solution[agentIndex1].length - conflict.timestamp,
+				solution[agentIndex2].length - conflict.timestamp);
+		return backtrackSteps;
 	}
 
 	private int[] calculateDelay(Conflict conflict, PlanStep[][] individualPlans) {
@@ -179,11 +220,13 @@ public class CBSNode {
 		int agentToDelay = Math.max(agentIndex1, agentIndex2);
 
 		// Calculate the delay based on backtracking and reaching the goal state
-		int backtrackSteps = individualPlans[agentToDelay].length - conflict.timestamp;
 
-		Action agentToDelayAction = individualPlans[agentToDelay][backtrackSteps].action;
+		int backtrackSteps = individualPlans[agentToDelay].length - conflict.timestamp;
+		Action agentToDelayAction = individualPlans[agentToDelay][individualPlans[agentToDelay].length - 1
+				- backtrackSteps].action;
 		Action otherAgentAction = individualPlans[agentIndex1 == agentToDelay ? agentIndex2
-				: agentIndex1][backtrackSteps].action;
+				: agentIndex1][individualPlans[agentIndex1 == agentToDelay ? agentIndex2 : agentIndex1].length - 1
+						- backtrackSteps].action;
 
 		// Check if delaying the agent will cause it to block the other agent
 		if (agentToDelayAction.type == ActionType.Move && otherAgentAction.type == ActionType.Move) {
@@ -215,7 +258,7 @@ public class CBSNode {
 							.ceil(Math.abs(agentToDelayAction.agentRowDelta + otherAgentAction.agentRowDelta) / 2.0);
 					System.err.println("Delay: " + delay);
 				}
-				System.err.println("Delay: " + delay);
+				// System.err.println("Delay: " + delay);
 				return new int[] { agentToDelay, delay };
 			}
 		}
@@ -223,47 +266,37 @@ public class CBSNode {
 		return new int[] { agentToDelay, 0 }; // No delay
 	}
 
-	private PlanStep[] introduceDelay(PlanStep[] plan, int agentToDelay, int delay, int ConflictTimestamp) {
-		// Introduce a delay for the agent with lower priority by extending its plan
-		// with NoOps
-		System.err.println("Introducing delay " + delay + " for agent: " + agentToDelay);
+	private PlanStep[] delayIndividualPlan(int agentIndex, int delay, PlanStep[][] individualPlans) {
+		System.err.println("Delay individual plan of agent: " + agentIndex);
 
-		int numSteps = plan.length + delay;
-		PlanStep[] delayedPlan = new PlanStep[numSteps];
+		PlanStep[] plan = individualPlans[agentIndex];
+		System.err.println("individualPlans[agentIndex]: " + plan);
 
-		// Find the index where the delay should be introduced
-		int delayIndex = ConflictTimestamp;
+		int planLength = plan.length;
 
-		// Copy actions before the delay
-		System.arraycopy(plan, 0, delayedPlan, 0, delayIndex);
-
-		// Insert NoOps at the delay index
-		for (int i = 0; i < delay; i++) {
-			delayedPlan[delayIndex + i] = new PlanStep(Action.NoOp, plan[delayIndex - 1].locationX,
-					plan[delayIndex - 1].locationY, delayIndex + i);
+		// Create a new plan with the delayed steps
+		PlanStep[] newPlan = new PlanStep[planLength + delay];
+		for (int i = 0; i < planLength; i++) {
+			newPlan[i] = new PlanStep(plan[i]);
 		}
 
-		// Copy actions after the delay
-		System.arraycopy(plan, delayIndex, delayedPlan, delayIndex + delay, plan.length - delayIndex);
-
-		// Print the delayed plan
-		System.err.println("Delayed plan for agent " + agentToDelay + ": ");
-		for (PlanStep step : delayedPlan) {
-			System.err.println("Step: " + step.toString());
-		}
-
-		return delayedPlan;
-	}
-
-	private void printDelayedPlans(PlanStep[][] delayedPlans) {
-		System.err.println("Delayeeeeeeeeeeeddddddd plans:");
-		for (int i = 0; i < delayedPlans.length; i++) {
-			System.err.print("Agent " + i + ": ");
-			for (int j = 0; j < delayedPlans[i].length; j++) {
-				System.err.print(delayedPlans[i][j].toString() + ", ");
+		// Add NoOp steps for the delay
+		for (int i = planLength; i < planLength + delay; i++) {
+			// Check if there are subsequent steps in the original plan
+			if (i < planLength + delay - 1) {
+				// Preserve the subsequent action from the original plan
+				newPlan[i] = new PlanStep(plan[planLength - 1]);
+				newPlan[i].timestamp = plan[planLength - 1].timestamp + i - planLength + 1;
+			} else {
+				// Last NoOp step
+				int prevTimestamp = plan[planLength - 1].timestamp;
+				newPlan[i] = new PlanStep(Action.NoOp, plan[planLength - 1].locationX, plan[planLength - 1].locationY,
+						prevTimestamp + delay);
 			}
-			System.err.println();
 		}
+		System.err.println("newPlan: " + Arrays.toString(newPlan));
+
+		return newPlan;
 	}
 
 	public int sumCosts() {

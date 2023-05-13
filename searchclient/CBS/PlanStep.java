@@ -44,6 +44,7 @@ public class PlanStep {
 //			for (PlanStep step : plan) {
 			if (plan != null) {
 				maxTimestamp = Math.max(maxTimestamp, plan[plan.length - 1].timestamp);
+				// System.err.println("maxTimestamp" + maxTimestamp);
 			}
 //			}
 		}
@@ -52,22 +53,25 @@ public class PlanStep {
 		for (int t = 0; t <= maxTimestamp; t++) {
 			for (int agent = 0; agent < numAgents; agent++) {
 				mergedPlans[t][agent] = new PlanStep(Action.NoOp, -1, -1, t);
+				// System.err.println("mergedPlans[t][agent]" +mergedPlans[t][agent]);
+
 			}
 		}
 
 		for (int agent = 0; agent < numAgents; agent++) {
 			for (PlanStep step : individualPlans[agent]) {
 				mergedPlans[step.timestamp][agent] = step;
+				// System.err.println("mergedPlans[step.timestamp] for agent "+ agent + "at timestamp "+ step.timestamp + ": " +mergedPlans[step.timestamp][agent]);
 			}
 		}
 		
-//		for (int i = 0; i < mergedPlans.length; i++) {
-//			for (int j = 0; j < mergedPlans[i].length; j++) {
-//				System.err.print("[" + mergedPlans[i][j].toString() + "]" + " ");
-//				
-//			}
-//			System.err.println();
-//		}
+		for (int i = 0; i < mergedPlans.length; i++) {
+			for (int j = 0; j < mergedPlans[i].length; j++) {
+				System.err.print("[" + mergedPlans[i][j].toString() + "]" + " ");
+				
+			}
+			System.err.println();
+		}
 
 
 		return mergedPlans;

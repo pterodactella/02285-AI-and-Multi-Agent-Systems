@@ -2,6 +2,7 @@ package searchclient.CBS;
 
 import java.util.PriorityQueue;
 import java.util.Stack;
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public class PathFinder implements Comparator<CBSNode> {
@@ -10,7 +11,7 @@ public class PathFinder implements Comparator<CBSNode> {
 	private static int triedTimes = 0;
 	private static final int MAX_DEBUG_TRIALS = 3;
 
-	public PathFinder(State initialState,  HashMap<Color, List<Integer>> preprocessedData) {
+	public PathFinder(State initialState, HashMap<Color, List<Integer>> preprocessedData) {
 		this.initialState = initialState;
 		this.preprocessedData = preprocessedData;
 	}
@@ -29,6 +30,7 @@ public class PathFinder implements Comparator<CBSNode> {
 
 			if (c == null) {
 				return p.solution;
+				
 			}
 
 			System.err.println("Conflict found: " + c.toString());
@@ -38,29 +40,28 @@ public class PathFinder implements Comparator<CBSNode> {
 			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
 				System.exit(0);
 			}
-
+			List<Integer> prioritizedAgents = prioritizeAgents();
+			CBSNode chosenNode = null;
+			int minSteps = Integer.MAX_VALUE;
 			for (int agentIndex : c.agentIndexes) {
+				int prioritizedAgentIndex = prioritizedAgents.get(agentIndex);
+				System.err.println("!!!!Prioritized agent " + prioritizedAgentIndex);
 				CBSNode a = new CBSNode(p);
-				a.constraints.add(new Constraint(agentIndex, c.locationX, c.locationY, c.timestamp));
-				// a.solution = p.solution
-
-				// System.err.println("CONSTRAINTS FOR: " + agentIndex + ". TIMESTAMP: " +
-				// c.timestamp + ": ");
-				// for (Constraint constr: a.constraints) {
-				// System.err.print(constr.toString());
-				// }
-				// System.err.println();
-				// a.findIndividualPlan(agentIndex, a.solution);
+				a.constraints.add(new Constraint(prioritizedAgentIndex, c.locationX, c.locationY, c.timestamp));
 				a.solution = a.findPlan();
-				System.err.println("plan found");
+				System.err.println("Plan found");
 
-				a.totalCost = a.sumCosts();
+				if (a.solution != null && a.solution.length < minSteps) {
+					chosenNode = a;
+					minSteps = a.solution.length;
+				}
+			}
 
-				// TODO: use a number instead of infinity
-				open.add(a);
+			if (chosenNode != null) {
+				chosenNode.totalCost = chosenNode.sumCosts();
+				open.add(chosenNode);
 			}
 		}
-
 		return null;
 	}
 
@@ -69,5 +70,30 @@ public class PathFinder implements Comparator<CBSNode> {
 		return Integer.compare(n1.totalCost, n2.totalCost);
 	}
 
+	private List<Integer> prioritizeAgents() {
+		// Create a list of agent indexes
+		List<Integer> agentIndexes = new ArrayList<>();
+		for (int i = 0; i < initialState.agentRows.length; i++) {
+			agentIndexes.add(i);
+		}
+
+		// Sort the agent indexes based on the preprocessed data
+		agentIndexes.sort((a, b) -> {
+			Color aColor = initialState.agentColors[a];
+			Color bColor = initialState.agentColors[b];
+			List<Integer> aDistances = preprocessedData.get(aColor);
+			List<Integer> bDistances = preprocessedData.get(bColor);
+
+			// Calculate the total distances of other agents of the same color
+			int aSumOthers = aDistances.stream().filter(dist -> dist != aDistances.get(a)).mapToInt(Integer::intValue)
+					.sum();
+			int bSumOthers = bDistances.stream().filter(dist -> dist != bDistances.get(b)).mapToInt(Integer::intValue)
+					.sum();
+
+			return Integer.compare(aSumOthers, bSumOthers);
+		});
+
+		return agentIndexes;
+	}
 
 }

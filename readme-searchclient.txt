@@ -22,7 +22,7 @@ Starting the server using the searchclient:
     $ java -jar mavis.jar -l levels/SAD1.lvl -c "java searchclient.SearchClient" -g -s 150 -t 180
 
 The searchclient uses the BFS strategy by default. Use arguments -dfs, -astar, -wastar, or -greedy to set alternative search strategies (after you implement them). For instance, to use DFS on the same level as above:
-    $ java -jar mavis.jar -l levels/MASimple3.lvl -c "java searchclient.SearchClient -cbs" -g -s 150 -t 180
+    $ java -jar mavis.jar -l levels/MAsimple3.lvl -c "java searchclient.SearchClient -cbs" -g -s 150 -t 180
 
 Memory settings:
     * Unless your hardware is unable to support this, you should let the JVM allocate at least 4GB of memory for the searchclient *
@@ -30,6 +30,6 @@ Memory settings:
     The -Xmx option sets the maximum size of the heap, i.e. how much memory your program can allocate.
     The -Xms option sets the initial size of the heap.
     To set the max heap size to 4GB:
-        $ java -jar mavis.jar -l levels/SAD1.lvl -c "java -Xmx4g searchclient.SearchClient" -g -s 150 -t 180
+        $ java -jar mavis.jar -l levels/MAShrooms.lvl -c "java -Xmx4g searchclient.SearchClient" -g -s 150 -t 180
     Note that this option is set for the *client*.
     Avoid setting max heap size too high, since it will lead to your OS doing memory swapping which is terribly slow.
