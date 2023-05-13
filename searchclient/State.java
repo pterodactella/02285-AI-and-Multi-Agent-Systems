@@ -279,7 +279,7 @@ public class State {
             if (!this.isConflicting(jointAction)) {
                 expandedStates.add(new State(this, jointAction));
             }
-
+            
             // Advance permutation
             boolean done = false;
             for (int agent = 0; agent < numAgents; ++agent) {
