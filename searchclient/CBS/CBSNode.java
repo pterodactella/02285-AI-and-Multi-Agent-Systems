@@ -24,6 +24,7 @@ public class CBSNode {
 	private int longestPath;
 	public int totalCost;
 	private int hash = 0;
+	private ConstraintFrontier frontier;
 
 	public CBSNode(State state) {
 		this.state = state;
@@ -66,9 +67,9 @@ public class CBSNode {
 							/* [3] : */ this.solution[i][k].locationY, /* [4] : */ this.solution[i][j].originalX,
 							/* [5] : */ this.solution[i][j].originalY, /* [6] : */ this.solution[i][k].originalX,
 							/* [7] : */ this.solution[i][k].originalY };
-//					System.err.println("The agents positions are: ")
-//					if(agentsPositions[0] == -1 || agentsPositions[1] == -1)
-//						continue;
+					// System.err.println("The agents positions are: ")
+					// if(agentsPositions[0] == -1 || agentsPositions[1] == -1)
+					// continue;
 
 					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
 						return new Conflict(j, k, agentsPositions[0], agentsPositions[1], i);
@@ -93,27 +94,34 @@ public class CBSNode {
 
 		ConstraintState constraintState = new ConstraintState(this.state, agentIndex, this.constraints, 0);
 
-		
-		
-		//TODO: Instead of initializing the frontier again and again for evey agent, we need to modify so that it re-uses the same frontier. This will optimize a lot the run-speed.
-		//HAVE THE FRONTIER AS A SINGLETON OR GLOBAL CLASS THAT WILL BE RE-USED IN CONSTRAINT GRAPHSEARCH AND HERE IN CBSNODE!!!
-		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
-		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
-//		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
+		// TODO: Instead of initializing the frontier again and again for evey agent, we
+		// need to modify so that it re-uses the same frontier. This will optimize a lot
+		// the run-speed.
+		// HAVE THE FRONTIER AS A SINGLETON OR GLOBAL CLASS THAT WILL BE RE-USED IN
+		// CONSTRAINT GRAPHSEARCH AND HERE IN CBSNODE!!!
+		if (this.frontier == null) {
+			this.frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+		} else {
+			this.frontier.add(constraintState);
+		}
 
-//		Logger logger = Logger.getInstance();
-//		logger.log("^^^^^ .... ^^^^^");
-//		logger.log("THESE ARE THE CONSTRAINTS: ");
-//		for (Constraint constr: this.constraints) {
-//			logger.log(constr.toString());
-//		}
-//		logger.log("^^^^^ .... ^^^^^");
-//
-//		logger.log("THE PLAN FOR: " + agentIndex);
-//		for (PlanStep step : plan) {
-//			logger.log("Step: " + step.toString());
-//		}
-//		logger.log("");
+		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
+		// System.err.println("plan for agent " + agentIndex + " is: " +
+		// Arrays.toString(plan));
+
+		// Logger logger = Logger.getInstance();
+		// logger.log("^^^^^ .... ^^^^^");
+		// logger.log("THESE ARE THE CONSTRAINTS: ");
+		// for (Constraint constr: this.constraints) {
+		// logger.log(constr.toString());
+		// }
+		// logger.log("^^^^^ .... ^^^^^");
+		//
+		// logger.log("THE PLAN FOR: " + agentIndex);
+		// for (PlanStep step : plan) {
+		// logger.log("Step: " + step.toString());
+		// }
+		// logger.log("");
 		if (plan != null && plan.length > this.longestPath) {
 			this.longestPath = plan.length;
 		}
@@ -126,15 +134,15 @@ public class CBSNode {
 	public PlanStep[][] findPlan() {
 		int numberOfAgents = state.agentRows.length;
 		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
-//		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
+		// System.err.println("NUMBER OF AGENTS" + numberOfAgents);
 
 		for (int i = 0; i < numberOfAgents; i++) {
 
 			findIndividualPlan(i, individualPlans);
-//			System.out.println("THE PLAN FOR: " + i);
-//			for (PlanStep step : plan) {
-//				System.out.println("Step: " + step.toString());
-//			}
+			// System.out.println("THE PLAN FOR: " + i);
+			// for (PlanStep step : plan) {
+			// System.out.println("Step: " + step.toString());
+			// }
 			// TODO: Add search with constraint
 
 		}
@@ -162,8 +170,8 @@ public class CBSNode {
 		}
 		return this.hash;
 
-//		System.err.println("WAS CALLED HASH CODE!");
-//		return 1;
+		// System.err.println("WAS CALLED HASH CODE!");
+		// return 1;
 	}
 
 	@Override
@@ -179,10 +187,11 @@ public class CBSNode {
 		}
 		CBSNode other = (CBSNode) obj;
 		if (this.constraints.equals(other.constraints) && Arrays.deepEquals(this.solution, other.solution)) {
-//			System.err.println("EQUALS!");
+			// System.err.println("EQUALS!");
 			return true;
 		}
-//		return this.constraints.equals(other.constraints) && this.solution.equals(other.solution);
+		// return this.constraints.equals(other.constraints) &&
+		// this.solution.equals(other.solution);
 		return false;
 	}
 }
