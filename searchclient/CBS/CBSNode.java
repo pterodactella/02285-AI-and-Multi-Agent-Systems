@@ -84,6 +84,7 @@ public class CBSNode {
 		System.out.println("Specific State: agentsLength: "+ searchSpecificState.agentRows.length + " boxesLength: " + searchSpecificState.boxes.length + " goalsLength: " + searchSpecificState.goals.length    );
 		this.state = searchSpecificState;
 
+		// Calculate teh shifted agent index that matches the real one in the searchSpecificState
 		int shiftedAgentIndex = this.shiftedAgents.indexOf(agentIndex);
 
 		ConstraintState constraintState = new ConstraintState(searchSpecificState, shiftedAgentIndex, this.constraints, 0); // we create a state here
@@ -151,11 +152,10 @@ public class CBSNode {
 		initialStateForStorage = new InitialState();
 		InitialStateObject initialStateObject = initialStateForStorage.getInitialState();
 
-		System.out.println("!!!!!!!!!!!!!!!!!Creating specific state for agent: " + agent);
+		System.out.println("++++++++++Creating specific state for agent: " + agent + "++++++++++");
 		// Create a new state with only the appropriately colored agents
 		// Find the color of the agent  
 		Color agentColor = initialStateObject.agentColors[agent];
-		System.out.println("Agent color: " + agentColor);
 		// Find everything from that color
 		ArrayList<Integer> sameColoredAgents = new ArrayList<>(initialStateObject.agentColors.length);
 		// agents
@@ -174,7 +174,7 @@ public class CBSNode {
 			 }
 		}
 
-		System.out.println("================================ Index of agent: " + agent +",  Color of agent: " + agentColor+ ", Agents with this color: " + sameColoredAgents + ",  Boxes with this color: " + sameColoredBoxes);
+		System.out.println("++++++++++ Index of agent: " + agent +",  Color of agent: " + agentColor+ ", Agents with this color: " + sameColoredAgents + ",  Boxes with this color: " + sameColoredBoxes +"   ++++++++++");
       // this.shiftedAgents = sameColoredAgents.stream().mapToInt(i -> i).toArray();
 		this.shiftedAgents = new ArrayList<>(sameColoredAgents.size());
       this.shiftedAgents = sameColoredAgents;
@@ -187,29 +187,32 @@ public class CBSNode {
 		Color[] newAgentColors = new Color[sameColoredAgents.size() ]; 
 		boolean[][] newWalls = new boolean[initialStateObject.wallsIntial.length] [initialStateObject.wallsIntial[0].length ];
 		char[][] newBoxes = initialStateObject.boxesInitial; ;
-		Color[] newBoxColors = initialStateObject.boxColors ;
+		Color[] newBoxColors = new Color[sameColoredBoxes.size() ];  
 		char[][] newGoals = new char[initialStateObject.goals.length] [initialStateObject.goals[0].length];
 
 		// Set the agent details
 		newAgentRows = setAgentRows(initialStateObject, sameColoredAgents);
 		newAgentCols = setAgentCols(initialStateObject, sameColoredAgents);
 		newAgentColors = setAgentColors(initialStateObject, sameColoredAgents);
+		newGoals = setGoals(initialStateObject, sameColoredAgents, sameColoredBoxes, initialStateObject.goals);
+		// newBoxes = initialStateObject.boxesInitial;
+		newBoxes = setBoxes(initialStateObject, sameColoredBoxes, initialStateObject.boxesInitial );
+		newBoxColors = setBoxColors(initialStateObject, sameColoredBoxes);
 
-		System.out.println("newAgentRows: "+ Arrays.toString(newAgentRows));
+		// System.out.println("newAgentRows: "+ Arrays.toString(newAgentRows));
 		
 		// TODO set box details
 		// TODO set extra walls
-		newWalls = setExtraWalls(initialStateObject, sameColoredAgents, initialStateObject.wallsIntial);
-		newGoals = setGoals(initialStateObject, sameColoredAgents, initialStateObject.goals);
+		newWalls = setExtraWalls(initialStateObject, sameColoredAgents, sameColoredBoxes);
 
-
+		// compareCharArrays( newBoxes,initialStateObject.boxesInitial );
 		// TODO: create new state, for this new spcificState class is rqeuired WITHOUT THE STATIC fields!
 		// Create a new state with only the appropriately colored elements
 		State newState = new State(newAgentRows, newAgentCols, newAgentColors, newWalls, newBoxes, newBoxColors, newGoals);
 
-		System.out.println("========================================================================");
+		// Printing out the new state from the specific state
+		System.out.println("==========Printing out the new state from the specific state============");
 		System.out.print(newState.toString() );
-
 		System.out.println("========================================================================");
 		// State newState = cbsNode.state;
 
@@ -247,25 +250,56 @@ public class CBSNode {
  		return agentColorsFilled;
 	}
 
-	private char[][] setGoals(InitialStateObject initialStateObject, ArrayList<Integer> sameColoredAgents, char[][] goalsInitial ) {
+	private char[][] setBoxes(InitialStateObject initialStateObject, ArrayList<Integer> sameColoredBoxes, char[][] boxesInitial ) {
+		// Perform deep copy
+		char[][] copiedBoxes = new char[boxesInitial.length][boxesInitial[1].length];
+
+
+		for (int i = 0; i < boxesInitial.length; i++) { // rows =first dim
+			for(int j = 0; j < boxesInitial[i].length; j++) { // cols =second dim
+				char box = boxesInitial[i][j];
+				int val = box - 'A';
+				
+				if( sameColoredBoxes.contains( boxesInitial[i][j] - 'A')   ){
+					int index = sameColoredBoxes.indexOf(boxesInitial[i][j] - 'A');
+					char temp = (char) (index + 'A');
+					copiedBoxes[i][j] = temp;
+				}
+				//  else {
+				// 	copiedBoxes[i][j] = null;
+				// }
+			}
+		}
+		return copiedBoxes;
+	}
+
+	private Color[] setBoxColors(InitialStateObject initialStateObject, ArrayList<Integer> sameColoredBoxes ) {
+
+		Color [] boxColorsFilled = new Color[sameColoredBoxes.size() ];
+		for (int i = 0; i < sameColoredBoxes.size(); i++) {
+			boxColorsFilled[i] = initialStateObject.boxColors[sameColoredBoxes.get(i)];
+		}
+ 		return boxColorsFilled;
+	}
+
+	private char[][] setGoals(InitialStateObject initialStateObject, ArrayList<Integer> sameColoredAgents, ArrayList<Integer> sameColoredBoxes, char[][] goalsInitial ) {
 		// Perform deep copy
 		char[][] copiedGoals = new char[goalsInitial.length][goalsInitial[1].length];
 
-		System.out.println("length of the same colored agents: "+ sameColoredAgents.size() );
-		for (int i = 0; i < sameColoredAgents.size(); i++) {
-			System.out.println("sameColoredAgents: "+ sameColoredAgents.get(i) );
-		}
-
-		// TODO: it only check the agents
 		for (int i = 0; i < goalsInitial.length; i++) { // rows =first dim
 			for(int j = 0; j < goalsInitial[i].length; j++) { // cols =second dim
-				if ( sameColoredAgents.contains (Character.getNumericValue(goalsInitial[i][j]) ) && Character.getNumericValue(goalsInitial[i][j]) <=9 && Character.getNumericValue(goalsInitial[i][j]) >=0 ) // check if the goal is relevant for the selected agents 
-				{
+				// check if the goal is one of the samecolored agents
+				if ( sameColoredAgents.contains (Character.getNumericValue(goalsInitial[i][j]) ) && Character.getNumericValue(goalsInitial[i][j]) <=9 && Character.getNumericValue(goalsInitial[i][j]) >=0 ) {
 					// Convert the goal number to the index of the agent in the sameColoredAgents array. In char form
 					copiedGoals[i][j] = (char) (sameColoredAgents.indexOf(Character.getNumericValue(goalsInitial[i][j])) + '0');
-					// copiedGoals[i][j] = goalsInitial[i][j];
 				}
-				else { 
+				// check if the goal is one of the samecolored boxes
+				
+				else if( sameColoredBoxes.contains( goalsInitial[i][j] - 'A')   ){
+					int index = sameColoredBoxes.indexOf(goalsInitial[i][j] - 'A');
+					char temp = (char) (index + 'A');
+					copiedGoals[i][j] = temp;
+				}else{ 
 					copiedGoals[i][j] = ' ';
 				}
 			}
@@ -273,22 +307,66 @@ public class CBSNode {
 		return copiedGoals;
 	}
 
-	private boolean[][] setExtraWalls(InitialStateObject initialStateObject, ArrayList<Integer> sameColoredAgents, boolean[][] wallsIntial  ) {
-		// Perform deep copy
-		boolean[][] copiedWalls = new boolean[wallsIntial.length][];
-		for (int i = 0; i < wallsIntial.length; i++) {
-			copiedWalls[i] = new boolean[wallsIntial[i].length];
-				System.arraycopy(wallsIntial[i], 0, copiedWalls[i], 0, wallsIntial[i].length);
+	public static boolean compareCharArrays(char[][] array1, char[][] array2) {
+		if (array1.length != array2.length || array1[0].length != array2[0].length) {
+			 // Arrays have different dimensions
+			 System.out.println("Arrays are equal: " + false);
+			 return false;
 		}
 
+		// Iterate through the arrays and compare each element
+		for (int i = 0; i < array1.length; i++) {
+			 for (int j = 0; j < array1[i].length; j++) {
+				  if (array1[i][j] != array2[i][j]) {
+						// Elements are not equal
+						char one = array1[i][j];
+						char two = array2[i][j];
+						System.out.println("Arrays are equal: " + false);
+						return false;
+				  }
+			 }
+		}
+
+		// All elements are equal
+		System.out.println("Arrays are equal: " + true);
+		return true;
+  }
+
+
+	private boolean[][] setExtraWalls(InitialStateObject initialStateObject, ArrayList<Integer> sameColoredAgents, ArrayList<Integer> sameColoredBoxes  ) {
+		// Perform deep copy
+		boolean[][] copiedWalls = new boolean[initialStateObject.wallsIntial.length][];
+		for (int i = 0; i < initialStateObject.wallsIntial.length; i++) {
+			copiedWalls[i] = new boolean[ initialStateObject.wallsIntial[i].length];
+				System.arraycopy(initialStateObject.wallsIntial[i], 0, copiedWalls[i], 0, initialStateObject.wallsIntial[i].length);
+		}
+
+		// Iterates over the agents and sets the walls to true when the agentIndex is not in the sameColoredAgents array
 		for (int i = 0; i < initialStateObject.agentColsInitial.length; i++) {
-			// if not agentIndexes  have i set it as aa wall
 			if ( !sameColoredAgents.contains(i) ) {
-				// debug
-				// System.out.println("coordinates: "+ initialStateObject.agentRowsInitial[i-1]+ "; "+ initialStateObject.agentColsInitial[i-1]);
 				copiedWalls[initialStateObject.agentRowsInitial[i]] [initialStateObject.agentColsInitial[i]] = true;
 			}
 		}
+
+		ArrayList<Character> boxesToSetAsWall = new ArrayList<>();
+		for (int i = 0; i < initialStateObject.boxColors.length; i++) {
+			if ( initialStateObject.boxColors[i] != null && !sameColoredBoxes.contains(i)  ) {
+				boxesToSetAsWall.add( (char) (i + 'A') );
+			}
+		}
+
+		for (int row = 0; row < copiedWalls.length; row++) {
+			for (int col = 0; col < copiedWalls[0].length; col++) {
+				if ( boxesToSetAsWall.contains( initialStateObject.boxesInitial[row][col] ) ) {
+					copiedWalls[row][col] = true;
+				};
+				
+			}
+			
+		}
+
+
+
 		return copiedWalls;
 	}
 

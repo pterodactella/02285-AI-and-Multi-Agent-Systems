@@ -23,53 +23,53 @@ public class PathFinder implements Comparator<CBSNode> {
 		CBSNode root = new CBSNode(this.initialState);
 		root.solution = root.findPlans( ); // FINDPLAN IS USED HERE
 		root.totalCost = root.sumCosts();
+		return root.solution;
 
+		// PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
+		// open.add(root);
 
-		PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
-		open.add(root);
+		// while (!open.isEmpty()) {
+		// 	CBSNode p = open.poll();
+		// 	Conflict c = p.findFirstConflict();
 
-		while (!open.isEmpty()) {
-			CBSNode p = open.poll();
-			Conflict c = p.findFirstConflict();
-
-			if (c == null) {
-				// for(int i=0; i<2; i++) {
-				// 	for(int j=0; j<p.solution.length; j++) {
-				// 		System.err.println("agent "+i+": "+p.solution[j][i].toString());
-				// 	}
-				// 	System.err.println();
-				// }
-				return p.solution;
-			}
+		// 	if (c == null) {
+		// 		// for(int i=0; i<2; i++) {
+		// 		// 	for(int j=0; j<p.solution.length; j++) {
+		// 		// 		System.err.println("agent "+i+": "+p.solution[j][i].toString());
+		// 		// 	}
+		// 		// 	System.err.println();
+		// 		// }
+		// 		return p.solution;
+		// 	}
 			
-			System.err.println("Conflict found: " + c.toString());
-			PathFinder.triedTimes++;
-			System.err.println("#########################################");
+		// 	System.err.println("Conflict found: " + c.toString());
+		// 	PathFinder.triedTimes++;
+		// 	System.err.println("#########################################");
 			
-			//			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
-			//				System.exit(0);
-			//			}
+		// 	//			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
+		// 	//				System.exit(0);
+		// 	//			}
 
-			for (int agentIndex : c.agentIndexes) {
-				CBSNode a = new CBSNode(p);
-				a.constraints.add(new Constraint(agentIndex, c.locationX, c.locationY, c.timestamp));
-				// a.solution = p.solution
+		// 	for (int agentIndex : c.agentIndexes) {
+		// 		CBSNode a = new CBSNode(p);
+		// 		a.constraints.add(new Constraint(agentIndex, c.locationX, c.locationY, c.timestamp));
+		// 		// a.solution = p.solution
 				
-				//				System.err.println("CONSTRAINTS FOR: " + agentIndex + ". TIMESTAMP: " + c.timestamp + ": ");
-				//				for (Constraint constr: a.constraints) {
-				//					System.err.print(constr.toString());
-				//				}
-				//				System.err.println();
-				//				a.findIndividualPlan(agentIndex, a.solution);
-				a.solution = a.findPlan(); // FINDPLAN IS USED HERE
-				a.totalCost = a.sumCosts();
+		// 		//				System.err.println("CONSTRAINTS FOR: " + agentIndex + ". TIMESTAMP: " + c.timestamp + ": ");
+		// 		//				for (Constraint constr: a.constraints) {
+		// 		//					System.err.print(constr.toString());
+		// 		//				}
+		// 		//				System.err.println();
+		// 		//				a.findIndividualPlan(agentIndex, a.solution);
+		// 		a.solution = a.findPlan(); // FINDPLAN IS USED HERE
+		// 		a.totalCost = a.sumCosts();
 
-				// TODO: use a number instead of infinity
-				open.add(a);
-			}
-		}
+		// 		// TODO: use a number instead of infinity
+		// 		open.add(a);
+		// 	}
+		// }
 
-		return null;
+		// return null;
 	}
 
 	@Override
