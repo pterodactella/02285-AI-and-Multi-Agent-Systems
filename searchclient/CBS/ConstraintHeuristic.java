@@ -8,7 +8,7 @@ import searchclient.ManhattanDistance;
 
 
 public abstract class ConstraintHeuristic implements Comparator<ConstraintState> {
-	public ConstraintHeuristic(ConstraintState initialState) {
+	public ConstraintHeuristic() {
 // Here's a chance to pre-process the static parts of the level.
 	}
 
@@ -28,8 +28,8 @@ public abstract class ConstraintHeuristic implements Comparator<ConstraintState>
 }
 
 class ConstraintHeuristicAStar extends ConstraintHeuristic {
-	public ConstraintHeuristicAStar(ConstraintState initialState) {
-		super(initialState);
+	public ConstraintHeuristicAStar() {
+		super();
 	}
 
 	@Override
@@ -47,7 +47,7 @@ class ConstraintHeuristicWeightedAStar extends ConstraintHeuristic {
 	private int w;
 
 	public ConstraintHeuristicWeightedAStar(ConstraintState initialState, int w) {
-		super(initialState);
+		super();
 		this.w = w;
 	}
 
@@ -64,7 +64,7 @@ class ConstraintHeuristicWeightedAStar extends ConstraintHeuristic {
 
 class ConstraintHeuristicGreedy extends ConstraintHeuristic {
 	public ConstraintHeuristicGreedy(ConstraintState initialState) {
-		super(initialState);
+		super();
 	}
 
 	@Override
