@@ -60,11 +60,14 @@ public class ConstraintState {
 	// Arguments are not copied, and therefore should not be modified after being
 	// passed in.
 	public ConstraintState(State nonConstraintState, int agent, HashSet<Constraint> constraints, int timestamp) {
-		this.agentRows = nonConstraintState.agentRows;
-		this.agentCols = nonConstraintState.agentCols;
+		this.agentRows = Arrays.copyOf(nonConstraintState.agentRows, nonConstraintState.agentRows.length);
+		this.agentCols = Arrays.copyOf(nonConstraintState.agentCols, nonConstraintState.agentCols.length);
 		this.agentColors = nonConstraintState.agentColors;
 		this.walls = nonConstraintState.walls;
-		this.boxes = nonConstraintState.boxes;
+		this.boxes = new char[nonConstraintState.boxes.length][];
+		for (int i = 0; i < nonConstraintState.boxes.length; i++) {
+			this.boxes[i] = Arrays.copyOf(nonConstraintState.boxes[i], nonConstraintState.boxes[i].length);
+		}
 		this.boxColors = nonConstraintState.boxColors;
 		this.goals = nonConstraintState.goals;
 		this.parent = null;
@@ -74,6 +77,7 @@ public class ConstraintState {
 		this.timestamp = timestamp;
 		this.agent = agent;
 
+		this.preProcessMaps();
 
 	}
 
@@ -153,6 +157,20 @@ public class ConstraintState {
 		return this.g;
 	}
 
+	public void preProcessMaps() {
+		Color agentColor = this.agentColors[this.agent];
+		for (int i = 0; i < this.boxes.length; i++) {
+			for (int j = 0; j < this.boxes[i].length; j++) {
+				char onLocation = this.boxes[i][j];
+				if (onLocation != 0 && !this.boxColors[onLocation - 'A'].equals(agentColor)) {
+					this.boxes[i][j] = 0;
+				}
+			}
+		}
+//		for (int i = 0; i < this.age)
+
+	}
+
 	public boolean isGoalState() {
 		for (int row = 1; row < this.goals.length - 1; row++) {
 			for (int col = 1; col < this.goals[row].length - 1; col++) {
@@ -208,7 +226,7 @@ public class ConstraintState {
 //			System.err.print(constr.toString() + "; ");
 //		}
 //		System.err.println("\n");
-		
+
 		for (Constraint constraint : this.constraints) {
 			if (this.timestamp + 1 == constraint.timestamp && constraint.locationX == agentCol
 					&& constraint.locationY == agentRow && constraint.agentIndex == this.agent) {
@@ -383,7 +401,8 @@ public class ConstraintState {
 //    }
 
 	private boolean cellIsFree(int row, int col) {
-		return !this.walls[row][col] && this.boxes[row][col] == 0 && this.agentAt(row, col) == 0;
+//		return !this.walls[row][col] && this.boxes[row][col] == 0 && this.agentAt(row, col) == 0;
+		return !this.walls[row][col] && this.boxes[row][col] == 0;
 	}
 
 	private char agentAt(int row, int col) {
@@ -401,7 +420,8 @@ public class ConstraintState {
 		while (state.agentAction != null) {
 
 			plan[state.timestamp - 1] = new PlanStep(state.agentAction, state.agentCols[state.agent],
-					state.agentRows[state.agent], state.timestamp, state.parent.agentCols[state.agent], state.parent.agentRows[state.agent]);
+					state.agentRows[state.agent], state.timestamp, state.parent.agentCols[state.agent],
+					state.parent.agentRows[state.agent]);
 			state = state.parent;
 		}
 		return plan;
@@ -446,12 +466,22 @@ public class ConstraintState {
 			return false;
 		}
 		ConstraintState other = (ConstraintState) obj;
-		return Arrays.equals(this.agentRows, other.agentRows) && Arrays.equals(this.agentCols, other.agentCols)
+		if (Arrays.equals(this.agentRows, other.agentRows) && Arrays.equals(this.agentCols, other.agentCols)
 				&& Arrays.equals(this.agentColors, other.agentColors) && Arrays.deepEquals(this.walls, other.walls)
 				&& Arrays.deepEquals(this.boxes, other.boxes) && Arrays.equals(this.boxColors, other.boxColors)
 				&& Arrays.deepEquals(this.goals, other.goals) && this.agent == other.agent
-				&& this.constraints.equals(other.constraints)
-				&& this.timestamp == other.timestamp;
+				&& this.constraints.equals(other.constraints) && this.timestamp == other.timestamp) {
+//			System.err.println("EQUALS FROM STATE WORKS");
+			return true;
+		}
+		return false;
+//		return Arrays.equals(this.agentRows, other.agentRows) && Arrays.equals(this.agentCols, other.agentCols)
+//				&& Arrays.equals(this.agentColors, other.agentColors) && Arrays.deepEquals(this.walls, other.walls)
+//				&& Arrays.deepEquals(this.boxes, other.boxes) && Arrays.equals(this.boxColors, other.boxColors)
+//				&& Arrays.deepEquals(this.goals, other.goals) && this.agent == other.agent
+//				&& this.constraints.equals(other.constraints)
+//				&& this.timestamp == other.timestamp;
+
 	}
 
 	@Override

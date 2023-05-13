@@ -95,7 +95,8 @@ public class CBSNode {
 		
 		//TODO: Instead of initializing the frontier again and again for evey agent, we need to modify so that it re-uses the same frontier. This will optimize a lot the run-speed.
 		//HAVE THE FRONTIER AS A SINGLETON OR GLOBAL CLASS THAT WILL BE RE-USED IN CONSTRAINT GRAPHSEARCH AND HERE IN CBSNODE!!!
-		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+//		ConstraintFrontier frontier = GlobalExpandsQueue.getInstance().getQueue();
+		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
 //		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
 
