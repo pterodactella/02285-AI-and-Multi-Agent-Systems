@@ -268,8 +268,11 @@ public class State {
         int[] actionsPermutation = new int[numAgents];
         ArrayList<State> expandedStates = new ArrayList<>(16);
 
-        while (true) {
-            for (int agent = 0; agent < numAgents; ++agent) {
+        while (true)
+        {
+            for (int agent = 0; agent < numAgents; ++agent)
+            {
+           
                 jointAction[agent] = applicableActions[agent][actionsPermutation[agent]];
             }
 
