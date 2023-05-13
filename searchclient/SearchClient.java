@@ -146,7 +146,7 @@ public class SearchClient {
 
 	public static PlanStep[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
-		PathFinder solver = new PathFinder(initialState, preprocess(initialState));
+		PathFinder solver = new PathFinder(initialState);
 
 //		return GraphSearch.search(initialState, frontier);
 		return solver.solveCBS();
