@@ -117,7 +117,8 @@ public class SearchClient {
 				SearchClient.replaceBoxWithWall(walls, boxes, (char) ('A' + boxCol));
 			}
 		}
-		SearchClient.printMatrix(walls);
+		//I DONT WANT TRIE FALSE FALSE TRUE TRUE
+		// SearchClient.printMatrix(walls);
 
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
@@ -164,6 +165,7 @@ public class SearchClient {
 		// Parse the level.
 		BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.US_ASCII));
 		State initialState = SearchClient.parseLevel(serverMessages);
+		
 		// Select search strategy.
 		Frontier frontier;
 		if (args.length > 0) {
