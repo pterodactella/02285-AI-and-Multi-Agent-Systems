@@ -139,6 +139,9 @@ public class ConstraintState {
 
 			case Pull:
 
+			boxRow = this.agentRows[agent];
+			boxCol = this.agentCols[agent];
+			// System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
 				boxRow = this.agentRows[agent];
 				boxCol = this.agentCols[agent];
 				// System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
@@ -197,12 +200,17 @@ public class ConstraintState {
 				}
 			}
 		}
+		System.err.println("Goal State for: " + this.agent + ":\n" + this.toString());
 		// System.err.println("Goal State for: " + this.agent + ":\n" +
 		// this.toString());
 		return true;
 	}
 
 	public ArrayList<ConstraintState> getExpandedStates() {
+		// int numAgents = this.agentRows.length;
+
+		// Determine list of applicable actions for each individual agent.
+
 		ArrayList<Action> agentActions = new ArrayList<>(Action.values().length);
 		for (Action action : Action.values()) {
 			if (this.isApplicable(agent, action)) {
@@ -210,7 +218,14 @@ public class ConstraintState {
 			}
 		}
 		Action[] applicableActions = agentActions.toArray(new Action[0]);
+		// for (Action a: applicableActions) {
+		// 	System.err.print(a + "; ");
+		// }
+		// System.err.println();
 
+		// Iterate over joint actions, check conflict and generate child states.
+		// Action[] jointAction = new Action[numAgents];
+		// int[] actionsPermutation = new int[numAgents];
 		ArrayList<ConstraintState> expandedStates = new ArrayList<>(16);
 
 		for (Action nextAction : applicableActions) {
@@ -220,10 +235,18 @@ public class ConstraintState {
 				expandedStates.add(newState);
 			}
 		}
+		// Collections.shuffle(expandedStates, ConstraintState.RNG);
 		return expandedStates;
 	}
 
 	private boolean violatesConstraints(int agentCol, int agentRow) {
+		// System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " + this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
+		// List all the constraints
+		// for (Constraint constr: this.constraints) {
+		// 	System.err.println(constr.toString() + ";  ");
+		// }
+		// System.err.println("\n");
+
 		// System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " +
 		// this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
 		// for (Constraint constr: this.constraints) {
@@ -233,10 +256,27 @@ public class ConstraintState {
 
 		for (Constraint constraint : this.constraints) {
 			if (this.timestamp + 1 == constraint.timestamp && constraint.locationX == agentCol
+					&& constraint.locationY == agentRow // && constraint.agentIndex == this.agent
+					) {
+						// System.err.println("VIOLATES CONSTRAINT: " + constraint);
+						return true;
+			}
+			if (
+				this.timestamp  == constraint.timestamp && constraint.locationX == agentCol
+					&& constraint.locationY == agentRow //&& constraint.agentIndex == this.agent 
+					) {
+				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
 					&& constraint.locationY == agentRow && constraint.agentIndex == this.agent) {
 				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
 				return true;
 			}
+			// if (
+			// 	this.timestamp -1 == constraint.timestamp && constraint.locationX == agentCol
+			// 		&& constraint.locationY == agentRow //&& constraint.agentIndex == this.agent 
+			// 		) {
+			// 	System.err.println("VIOLATES CONSTRAINT: " + constraint);
+			// 	return true;
+			// }
 		}
 		return false;
 
@@ -251,11 +291,16 @@ public class ConstraintState {
 		int destinationRow;
 		int destinationCol;
 		switch (action.type) {
+		case NoOp:
+			if (violatesConstraints(agentCol, agentRow)) {
+				return false;
+			}
 			case NoOp:
 				if (violatesConstraints(agentCol, agentRow)) {
 					return false;
 				}
 
+			return true;
 				return true;
 
 			case Move:
@@ -422,10 +467,7 @@ public class ConstraintState {
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		if (this.agentAction != null) {
-			s.append("AGENT ACTION: " + this.agentAction.toString() + "\n");
-
-		}
+		// s.append("AGENT ACTION: " + this.agentAction.toString() + "\n");
 		s.append("AGENT: " + this.agent + "\n");
 		for (int row = 0; row < this.walls.length; row++) {
 			for (int col = 0; col < this.walls[row].length; col++) {

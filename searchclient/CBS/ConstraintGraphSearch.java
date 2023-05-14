@@ -11,10 +11,10 @@ public class ConstraintGraphSearch {
 
 	public static PlanStep[] search(CBSNode cbsNode, ConstraintFrontier frontier, int agent) {
 
-//		int iterations = 0;
+		int iterations = 0;
 
 		frontier.add(new ConstraintState(cbsNode.state, agent, cbsNode.constraints, 0));
-//            HashSet<ConstraintState> expanded = GlobalExpandsHashSet.getInstance().getSet();
+        //    HashSet<ConstraintState> expanded = GlobalExpandsHashSet.getInstance().getSet();
 		HashSet<ConstraintState> expanded = new HashSet<>();
 
 		while (true) {
@@ -23,6 +23,10 @@ public class ConstraintGraphSearch {
 			}
 			ConstraintState s = frontier.pop();
 			if (s.isGoalState()) {
+				PlanStep[] plan = s.extractPlan();
+				for (PlanStep step : plan) {
+					System.out.println(step.toString());
+				}
 				return s.extractPlan();
 			}
 			expanded.add(s);
@@ -35,9 +39,9 @@ public class ConstraintGraphSearch {
 			}
 
 			// Print a status message every 10000 iteration
-//                if (++iterations % 10000 == 0) {
-//                    printSearchStatus(expanded, frontier);
-//                }
+			if (++iterations % 10000 == 0) {
+					printSearchStatus(expanded, frontier);
+			}
 
 			// Your code here... Don't forget to print out the stats when a solution has
 			// been found (see above)

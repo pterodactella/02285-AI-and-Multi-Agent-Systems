@@ -8,7 +8,7 @@ import searchclient.ManhattanDistance;
 
 public abstract class ConstraintHeuristic implements Comparator<ConstraintState> {
 	public ConstraintHeuristic() {
-		// Here's a chance to pre-process the static parts of the level.
+// Here's a chance to pre-process the static parts of the level.
 	}
 
 	public int h(ConstraintState s) {
