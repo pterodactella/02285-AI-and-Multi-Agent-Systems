@@ -147,7 +147,7 @@ public class CBSNode {
 			}
 
 			// The real action set starts from 1st timestamp
-			for (int timestamp = 1; timestamp < this.longestPath; timestamp++) { // for each timestamp
+			for (int timestamp = 0; timestamp < this.longestPath; timestamp++) { // for each timestamp
 				if (timestamp < prevLength  ) {
 					for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
 						if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
@@ -523,11 +523,11 @@ public class CBSNode {
 
 		
 
-			
-			// for (Constraint globalConstr2 : this.constraints) { 
-			// 	System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
-			// }
-			// System.out.println("");
+			// List all constratins
+			for (Constraint globalConstr2 : this.constraints) { 
+				System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
+			}
+			System.out.println("");
 		// CONSTRAINT 
 		// public int agentIndex;
 		// public int locationX;

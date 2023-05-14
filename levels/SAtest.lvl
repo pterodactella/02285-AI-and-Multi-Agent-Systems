@@ -4,17 +4,17 @@ hospital
 SAtest
 #colors
 blue: 0, A
-green: 1
+green: 1, B
 #initial
 ++++++++++++
-+ 0    1   +
++ 0A   1 B +
 +          +
 +          +
 ++++++++++++
 #goal
 ++++++++++++
 +1         +
-+         0+
++B       0A+
 +          +
 ++++++++++++
 #end

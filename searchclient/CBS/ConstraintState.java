@@ -223,8 +223,9 @@ public class ConstraintState {
 
 	private boolean violatesConstraints(int agentCol, int agentRow) {
 		// System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " + this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
+		// List all the constraints
 		// for (Constraint constr: this.constraints) {
-		// 	System.err.print(constr.toString() + "; ");
+		// 	System.err.println(constr.toString() + ";  ");
 		// }
 		// System.err.println("\n");
 
