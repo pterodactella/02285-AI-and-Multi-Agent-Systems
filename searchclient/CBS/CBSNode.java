@@ -102,36 +102,14 @@ public class CBSNode {
 		// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
 		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
 
-		// // WE need to create the specific maps here since we have the index here 
+		// // we need to create the specific maps here since we have the index here 
 		// // and call search on it
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, shiftedAgentIndex);
 
 
-
-		// ConstraintState constraintState = new ConstraintState(this.state, agentIndex, this.constraints, 0);
-
-		
-		
 		//TODO: Instead of initializing the frontier again and again for evey agent, we need to modify so that it re-uses the same frontier. This will optimize a lot the run-speed.
 		//HAVE THE FRONTIER AS A SINGLETON OR GLOBAL CLASS THAT WILL BE RE-USED IN CONSTRAINT GRAPHSEARCH AND HERE IN CBSNODE!!!
-//		ConstraintFrontier frontier = GlobalExpandsQueue.getInstance().getQueue();
-		// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
-		// PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
-//		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
 
-//		Logger logger = Logger.getInstance();
-//		logger.log("^^^^^ .... ^^^^^");
-//		logger.log("THESE ARE THE CONSTRAINTS: ");
-//		for (Constraint constr: this.constraints) {
-//			logger.log(constr.toString());
-//		}
-//		logger.log("^^^^^ .... ^^^^^");
-//
-//		logger.log("THE PLAN FOR: " + agentIndex);
-//		for (PlanStep step : plan) {
-//			logger.log("Step: " + step.toString());
-//		}
-//		logger.log("");
 		if (plan != null && plan.length > this.longestPath) {
 			this.longestPath = plan.length;
 		}
@@ -140,6 +118,95 @@ public class CBSNode {
 		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
 
 	}
+
+	public void setNewIndividualPlanForAgent(int agentIndex) {
+		PlanStep[] plan = calculateIndividualPlanForAgent(agentIndex);
+		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
+
+
+
+			if (this.longestPath > plan.length) {
+				// just copy it there
+				for (int timestamp = 0; timestamp < this.longestPath; timestamp++) {
+					if (timestamp < plan.length) {
+						this.solution[timestamp][agentIndex] = plan[timestamp];
+					} else {
+						this.solution[timestamp][agentIndex] = new PlanStep(Action.NoOp, this.solution[timestamp-1][agentIndex].locationX, this.solution[timestamp-1][agentIndex].locationY, timestamp, this.solution[timestamp-1][agentIndex].locationX, this.solution[timestamp-1][agentIndex].locationY );
+					}
+
+				}
+
+			} else {
+				int prevLength = this.solution.length;
+				this.longestPath = plan.length;
+				
+				// SOLUTIIN: [timestamp][agentIndex]
+				PlanStep[][] newSolution = new PlanStep[this.longestPath][this.solution[0].length];
+
+				// The 0th actions are all NoOps
+				for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+						newSolution[0][agentInd] = new PlanStep(Action.NoOp, -1, -1, 0, -1, -1);
+				}
+
+				// The real action set starts from 1st timestamp
+				for (int timestamp = 1; timestamp < this.longestPath; timestamp++) { // for each timestamp
+					if (timestamp < prevLength  ) {
+						for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+							if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
+								newSolution[timestamp][agentInd] = plan[timestamp];
+							} else { // if it is one of the other agents
+								newSolution[timestamp][agentInd] = this.solution[timestamp][agentInd];
+							}
+						}
+					} else {
+						for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+							if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
+								newSolution[timestamp][agentInd] = plan[timestamp];
+							} else { // if it is one of the other agents
+								newSolution[timestamp][agentInd] = new PlanStep(Action.NoOp, newSolution[timestamp-1][agentIndex].locationX, newSolution[timestamp-1][agentIndex].locationY, timestamp, newSolution[timestamp-1][agentIndex].locationX, newSolution[timestamp-1][agentIndex].locationY );
+							}
+						}
+					}
+
+
+					// this.solution[i] = new PlanStep[parent.solution[i].length];
+					// for (int j = 0; j < parent.solution[i].length; j++) {
+					// 	this.solution[i][j] = new PlanStep(parent.solution[i][j]);
+					// }
+				}
+
+				this.solution = newSolution;
+				System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+			}
+
+			// Fix the indexing issue here 
+			// PlanStep.mergePlans(solution);
+		
+
+	}
+
+	private PlanStep[]  calculateIndividualPlanForAgent (int agentIndex) {
+
+		// Construct a state with the constructor that takes arguments
+		State searchSpecificState = createSpecificState(agentIndex);
+		System.out.println("Specific State: agentsLength: "+ searchSpecificState.agentRows.length + " boxesLength: " + searchSpecificState.boxes.length + " goalsLength: " + searchSpecificState.goals.length    );
+		this.state = searchSpecificState;
+
+		// Calculate teh shifted agent index that matches the real one in the searchSpecificState
+		int shiftedAgentIndex = this.shiftedAgents.indexOf(agentIndex);
+
+		ConstraintState constraintState = new ConstraintState(searchSpecificState, shiftedAgentIndex, this.constraints, 0); // we create a state here
+		// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
+
+		// // we need to create the specific maps here since we have the index here 
+		// // and call search on it
+		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, shiftedAgentIndex);
+
+		return plan;
+	}
+
 
 	public PlanStep[][] findPlan() {
 		int numberOfAgents = state.agentRows.length;
@@ -160,7 +227,7 @@ public class CBSNode {
 		return PlanStep.mergePlans(individualPlans);
 	}
 
-	public PlanStep[][] findPlans() {
+	public PlanStep[][] findOnlyOneIndividualPlan() {
 		
 
 		int numberOfAgents = state.agentRows.length;
@@ -252,7 +319,179 @@ public class CBSNode {
 		return newState;
 	}
 
-	// TODO set Box details
+	public boolean isApplicableStep( PlanStep step, int arrivingTimestamp ) {
+		// The walls, boxes, and goals arrays are indexed from the top-left of the level, row-major order (row, col).
+		// 		Col 0  Col 1  Col 2  Col 3
+		// Row 0: (0,0)  (0,1)  (0,2)  (0,3)  ...
+		// Row 1: (1,0)  (1,1)  (1,2)  (1,3)  ...
+		// Row 2: (2,0)  (2,1)  (2,2)  (2,3)  ...
+
+		// rows == Y
+		// cols == X
+
+		ArrayList<Constraint> constraintsToCheck = new ArrayList<Constraint>();
+		// locationsToCheck looks like [first,second] [row,col]
+		// int[][] locationsToCheck = new int[2][2];
+		// locationsToCheck[0][0]=-5;
+		// locationsToCheck[0][1]=-5;
+		// locationsToCheck[1][0]=-5;
+		// locationsToCheck[1][1]=-5;	
+
+		// constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+		switch (step.action) {
+		case NoOp:
+			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp)); 
+			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
+			// locationsToCheck[0][0] = step.originalY;
+			// locationsToCheck[0][1] = step.originalX;
+			break;
+		case MoveN:
+			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY-1, arrivingTimestamp)); 
+
+			// locationsToCheck[0][0] = step.originalY - 1;
+			// locationsToCheck[0][1] = step.originalX;
+			break;
+		case MoveS:
+			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY+1, arrivingTimestamp));
+			// locationsToCheck[0][0] = step.originalY + 1;
+			// locationsToCheck[0][1] = step.originalX;
+			break;
+		case MoveE:
+			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint( -5,  step.originalX+1, step.originalY, arrivingTimestamp));
+			// locationsToCheck[0][0] = step.originalY;
+			// locationsToCheck[0][1] = step.originalX + 1;
+			break;
+		case MoveW:
+			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint( -5,  step.originalX-1, step.originalY, arrivingTimestamp));
+			// locationsToCheck[0][0] = step.originalY;
+			// locationsToCheck[0][1] = step.originalX - 1;
+			break;
+		}
+
+		if (true){
+					// PushNN("Push(N,N)", ActionType.Push, -1, 0, -1, 0),
+					// PushNE("Push(N,E)", ActionType.Push, -1, 0, 0, 1),
+					// PushNW("Push(N,W)", ActionType.Push, -1, 0, 0, -1),
+
+					// PushSS("Push(S,S)", ActionType.Push, 1, 0, 1, 0),
+					// PushSE("Push(S,E)", ActionType.Push, 1, 0, 0, 1),
+					// PushSW("Push(S,W)", ActionType.Push, 1, 0, 0, -1),
+
+
+					// PushEN("Push(E,N)", ActionType.Push, 0, 1, -1, 0),
+					// PushES("Push(E,S)", ActionType.Push, 0, 1, 1, 0),
+					// PushEE("Push(E,E)", ActionType.Push, 0, 1, 0, 1),
+
+					// PushWN("Push(W,N)", ActionType.Push, 0, -1, -1, 0),
+					// PushWS("Push(W,S)", ActionType.Push, 0, -1, 1, 0),
+					// PushWW("Push(W,W)", ActionType.Push, 0, -1, 0, -1),
+
+					// PullNN("Pull(N,N)", ActionType.Pull, -1, 0, -1, 0),
+					// PullNE("Pull(N,E)", ActionType.Pull, -1, 0, 0, 1),
+					// PullNW("Pull(N,W)", ActionType.Pull, -1, 0, 0, -1),
+
+					// PullSS("Pull(S,S)", ActionType.Pull, 1, 0, 1, 0),
+					// PullSE("Pull(S,E)", ActionType.Pull, 1, 0, 0, 1),
+					// PullSW("Pull(S,W)", ActionType.Pull, 1, 0, 0, -1),
+
+					// PullEN("Pull(E,N)", ActionType.Pull, 0, 1, -1, 0),
+					// PullES("Pull(E,S)", ActionType.Pull, 0, 1, 1, 0),
+					// PullEE("Pull(E,E)", ActionType.Pull, 0, 1, 0, 1),
+
+					// PullWN("Pull(W,N)", ActionType.Pull, 0, -1, -1, 0),
+					// PullWS("Pull(W,S)", ActionType.Pull, 0, -1, 1, 0),
+					// PullWW("Pull(W,W)", ActionType.Pull, 0, -1, 0, -1);
+			}
+
+
+
+		
+
+
+		// CONSTRAINT 
+		// public int agentIndex;
+		// public int locationX;
+		// public int locationY;
+		// public int timestamp;
+		// for (Constraint globalConstr2 : this.constraints) { 
+		// 	System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
+		// }
+		// System.out.println("");
+
+		for (Constraint globalConstr : this.constraints) {
+			for  (Constraint agentConstr : constraintsToCheck ) {
+				if (    agentConstr.locationX == globalConstr.locationX && agentConstr.locationY == globalConstr.locationY && agentConstr.timestamp == globalConstr.timestamp ) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	public void addToConstraints( PlanStep step, int arrivingTimestamp, int agentIndex ) {
+				// The walls, boxes, and goals arrays are indexed from the top-left of the level, row-major order (row, col).
+		// 		Col 0  Col 1  Col 2  Col 3
+		// Row 0: (0,0)  (0,1)  (0,2)  (0,3)  ...
+		// Row 1: (1,0)  (1,1)  (1,2)  (1,3)  ...
+		// Row 2: (2,0)  (2,1)  (2,2)  (2,3)  ...
+
+		// rows == Y
+		// cols == X
+
+		// Constraint(int agentIndex, int locationX, int locationY, int timestamp )
+
+		// locationsToCheck looks like [first,second] [row, col, timestamp]
+		ArrayList<Constraint> constraintsToAdd = new ArrayList<Constraint>();
+		// int[][] locationsToCheck = new int[3][3];
+		// locationsToCheck[0][0]=-5;
+		// locationsToCheck[0][1]=-5;
+		// locationsToCheck[0][2]=-5;
+		// // -------------------------
+		// locationsToCheck[1][0]=-5;
+		// locationsToCheck[1][1]=-5;
+		// locationsToCheck[1][2]=-5;	
+		// // -------------------------
+		// locationsToCheck[2][0]=-5;
+		// locationsToCheck[2][1]=-5;
+		// locationsToCheck[2][2]=-5;
+
+		switch (step.action) {
+			case NoOp:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				break;
+			case MoveN:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				// constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp-1));
+				break;
+			case MoveS:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				// constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp-1));
+				break;
+			case MoveE:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				// constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp-1));
+				break;
+			case MoveW:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				// constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp-1));
+				break;
+			}
+		for (Constraint constr : constraintsToAdd) {
+			this.constraints.add(constr);
+		}
+
+
+	}
 
 	private int[] setAgentRows(InitialStateObject initialStateObject, ArrayList<Integer> sameColoredAgents  ) {
 		int [] agentRowsFilled = new int[sameColoredAgents.size() ];

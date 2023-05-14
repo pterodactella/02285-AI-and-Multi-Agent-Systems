@@ -28,83 +28,143 @@ public class PathFinder implements Comparator<CBSNode> {
 		root.solution = root.findPlan();
 		root.totalCost = root.sumCosts();
 
-		// TODO: Replace with priority qyueyue
-		PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
-		HashSet<CBSNode> expanded = new HashSet<>();
 
-		open.add(root);
-		Logger logger = Logger.getInstance();
+		// --------------------
+		// NEW VERSION
+		// System.out.println(root.solution.length);
+		// System.out.println(root.solution[0].length);
 
-		while (!open.isEmpty()) {
-			logger.log("#########################################");
-			CBSNode p = open.poll();
-			expanded.add(p);
-			GenericConflict c = p.findFirstConflict();
 
-			if (c == null) {
-//				for (PlanStep[] plan : p.solution) {
-//					for (PlanStep step : plan) {
-//						logger.log("[ " + step.toString() + " ]");
-//					}
-//					logger.log("");
-//				}
-				return p.solution;
+
+		
+		// // NOW: mergedPlans[timestamp][agent]
+		int agentInd = 0;
+		while (agentInd < root.solution[0].length){ // Every Agent
+			boolean needToReplan = false;
+
+			for (int timestamp = 1; timestamp < root.solution.length; timestamp++) { 	// Every Step
+				// System.out.println(root.solution[timestamp][agentInd].toString());
+				if ( !root.isApplicableStep( root.solution[timestamp][agentInd], timestamp ) ){
+					needToReplan = true;
+					break;
+				}
 			}
 
-//			for (PlanStep[] plan : p.solution) {
-//				for (PlanStep step : plan) {
-//					logger.log("[ " + step.toString() + " ]");
-//				}
-//				logger.log("");
-//			}
+			if( needToReplan ) {
+				// find individual plan for agentInd
+				root.setNewIndividualPlanForAgent( agentInd );
 
-			if (c instanceof Conflict) {
-//				logger.log("Conflict found: " + c.toString());
-			} else if (c instanceof OrderedConflict) {
-//				logger.log("OrderedConflict found: " + c.toString());
-			}
 
-			PathFinder.triedTimes++;
-
-//			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
-//				System.exit(0);
-//			}
-
-			if (c instanceof Conflict) {
-
-				for (int agentIndex : ((Conflict) c).agentIndexes) {
-					CBSNode a = new CBSNode(p);
-					a.constraints.add(new Constraint(agentIndex, ((Conflict) c).locationX, ((Conflict) c).locationY,
-							((Conflict) c).timestamp));
-
-					a.solution = a.findPlan();
-					a.totalCost = a.sumCosts();
-
-					// TODO: use a number instead of infinity
-					if (!open.contains(a) && !expanded.contains(a)) {
-						open.add(a);
+			} else {
+				// save plan to constraints
+				for (int timestamp = 1; timestamp < root.solution.length; timestamp++) { 	// Every Step
+					root.addToConstraints( root.solution[timestamp][agentInd], timestamp, agentInd ); // original
+					try {
+						root.addToConstraints( root.solution[timestamp+1][agentInd], timestamp, agentInd ); 
+					} catch (Exception e) {
 					}
-				}
-			} else if (c instanceof OrderedConflict) {
-				CBSNode a = new CBSNode(p);
-				a.constraints.add(
-						new Constraint(((OrderedConflict) c).followerIndex, ((OrderedConflict) c).forbiddenLocationX,
-								((OrderedConflict) c).forbiddenLocationY, ((OrderedConflict) c).timestamp));
 
-				a.solution = a.findPlan();
-				a.totalCost = a.sumCosts();
 
-				// TODO: use a number instead of infinity
-				if (!open.contains(a) && !expanded.contains(a)) {
-					open.add(a);
 				}
-			}
-			 if (PathFinder.triedTimes % 100 == 0) {
-                 printSearchStatus(expanded, open);
-             }
+				
+				agentInd++;
+				
+			} 
+
 		}
 
-		return null;
+		// for (int agentInd = 0; agentInd < root.solution[0].length; agentInd++) {	
+		// }
+
+
+
+
+
+
+
+
+
+
+
+		// OLD VERSION
+		// 		// TODO: Replace with priority qyueyue
+		// 		PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
+		// 		HashSet<CBSNode> expanded = new HashSet<>();
+
+		// 		open.add(root);
+		// 		Logger logger = Logger.getInstance();
+
+		// 		while (!open.isEmpty()) {
+		// 			logger.log("#########################################");
+		// 			CBSNode p = open.poll();
+		// 			expanded.add(p);
+		// 			GenericConflict c = p.findFirstConflict();
+
+		// 			if (c == null) {
+		// //				for (PlanStep[] plan : p.solution) {
+		// //					for (PlanStep step : plan) {
+		// //						logger.log("[ " + step.toString() + " ]");
+		// //					}
+		// //					logger.log("");
+		// //				}
+		// 				return p.solution;
+		// 			}
+
+		// //			for (PlanStep[] plan : p.solution) {
+		// //				for (PlanStep step : plan) {
+		// //					logger.log("[ " + step.toString() + " ]");
+		// //				}
+		// //				logger.log("");
+		// //			}
+
+		// 			if (c instanceof Conflict) {
+		// //				logger.log("Conflict found: " + c.toString());
+		// 			} else if (c instanceof OrderedConflict) {
+		// //				logger.log("OrderedConflict found: " + c.toString());
+		// 			}
+
+		// 			PathFinder.triedTimes++;
+
+		// //			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
+		// //				System.exit(0);
+		// //			}
+
+		// 			if (c instanceof Conflict) {
+
+		// 				for (int agentIndex : ((Conflict) c).agentIndexes) {
+		// 					CBSNode a = new CBSNode(p);
+		// 					a.constraints.add(new Constraint(agentIndex, ((Conflict) c).locationX, ((Conflict) c).locationY,
+		// 							((Conflict) c).timestamp));
+
+		// 					a.solution = a.findPlan();
+		// 					a.totalCost = a.sumCosts();
+
+		// 					// TODO: use a number instead of infinity
+		// 					if (!open.contains(a) && !expanded.contains(a)) {
+		// 						open.add(a);
+		// 					}
+		// 				}
+		// 			} else if (c instanceof OrderedConflict) {
+		// 				CBSNode a = new CBSNode(p);
+		// 				a.constraints.add(
+		// 						new Constraint(((OrderedConflict) c).followerIndex, ((OrderedConflict) c).forbiddenLocationX,
+		// 								((OrderedConflict) c).forbiddenLocationY, ((OrderedConflict) c).timestamp));
+
+		// 				a.solution = a.findPlan();
+		// 				a.totalCost = a.sumCosts();
+
+		// 				// TODO: use a number instead of infinity
+		// 				if (!open.contains(a) && !expanded.contains(a)) {
+		// 					open.add(a);
+		// 				}
+		// 			}
+		// 			 if (PathFinder.triedTimes % 100 == 0) {
+		//                  printSearchStatus(expanded, open);
+		//              }
+		// 		}
+		// OLD VERSION
+
+		return root.solution;
 	}
 
 	@Override

@@ -222,7 +222,7 @@ public class ConstraintState {
 	}
 
 	private boolean violatesConstraints(int agentCol, int agentRow) {
-//		System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " + this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
+		// System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " + this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
 //		for (Constraint constr: this.constraints) {
 //			System.err.print(constr.toString() + "; ");
 //		}
@@ -230,10 +230,25 @@ public class ConstraintState {
 
 		for (Constraint constraint : this.constraints) {
 			if (this.timestamp + 1 == constraint.timestamp && constraint.locationX == agentCol
-					&& constraint.locationY == agentRow && constraint.agentIndex == this.agent) {
-//				System.err.println("VIOLATES CONSTRAINT: " + constraint);
+					&& constraint.locationY == agentRow // && constraint.agentIndex == this.agent
+					) {
+						// System.err.println("VIOLATES CONSTRAINT: " + constraint);
+						return true;
+			}
+			if (
+				this.timestamp  == constraint.timestamp && constraint.locationX == agentCol
+					&& constraint.locationY == agentRow //&& constraint.agentIndex == this.agent 
+					) {
+				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
 				return true;
 			}
+			// if (
+			// 	this.timestamp -1 == constraint.timestamp && constraint.locationX == agentCol
+			// 		&& constraint.locationY == agentRow //&& constraint.agentIndex == this.agent 
+			// 		) {
+			// 	System.err.println("VIOLATES CONSTRAINT: " + constraint);
+			// 	return true;
+			// }
 		}
 		return false;
 
@@ -426,7 +441,7 @@ public class ConstraintState {
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		s.append("AGENT ACTION: " + this.agentAction.toString() + "\n");
+		// s.append("AGENT ACTION: " + this.agentAction.toString() + "\n");
 		s.append("AGENT: " + this.agent + "\n");
 		for (int row = 0; row < this.walls.length; row++) {
 			for (int col = 0; col < this.walls[row].length; col++) {

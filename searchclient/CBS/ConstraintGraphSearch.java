@@ -23,6 +23,10 @@ public class ConstraintGraphSearch {
 			}
 			ConstraintState s = frontier.pop();
 			if (s.isGoalState()) {
+				PlanStep[] plan = s.extractPlan();
+				for (PlanStep step : plan) {
+					System.out.println(step.toString());
+				}
 				return s.extractPlan();
 			}
 			expanded.add(s);
