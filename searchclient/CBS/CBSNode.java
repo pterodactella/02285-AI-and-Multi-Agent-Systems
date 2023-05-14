@@ -326,7 +326,9 @@ public class CBSNode {
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp)); 
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
 			break;
-		case MoveN:
+		
+		
+			case MoveN:
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY-1, arrivingTimestamp)); 
 			break;
@@ -342,6 +344,144 @@ public class CBSNode {
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
 			constraintsToCheck.add(new Constraint( -5,  step.originalX-1, step.originalY, arrivingTimestamp));
 			break;
+
+			case PullNN:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			break;
+		case PullNE:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			break;
+		case PullNW:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			break;
+
+			case PullSS:	
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			break;
+		case PullSW:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			break;	
+		case PullSE:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			break;
+
+			case PullEE:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			break;
+		case PullEN:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			break;
+		case PullES:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			break;
+
+			case PullWW:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			break;
+		case PullWN:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			break;
+		case PullWS:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			break;
+
+
+			case PushNN:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-2, arrivingTimestamp));
+			break;	
+		case PushNE:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY-1, arrivingTimestamp));
+			break;
+		case PushNW:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY-1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY-1, arrivingTimestamp));
+
+			case PushSS:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+2, arrivingTimestamp));
+			break;
+		case PushSE:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY+1, arrivingTimestamp));
+			break;
+		case PushSW:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY+1, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY+1, arrivingTimestamp));
+			break;
+
+			case PushEE:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+2, step.originalY, arrivingTimestamp));
+			break;
+		case PushEN:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY-1, arrivingTimestamp));
+			break;
+		case PushES:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX+1, step.originalY+1, arrivingTimestamp));
+			break;
+
+			case PushWW:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-2, step.originalY, arrivingTimestamp));
+			break;
+		case PushWN:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY-1, arrivingTimestamp));
+			break;
+		case PushWS:
+			constraintsToCheck.add(new Constraint(-5, step.originalX, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY, arrivingTimestamp));
+			constraintsToCheck.add(new Constraint(-5, step.originalX-1, step.originalY+1, arrivingTimestamp));
+			break;
+
+
+
+
+
+
+
+
+
+
 		}
 
 		if (true){
@@ -424,26 +564,159 @@ public class CBSNode {
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
 				break;
-			case MoveN:
+			
+			
+				case MoveN:
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
-				// constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp-1));
 				break;
 			case MoveS:
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
-				// constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp-1));
 				break;
 			case MoveE:
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
-				// constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp-1));
 				break;
 			case MoveW:
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
 				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
-				// constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp-1));
 				break;
+
+
+
+				case PullNN:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				break;
+			case PullNE:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				break;
+			case PullNW:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				break;
+
+				case PullSS:	
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				break;
+			case PullSW:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				break;	
+			case PullSE:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				break;
+
+				case PullEE:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				break;
+			case PullEN:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				break;
+			case PullES:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				break;
+
+				case PullWW:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				break;
+			case PullWN:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				break;
+			case PullWS:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				break;
+
+
+				case PushNN:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-2, arrivingTimestamp));
+				break;	
+			case PushNE:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY-1, arrivingTimestamp));
+				break;
+			case PushNW:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY-1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY-1, arrivingTimestamp));
+
+				case PushSS:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+2, arrivingTimestamp));
+				break;
+			case PushSE:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY+1, arrivingTimestamp));
+				break;
+			case PushSW:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY+1, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY+1, arrivingTimestamp));
+				break;
+
+				case PushEE:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+2, step.originalY, arrivingTimestamp));
+				break;
+			case PushEN:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY-1, arrivingTimestamp));
+				break;
+			case PushES:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX+1, step.originalY+1, arrivingTimestamp));
+				break;
+
+				case PushWW:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-2, step.originalY, arrivingTimestamp));
+				break;
+			case PushWN:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY-1, arrivingTimestamp));
+				break;
+			case PushWS:
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY, arrivingTimestamp));
+				constraintsToAdd.add(new Constraint(agentIndex, step.originalX-1, step.originalY+1, arrivingTimestamp));
+				break;
+
+			default:
+				System.err.println("=================================== Unknown Type of Step in addToConstraints() ===================================");
+				break;
+
 			}
 		for (Constraint constr : constraintsToAdd) {
 			this.constraints.add(constr);
