@@ -206,8 +206,6 @@ public class CBSNode {
 //		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
 
 		for (int i = 0; i < numberOfAgents; i++) {
-			PlanStep[] currentPlan = individualPlans[i];
-			PlanStep[] newPlan = findIndividualPlan(i);
 
 			findIndividualPlan(i, individualPlans);
 			//			System.out.println("THE PLAN FOR: " + i);
@@ -221,9 +219,9 @@ public class CBSNode {
 		return PlanStep.mergePlans(individualPlans);
 	}
 
+
 	public PlanStep[][] findOnlyOneIndividualPlan() {
 		
-
 		int numberOfAgents = state.agentRows.length;
 		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
 		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
