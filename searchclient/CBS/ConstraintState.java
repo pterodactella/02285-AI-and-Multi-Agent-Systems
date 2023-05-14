@@ -217,16 +217,16 @@ public class ConstraintState {
 		for (Action nextAction : applicableActions) {
 			expandedStates.add(new ConstraintState(this, nextAction));
 		}
-//		Collections.shuffle(expandedStates, ConstraintState.RNG);
+		// Collections.shuffle(expandedStates, ConstraintState.RNG);
 		return expandedStates;
 	}
 
 	private boolean violatesConstraints(int agentCol, int agentRow) {
 		// System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " + this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
-//		for (Constraint constr: this.constraints) {
-//			System.err.print(constr.toString() + "; ");
-//		}
-//		System.err.println("\n");
+		// for (Constraint constr: this.constraints) {
+		// 	System.err.print(constr.toString() + "; ");
+		// }
+		// System.err.println("\n");
 
 		for (Constraint constraint : this.constraints) {
 			if (this.timestamp + 1 == constraint.timestamp && constraint.locationX == agentCol

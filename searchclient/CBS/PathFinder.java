@@ -34,9 +34,6 @@ public class PathFinder implements Comparator<CBSNode> {
 		// System.out.println(root.solution.length);
 		// System.out.println(root.solution[0].length);
 
-
-
-		
 		// // NOW: mergedPlans[timestamp][agent]
 		int agentInd = 0;
 		while (agentInd < root.solution[0].length){ // Every Agent
@@ -53,29 +50,19 @@ public class PathFinder implements Comparator<CBSNode> {
 			if( needToReplan ) {
 				// find individual plan for agentInd
 				root.setNewIndividualPlanForAgent( agentInd );
-
-
 			} else {
 				// save plan to constraints
 				for (int timestamp = 1; timestamp < root.solution.length; timestamp++) { 	// Every Step
 					root.addToConstraints( root.solution[timestamp][agentInd], timestamp, agentInd ); // original
 					try {
 						root.addToConstraints( root.solution[timestamp+1][agentInd], timestamp, agentInd ); 
-					} catch (Exception e) {
-					}
-
+					} catch (Exception e) {}
 
 				}
-				
 				agentInd++;
 				
 			} 
-
 		}
-
-		// for (int agentInd = 0; agentInd < root.solution[0].length; agentInd++) {	
-		// }
-
 
 
 

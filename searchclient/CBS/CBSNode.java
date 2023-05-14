@@ -123,65 +123,53 @@ public class CBSNode {
 		PlanStep[] plan = calculateIndividualPlanForAgent(agentIndex);
 		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
 
-
-
-			if (this.longestPath > plan.length) {
-				// just copy it there
-				for (int timestamp = 0; timestamp < this.longestPath; timestamp++) {
-					if (timestamp < plan.length) {
-						this.solution[timestamp][agentIndex] = plan[timestamp];
-					} else {
-						this.solution[timestamp][agentIndex] = new PlanStep(Action.NoOp, this.solution[timestamp-1][agentIndex].locationX, this.solution[timestamp-1][agentIndex].locationY, timestamp, this.solution[timestamp-1][agentIndex].locationX, this.solution[timestamp-1][agentIndex].locationY );
-					}
-
+		if (this.longestPath > plan.length) {
+			// just copy it there
+			for (int timestamp = 0; timestamp < this.longestPath; timestamp++) {
+				if (timestamp < plan.length) {
+					this.solution[timestamp][agentIndex] = plan[timestamp];
+				} else {
+					this.solution[timestamp][agentIndex] = new PlanStep(Action.NoOp, this.solution[timestamp-1][agentIndex].locationX, this.solution[timestamp-1][agentIndex].locationY, timestamp, this.solution[timestamp-1][agentIndex].locationX, this.solution[timestamp-1][agentIndex].locationY );
 				}
-
-			} else {
-				int prevLength = this.solution.length;
-				this.longestPath = plan.length;
-				
-				// SOLUTIIN: [timestamp][agentIndex]
-				PlanStep[][] newSolution = new PlanStep[this.longestPath][this.solution[0].length];
-
-				// The 0th actions are all NoOps
-				for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
-						newSolution[0][agentInd] = new PlanStep(Action.NoOp, -1, -1, 0, -1, -1);
-				}
-
-				// The real action set starts from 1st timestamp
-				for (int timestamp = 1; timestamp < this.longestPath; timestamp++) { // for each timestamp
-					if (timestamp < prevLength  ) {
-						for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
-							if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
-								newSolution[timestamp][agentInd] = plan[timestamp];
-							} else { // if it is one of the other agents
-								newSolution[timestamp][agentInd] = this.solution[timestamp][agentInd];
-							}
-						}
-					} else {
-						for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
-							if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
-								newSolution[timestamp][agentInd] = plan[timestamp];
-							} else { // if it is one of the other agents
-								newSolution[timestamp][agentInd] = new PlanStep(Action.NoOp, newSolution[timestamp-1][agentIndex].locationX, newSolution[timestamp-1][agentIndex].locationY, timestamp, newSolution[timestamp-1][agentIndex].locationX, newSolution[timestamp-1][agentIndex].locationY );
-							}
-						}
-					}
-
-
-					// this.solution[i] = new PlanStep[parent.solution[i].length];
-					// for (int j = 0; j < parent.solution[i].length; j++) {
-					// 	this.solution[i][j] = new PlanStep(parent.solution[i][j]);
-					// }
-				}
-
-				this.solution = newSolution;
-				System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
 			}
 
-			// Fix the indexing issue here 
-			// PlanStep.mergePlans(solution);
+		} else {
+			int prevLength = this.solution.length;
+			this.longestPath = plan.length;
+			
+			// SOLUTION: [timestamp][agentIndex]
+			PlanStep[][] newSolution = new PlanStep[this.longestPath][this.solution[0].length];
+
+			// The 0th actions are all NoOps
+			for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+					newSolution[0][agentInd] = new PlanStep(Action.NoOp, -1, -1, 0, -1, -1);
+			}
+
+			// The real action set starts from 1st timestamp
+			for (int timestamp = 1; timestamp < this.longestPath; timestamp++) { // for each timestamp
+				if (timestamp < prevLength  ) {
+					for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+						if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
+							newSolution[timestamp][agentInd] = plan[timestamp];
+						} else { // if it is one of the other agents
+							newSolution[timestamp][agentInd] = this.solution[timestamp][agentInd];
+						}
+					}
+				} else {
+					for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+						if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
+							newSolution[timestamp][agentInd] = plan[timestamp];
+						} else { // if it is one of the other agents
+							newSolution[timestamp][agentInd] = new PlanStep(Action.NoOp, newSolution[timestamp-1][agentIndex].locationX, newSolution[timestamp-1][agentIndex].locationY, timestamp, newSolution[timestamp-1][agentIndex].locationX, newSolution[timestamp-1][agentIndex].locationY );
+						}
+					}
+				}
+			}
+
+			this.solution = newSolution;
+		}
+
 		
 
 	}
@@ -330,45 +318,29 @@ public class CBSNode {
 		// cols == X
 
 		ArrayList<Constraint> constraintsToCheck = new ArrayList<Constraint>();
-		// locationsToCheck looks like [first,second] [row,col]
-		// int[][] locationsToCheck = new int[2][2];
-		// locationsToCheck[0][0]=-5;
-		// locationsToCheck[0][1]=-5;
-		// locationsToCheck[1][0]=-5;
-		// locationsToCheck[1][1]=-5;	
+
 
 		// constraintsToAdd.add(new Constraint(agentIndex, step.originalX, step.originalY, arrivingTimestamp));
 		switch (step.action) {
 		case NoOp:
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp)); 
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
-			// locationsToCheck[0][0] = step.originalY;
-			// locationsToCheck[0][1] = step.originalX;
 			break;
 		case MoveN:
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY-1, arrivingTimestamp)); 
-
-			// locationsToCheck[0][0] = step.originalY - 1;
-			// locationsToCheck[0][1] = step.originalX;
 			break;
 		case MoveS:
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY+1, arrivingTimestamp));
-			// locationsToCheck[0][0] = step.originalY + 1;
-			// locationsToCheck[0][1] = step.originalX;
 			break;
 		case MoveE:
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
 			constraintsToCheck.add(new Constraint( -5,  step.originalX+1, step.originalY, arrivingTimestamp));
-			// locationsToCheck[0][0] = step.originalY;
-			// locationsToCheck[0][1] = step.originalX + 1;
 			break;
 		case MoveW:
 			constraintsToCheck.add(new Constraint( -5,  step.originalX, step.originalY, arrivingTimestamp));
 			constraintsToCheck.add(new Constraint( -5,  step.originalX-1, step.originalY, arrivingTimestamp));
-			// locationsToCheck[0][0] = step.originalY;
-			// locationsToCheck[0][1] = step.originalX - 1;
 			break;
 		}
 
@@ -411,16 +383,16 @@ public class CBSNode {
 
 		
 
-
+			
+			// for (Constraint globalConstr2 : this.constraints) { 
+			// 	System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
+			// }
+			// System.out.println("");
 		// CONSTRAINT 
 		// public int agentIndex;
 		// public int locationX;
 		// public int locationY;
 		// public int timestamp;
-		// for (Constraint globalConstr2 : this.constraints) { 
-		// 	System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
-		// }
-		// System.out.println("");
 
 		for (Constraint globalConstr : this.constraints) {
 			for  (Constraint agentConstr : constraintsToCheck ) {
@@ -443,22 +415,9 @@ public class CBSNode {
 		// rows == Y
 		// cols == X
 
-		// Constraint(int agentIndex, int locationX, int locationY, int timestamp )
 
 		// locationsToCheck looks like [first,second] [row, col, timestamp]
 		ArrayList<Constraint> constraintsToAdd = new ArrayList<Constraint>();
-		// int[][] locationsToCheck = new int[3][3];
-		// locationsToCheck[0][0]=-5;
-		// locationsToCheck[0][1]=-5;
-		// locationsToCheck[0][2]=-5;
-		// // -------------------------
-		// locationsToCheck[1][0]=-5;
-		// locationsToCheck[1][1]=-5;
-		// locationsToCheck[1][2]=-5;	
-		// // -------------------------
-		// locationsToCheck[2][0]=-5;
-		// locationsToCheck[2][1]=-5;
-		// locationsToCheck[2][2]=-5;
 
 		switch (step.action) {
 			case NoOp:
