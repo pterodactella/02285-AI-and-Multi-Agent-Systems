@@ -10,7 +10,22 @@ public abstract class Heuristic
         // Here's a chance to pre-process the static parts of the level.
     }
 
-    public int h(State s)
+    
+	public int h(State s) {
+		int combinedHeuristic = Integer.MAX_VALUE;
+
+		// Find the nearest goal state based on the Manhattan distance
+		for (int i = 0; i < s.goals.length; i++) {
+			int heuristic = h(s, i); // Compute heuristic for each goal state
+			System.err.println("Main class heuristic= " + heuristic);
+			combinedHeuristic = Math.min(combinedHeuristic, heuristic); // Update with the minimum heuristic
+			System.err.println("Main class Combined heuristic= " + combinedHeuristic);
+
+		}
+
+		return combinedHeuristic;
+	}
+    public int h(State s, int goalIndex)
     {
     	Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
 //    	System.out.println("d=" );

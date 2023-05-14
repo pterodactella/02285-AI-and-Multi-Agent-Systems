@@ -90,12 +90,14 @@ public class CBSNode {
 
 	}
 
-	public void findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
+	public PlanStep[] findIndividualPlan(int agentIndex) {
 
-
-		//TODO: Instead of initializing the frontier again and again for evey agent, we need to modify so that it re-uses the same frontier. This will optimize a lot the run-speed.
-		//HAVE THE FRONTIER AS A SINGLETON OR GLOBAL CLASS THAT WILL BE RE-USED IN CONSTRAINT GRAPHSEARCH AND HERE IN CBSNODE!!!
-//		ConstraintFrontier frontier = GlobalExpandsQueue.getInstance().getQueue();
+		// TODO: Instead of initializing the frontier again and again for evey agent, we
+		// need to modify so that it re-uses the same frontier. This will optimize a lot
+		// the run-speed.
+		// HAVE THE FRONTIER AS A SINGLETON OR GLOBAL CLASS THAT WILL BE RE-USED IN
+		// CONSTRAINT GRAPHSEARCH AND HERE IN CBSNODE!!!
+		// ConstraintFrontier frontier = GlobalExpandsQueue.getInstance().getQueue();
 		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
 		// System.err.println("plan for agent " + agentIndex + " is: " +
@@ -114,33 +116,33 @@ public class CBSNode {
 		// logger.log("Step: " + step.toString());
 		// }
 		// logger.log("");
+
 		if (plan != null && plan.length > this.longestPath) {
 			this.longestPath = plan.length;
 		}
 
-		individualPlans[agentIndex] = plan;
-		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
+		return plan;
 
 	}
 
 	public PlanStep[][] findPlan() {
 		int numberOfAgents = state.agentRows.length;
 		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
-		// System.err.println("NUMBER OF AGENTS" + numberOfAgents);
 
 		for (int i = 0; i < numberOfAgents; i++) {
+			PlanStep[] currentPlan = individualPlans[i];
+			PlanStep[] newPlan = findIndividualPlan(i);
 
-			findIndividualPlan(i, individualPlans);
-			// System.out.println("THE PLAN FOR: " + i);
-			// for (PlanStep step : plan) {
-			// System.out.println("Step: " + step.toString());
-			// }
-			// TODO: Add search with constraint
-
+			if (currentPlan == null || (newPlan != null && newPlan.length < currentPlan.length)) {
+				individualPlans[i] = newPlan;
+			}
 		}
 
 		return PlanStep.mergePlans(individualPlans);
 	}
+
+
+	//TAMAS STUFF
 
 	public int sumCosts() {
 		int sum = 0;
