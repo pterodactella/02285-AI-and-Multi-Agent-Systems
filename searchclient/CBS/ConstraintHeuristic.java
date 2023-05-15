@@ -12,42 +12,14 @@ public abstract class ConstraintHeuristic implements Comparator<ConstraintState>
     public ConstraintHeuristic() {
         // Here's a chance to pre-process the static parts of the level.
     }
-
-    public int h(ConstraintState s) {
-        int combinedHeuristic = Integer.MAX_VALUE;
-
-        if (s.goalIndex == null) {
-            Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
-            return d.calculate();
-        }
-        for (int[] goalIndex : s.goalIndex) {
-            int heuristic = h(s, goalIndex); // Compute heuristic for each goal state
-            System.err.println("heuristic= " + heuristic);
-
-            combinedHeuristic = Math.min(combinedHeuristic, heuristic);
-            System.err.println("Combined heuristic= " + combinedHeuristic);
-        }
-
-        // Apply a penalty based on the number of constraints
-        int constraintPenalty = calculateConstraintPenalty(s);
-        combinedHeuristic += constraintPenalty;
-
-        return combinedHeuristic;
+	public int h(ConstraintState s)
+    {
+    	Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
+   	// System.out.println("d=" );
+   	// System.out.println(d.calculate());
+        return d.calculate();
     }
 
-    public int h(ConstraintState s, int[] goalIndex) {
-        // Compute the heuristic for the specific goal state using Manhattan distance or
-        // any other suitable method
-        // Implement your own heuristic calculation here
-        int agentRow = s.agentRows[s.agent];
-        int agentCol = s.agentCols[s.agent];
-        int goalRow = goalIndex[0];
-        int goalCol = goalIndex[1];
-
-        int heuristic = Math.abs(agentRow - goalRow) + Math.abs(agentCol - goalCol);
-
-        return heuristic;
-    }
 
     public int calculateConstraintPenalty(ConstraintState s) {
         // Calculate the penalty based on the number of constraints in the state

@@ -180,7 +180,6 @@ public class ConstraintState {
 						this.goalIndex.add(goalIndexArray);
 						System.err.println("goalIndex " + this.goalIndex.get(0)[0] + this.goalIndex.get(0)[1]);
 
-
 					}
 
 				}
@@ -475,4 +474,6 @@ public class ConstraintState {
 		}
 		return s.toString();
 	}
+
+
 }

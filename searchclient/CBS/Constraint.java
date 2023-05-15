@@ -46,7 +46,7 @@ public class Constraint {
 		s.append("agentIndex: " + agentIndex + "; ");
 		s.append("timestamp: " + timestamp + "; ");
 		s.append("box: " + box + "; ");
-        s.append("boxColor: " + boxColor + "; ");
+		s.append("boxColor: " + boxColor + "; ");
 		return s.toString();
 	}
 
@@ -58,8 +58,7 @@ public class Constraint {
 		result = result * prime + this.locationX;
 		result = result * prime + this.locationY;
 		result = result * prime + this.timestamp;
-		result = result * prime + this.box;
-        result = result * prime + this.boxColor.hashCode();
+
 		return result;
 	}
 
@@ -76,11 +75,11 @@ public class Constraint {
 		}
 		Constraint other = (Constraint) obj;
 		return this.agentIndex == other.agentIndex &&
-                this.locationX == other.locationX &&
-                this.locationY == other.locationY &&
-                this.timestamp == other.timestamp &&
-                this.box == other.box &&
-                this.boxColor.equals(other.boxColor);
+				this.locationX == other.locationX &&
+				this.locationY == other.locationY &&
+				this.timestamp == other.timestamp &&
+				this.box == other.box &&
+				(this.boxColor == null ? other.boxColor == null : this.boxColor.equals(other.boxColor));
 	}
 
 }

@@ -25,6 +25,7 @@ public class CBSNode {
 	public int totalCost;
 	private int hash = 0;
 	private ConstraintFrontier frontier;
+	private int numConflicts;
 
 	public CBSNode(State state) {
 		this.state = state;
@@ -51,6 +52,42 @@ public class CBSNode {
 
 		this.costs = parent.costs.clone();
 		this.totalCost = 0;
+	}
+
+	public int findConflicts() {
+		ArrayList<GenericConflict> conflicts = new ArrayList<>();
+		int[] agentsPositions = null;
+		for (int i = 1; i <= this.longestPath; i++) {
+			for (int j = 0; j < this.solution[i].length; j++) {
+				if (this.solution[i][j].locationX == -1)
+					continue;
+				for (int k = j + 1; k < this.solution[i].length; k++) {
+					if (this.solution[i][k].locationX == -1)
+						continue;
+					agentsPositions = new int[] {
+							/* [0] : */ this.solution[i][j].locationX,
+							/* [1] : */ this.solution[i][j].locationY,
+							/* [2] : */ this.solution[i][k].locationX,
+							/* [3] : */ this.solution[i][k].locationY,
+							/* [4] : */ this.solution[i][j].originalX,
+							/* [5] : */ this.solution[i][j].originalY,
+							/* [6] : */ this.solution[i][k].originalX,
+							/* [7] : */ this.solution[i][k].originalY
+					};
+
+					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
+						conflicts.add(new Conflict(j, k, agentsPositions[0], agentsPositions[1], i));
+					}
+					if (agentsPositions[2] == agentsPositions[4] && agentsPositions[3] == agentsPositions[5]) {
+						conflicts.add(new OrderedConflict(j, k, agentsPositions[4], agentsPositions[5], i));
+					}
+					if (agentsPositions[0] == agentsPositions[6] && agentsPositions[1] == agentsPositions[7]) {
+						conflicts.add(new OrderedConflict(k, j, agentsPositions[6], agentsPositions[7], i));
+					}
+				}
+			}
+		}
+		return conflicts.size();
 	}
 
 	public GenericConflict findFirstConflict() {
@@ -144,8 +181,7 @@ public class CBSNode {
 		return PlanStep.mergePlans(individualPlans);
 	}
 
-
-	//TAMAS STUFF
+	// TAMAS STUFF
 
 	public int sumCosts() {
 		int sum = 0;
