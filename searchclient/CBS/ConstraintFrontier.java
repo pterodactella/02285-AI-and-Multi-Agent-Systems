@@ -68,7 +68,7 @@ class FrontierBFS
 class FrontierDFS
         implements ConstraintFrontier
 {
-    private final  Stack<ConstraintState> stack = new Stack<>();
+    private final  ArrayDeque<ConstraintState> stack = new ArrayDeque<>();
     private final  HashSet<ConstraintState> set = new HashSet<>(65536);
     
     @Override
