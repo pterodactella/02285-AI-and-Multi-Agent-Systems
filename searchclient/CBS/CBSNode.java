@@ -127,6 +127,7 @@ public class CBSNode {
 
 	}
 
+
 	public PlanStep[] findIndividualPlan(int agentIndex) {
 
 		// TODO: Instead of initializing the frontier again and again for evey agent, we
@@ -135,27 +136,12 @@ public class CBSNode {
 		// HAVE THE FRONTIER AS A SINGLETON OR GLOBAL CLASS THAT WILL BE RE-USED IN
 		// CONSTRAINT GRAPHSEARCH AND HERE IN CBSNODE!!!
 		// ConstraintFrontier frontier = GlobalExpandsQueue.getInstance().getQueue();
+		
 		ConstraintState n = new ConstraintState(this.state, agentIndex, this.constraints, 0);
 
-		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(n));
+		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
 		frontier.add(n);
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
-		// System.err.println("plan for agent " + agentIndex + " is: " +
-		// Arrays.toString(plan));
-
-		// Logger logger = Logger.getInstance();
-		// logger.log("^^^^^ .... ^^^^^");
-		// logger.log("THESE ARE THE CONSTRAINTS: ");
-		// for (Constraint constr: this.constraints) {
-		// logger.log(constr.toString());
-		// }
-		// logger.log("^^^^^ .... ^^^^^");
-		//
-		// logger.log("THE PLAN FOR: " + agentIndex);
-		// for (PlanStep step : plan) {
-		// logger.log("Step: " + step.toString());
-		// }
-		// logger.log("");
 
 		if (plan != null && plan.length > this.longestPath) {
 			this.longestPath = plan.length;
