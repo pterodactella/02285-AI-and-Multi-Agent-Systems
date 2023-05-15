@@ -1,5 +1,4 @@
 package searchclient.CBS;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -104,7 +103,7 @@ public class CBSNode {
 
 		ConstraintState constraintState = new ConstraintState(searchSpecificState, shiftedAgentIndex, this.constraints, 0); // we create a state here
 		// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
-		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
+		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
 
 		// // we need to create the specific maps here since we have the index here 
 		// // and call search on it
@@ -190,7 +189,7 @@ public class CBSNode {
 
 		ConstraintState constraintState = new ConstraintState(searchSpecificState, shiftedAgentIndex, this.constraints, 0); // we create a state here
 		// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
-		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
+		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
 
 		// // we need to create the specific maps here since we have the index here 
 		// // and call search on it
@@ -528,10 +527,10 @@ public class CBSNode {
 		
 
 			// List all constratins
-			for (Constraint globalConstr2 : this.constraints) { 
-				System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
-			}
-			System.out.println("");
+			// for (Constraint globalConstr2 : this.constraints) { 
+			// 	System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
+			// }
+			// System.out.println("");
 		// CONSTRAINT 
 		// public int agentIndex;
 		// public int locationX;

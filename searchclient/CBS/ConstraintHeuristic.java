@@ -8,20 +8,24 @@ import searchclient.ManhattanDistance;
 
 public abstract class ConstraintHeuristic implements Comparator<ConstraintState> {
 	public ConstraintHeuristic() {
-// Here's a chance to pre-process the static parts of the level.
+		// Here's a chance to pre-process the static parts of the level.
 	}
 
 	public int h(ConstraintState s) {
 		int combinedHeuristic = Integer.MAX_VALUE;
 
-		// Find the nearest goal state based on the Manhattan distance
-		for (int i = 0; i < s.numGoals; i++) {
-			int heuristic = h(s, i); // Compute heuristic for each goal state
-			System.err.println("heuristic= " + heuristic);
-			combinedHeuristic = Math.min(combinedHeuristic, heuristic); // Update with the minimum heuristic
-			System.err.println("Combined heuristic= " + combinedHeuristic);
-
+		if (s.goalIndex == null) {
+			Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
+			return d.calculate();
 		}
+		for (int[] goalIndex : s.goalIndex) {
+			int heuristic = h(s, goalIndex); // Compute heuristic for each goal state
+			System.err.println("heuristic= " + heuristic);
+
+			combinedHeuristic = Math.min(combinedHeuristic, heuristic);
+			System.err.println("Combined heuristic= " + combinedHeuristic);
+		}
+
 		// Apply a penalty based on the number of constraints
 		int constraintPenalty = calculateConstraintPenalty(s);
 		combinedHeuristic += constraintPenalty;
@@ -29,18 +33,21 @@ public abstract class ConstraintHeuristic implements Comparator<ConstraintState>
 		return combinedHeuristic;
 	}
 
-	public int h(ConstraintState s, int goalIndex) {
+	public int h(ConstraintState s, int[] goalIndex) {
 		// Compute the heuristic for the specific goal state using Manhattan distance or
 		// any other suitable method
 		// Implement your own heuristic calculation here
+		int agentRow = s.agentRows[s.agent];
+		int agentCol = s.agentCols[s.agent];
+		int goalRow = goalIndex[0];
+		int goalCol = goalIndex[1];
 
-		Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
-		int heuristic = d.calculate();
+		int heuristic = Math.abs(agentRow - goalRow) + Math.abs(agentCol - goalCol);
 
 		return heuristic;
 	}
 
-	private int calculateConstraintPenalty(ConstraintState s) {
+	public int calculateConstraintPenalty(ConstraintState s) {
 		// Calculate the penalty based on the number of constraints in the state
 		// You can define your own function to determine the penalty value
 
@@ -69,13 +76,57 @@ public abstract class ConstraintHeuristic implements Comparator<ConstraintState>
 }
 
 class ConstraintHeuristicAStar extends ConstraintHeuristic {
-	public ConstraintHeuristicAStar() {
+	private ConstraintState initialState;
+
+	public ConstraintHeuristicAStar(ConstraintState initialState) {
 		super();
+		this.initialState = initialState;
 	}
 
 	@Override
 	public int f(ConstraintState s) {
 		return s.g() + this.h(s);
+	}
+
+	@Override
+	public int h(ConstraintState s) {
+		int combinedHeuristic = Integer.MAX_VALUE;
+
+		if (s.goalIndex == null) {
+			// System.err.println("goal index is null");
+			Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
+			return d.calculate();
+		}
+		// Find the closest box to the goal state
+		int closestBoxHeuristic = Integer.MAX_VALUE;
+		for (int[] goalIndex : s.goalIndex) {
+			int goalRow = goalIndex[0];
+			int goalCol = goalIndex[1];
+			int closestBoxDistance = Integer.MAX_VALUE;
+
+			// If there are boxes
+			if (s.boxes.length > 0) {
+				for (int i = 0; i < s.boxes.length; i++) {
+					int boxRow = s.boxes[i][0];
+					int boxCol = s.boxes[i][1];
+					int boxToGoalDistance = Math.abs(boxRow - goalRow) + Math.abs(boxCol - goalCol);
+					closestBoxDistance = Math.min(closestBoxDistance, boxToGoalDistance);
+				}
+			}
+			// If there are no boxes, calculate the distance between the agent and the goal
+			else {
+				int agentRow = s.agentRows[s.agent];
+				int agentCol = s.agentCols[s.agent];
+				closestBoxDistance = Math.abs(agentRow - goalRow) + Math.abs(agentCol - goalCol);
+			}
+			closestBoxHeuristic = Math.min(closestBoxHeuristic, closestBoxDistance);
+		}
+
+		// Apply a penalty based on the number of constraints
+		int constraintPenalty = calculateConstraintPenalty(s);
+		combinedHeuristic = closestBoxHeuristic + constraintPenalty;
+
+		return combinedHeuristic;
 	}
 
 	@Override
