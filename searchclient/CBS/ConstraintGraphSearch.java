@@ -13,7 +13,6 @@ public class ConstraintGraphSearch {
 
 //		int iterations = 0;
 
-		frontier.add(new ConstraintState(cbsNode.state, agent, cbsNode.constraints, 0));
 //            HashSet<ConstraintState> expanded = GlobalExpandsHashSet.getInstance().getSet();
 		HashSet<ConstraintState> expanded = new HashSet<>();
 

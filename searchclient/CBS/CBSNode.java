@@ -98,7 +98,10 @@ public class CBSNode {
 		// HAVE THE FRONTIER AS A SINGLETON OR GLOBAL CLASS THAT WILL BE RE-USED IN
 		// CONSTRAINT GRAPHSEARCH AND HERE IN CBSNODE!!!
 		// ConstraintFrontier frontier = GlobalExpandsQueue.getInstance().getQueue();
-		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
+		ConstraintState n = new ConstraintState(this.state, agentIndex, this.constraints, 0);
+
+		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(n));
+		frontier.add(n);
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
 		// System.err.println("plan for agent " + agentIndex + " is: " +
 		// Arrays.toString(plan));

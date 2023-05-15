@@ -64,7 +64,7 @@ class FrontierBFS
 class FrontierDFS
         implements Frontier
 {
-    private final  Stack<State> stack = new Stack<>();
+    private final  ArrayDeque<State> stack = new ArrayDeque<>();
     private final  HashSet<State> set = new HashSet<>(65536);
     
     @Override

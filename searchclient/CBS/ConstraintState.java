@@ -55,7 +55,7 @@ public class ConstraintState {
 
 	public HashSet<Constraint> constraints;
 	int agent = 0;
-	int numGoals;
+	public ArrayList<int[]> goalIndex;
 
 	// Constructs an initial state.
 	// Arguments are not copied, and therefore should not be modified after being
@@ -77,8 +77,9 @@ public class ConstraintState {
 		this.constraints = constraints;
 		this.timestamp = timestamp;
 		this.agent = agent;
-		this.numGoals = 0;
-		this.preProcessMaps();
+		this.goalIndex = new ArrayList<>(); // Initialize goalIndex ArrayList
+
+		preProcessMaps();
 
 	}
 
@@ -142,6 +143,9 @@ public class ConstraintState {
 				boxRow = this.agentRows[agent];
 				boxCol = this.agentCols[agent];
 				// System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
+				boxRow = this.agentRows[agent];
+				boxCol = this.agentCols[agent];
+				// System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
 
 				box = this.boxes[this.agentRows[agent] - agentAction.boxRowDelta][this.agentCols[agent]
 						- agentAction.boxColDelta];
@@ -163,7 +167,6 @@ public class ConstraintState {
 	}
 
 	public void preProcessMaps() {
-
 		Color agentColor = this.agentColors[this.agent];
 		for (int i = 0; i < this.boxes.length; i++) {
 			for (int j = 0; j < this.boxes[i].length; j++) {
@@ -172,8 +175,12 @@ public class ConstraintState {
 					if (!this.boxColors[onLocation - 'A'].equals(agentColor)) {
 						this.boxes[i][j] = 0;
 					} else if (this.boxColors[onLocation - 'A'].equals(agentColor)) {
-						this.numGoals++;
-						// System.err.print("numGoals " + numGoals);
+						int[] goalIndexArray = { i, j };
+						System.err.println("goalIndexArray " + goalIndexArray[0] + " " + goalIndexArray[1]);
+						this.goalIndex.add(goalIndexArray);
+						System.err.println("goalIndex " + this.goalIndex.get(0)[0] + this.goalIndex.get(0)[1]);
+
+
 					}
 
 				}
@@ -197,12 +204,17 @@ public class ConstraintState {
 				}
 			}
 		}
+		System.err.println("Goal State for: " + this.agent + ":\n" + this.toString());
 		// System.err.println("Goal State for: " + this.agent + ":\n" +
 		// this.toString());
 		return true;
 	}
 
 	public ArrayList<ConstraintState> getExpandedStates() {
+		// int numAgents = this.agentRows.length;
+
+		// Determine list of applicable actions for each individual agent.
+
 		ArrayList<Action> agentActions = new ArrayList<>(Action.values().length);
 		for (Action action : Action.values()) {
 			if (this.isApplicable(agent, action)) {
@@ -210,7 +222,14 @@ public class ConstraintState {
 			}
 		}
 		Action[] applicableActions = agentActions.toArray(new Action[0]);
+		// for (Action a: applicableActions) {
+		// System.err.print(a + "; ");
+		// }
+		// System.err.println();
 
+		// Iterate over joint actions, check conflict and generate child states.
+		// Action[] jointAction = new Action[numAgents];
+		// int[] actionsPermutation = new int[numAgents];
 		ArrayList<ConstraintState> expandedStates = new ArrayList<>(16);
 
 		for (Action nextAction : applicableActions) {
@@ -220,23 +239,39 @@ public class ConstraintState {
 				expandedStates.add(newState);
 			}
 		}
+		// Collections.shuffle(expandedStates, ConstraintState.RNG);
 		return expandedStates;
 	}
 
 	private boolean violatesConstraints(int agentCol, int agentRow) {
 		// System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " +
 		// this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
+		// List all the constraints
 		// for (Constraint constr: this.constraints) {
-		// System.err.print(constr.toString() + "; ");
+		// System.err.println(constr.toString() + "; ");
 		// }
 		// System.err.println("\n");
 
 		for (Constraint constraint : this.constraints) {
 			if (this.timestamp + 1 == constraint.timestamp && constraint.locationX == agentCol
-					&& constraint.locationY == agentRow && constraint.agentIndex == this.agent) {
+					&& constraint.locationY == agentRow // && constraint.agentIndex == this.agent
+			) {
 				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
 				return true;
 			}
+			if (this.timestamp == constraint.timestamp && constraint.locationX == agentCol
+					&& constraint.locationY == agentRow // && constraint.agentIndex == this.agent
+			) {
+				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
+				return true;
+			}
+			// if (
+			// this.timestamp -1 == constraint.timestamp && constraint.locationX == agentCol
+			// && constraint.locationY == agentRow //&& constraint.agentIndex == this.agent
+			// ) {
+			// System.err.println("VIOLATES CONSTRAINT: " + constraint);
+			// return true;
+			// }
 		}
 		return false;
 
@@ -422,10 +457,7 @@ public class ConstraintState {
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		if (this.agentAction != null) {
-			s.append("AGENT ACTION: " + this.agentAction.toString() + "\n");
-
-		}
+		// s.append("AGENT ACTION: " + this.agentAction.toString() + "\n");
 		s.append("AGENT: " + this.agent + "\n");
 		for (int row = 0; row < this.walls.length; row++) {
 			for (int col = 0; col < this.walls[row].length; col++) {
