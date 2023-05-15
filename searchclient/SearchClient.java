@@ -115,7 +115,7 @@ public class SearchClient {
 				SearchClient.replaceBoxWithWall(walls, boxes, (char) ('A' + boxCol));
 			}
 		}
-		SearchClient.printMatrix(walls);
+		// SearchClient.printMatrix(walls);
 
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}

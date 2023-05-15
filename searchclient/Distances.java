@@ -39,50 +39,36 @@ public abstract class Distances {
 
 	public void parseCoordinates() {
 		this.coordinates = new HashMap<>();
-//		
-//		for(int i=0; i<agentRows.length; i++) {
-//			coordinates.put((char) ('0' + i), new int[] {agentRows[i], agentCols[i], 0, 0});
-//		}
+        for (int i = 0; i < boxes.length; i++) {
+            for (int j = 0; j < boxes[i].length; j++) {
+                if ('A' <= boxes[i][j] && boxes[i][j] <= 'Z') {
+                    char boxChar = boxes[i][j];
+                    if (!coordinates.containsKey(boxChar)) {
+                        coordinates.put(boxChar, new ArrayList<>());
+                    }
+                    coordinates.get(boxChar).add(new int[]{i, j, -1, -1});
+                }
+            }
+        }
 
-		for (int i = 0; i < boxes.length; i++) {
-			for (int j = 0; j < boxes[i].length; j++) {
-				if ('A' <= boxes[i][j] && boxes[i][j] <= 'Z') {
-					if (!coordinates.containsKey((char) boxes[i][j])) {
-						coordinates.put((char) boxes[i][j], new ArrayList<>());
-						coordinates.get((char) boxes[i][j]).add(new int[] { i, j, -1, -1 });
-					} else {
-						coordinates.get((char) boxes[i][j]).add(new int[] { i, j, -1, -1 });
-					}
-				}
-			}
-		}
-//		System.err.println(coordinates.keySet());
+        for (int i = 0; i < goals.length; i++) {
+            for (int j = 0; j < goals[i].length; j++) {
+                if ('A' <= goals[i][j] && goals[i][j] <= 'Z') {
+                    char goalChar = goals[i][j];
+                    if (coordinates.containsKey(goalChar)) {
+                        ArrayList<int[]> boxCoordinates = coordinates.get(goalChar);
+                        for (int[] arr : boxCoordinates) {
+                            if (arr[2] == -1) {
+                                arr[2] = i;
+                                arr[3] = j;
+                                break; 
+                            }
+                        }
+                    }
+                }
+            }
 
-		for (int i = 0; i < goals.length; i++) {
-			for (int j = 0; j < goals[i].length; j++) {
-//				if ('0' <= goals[i][j] && goals[i][j] <= '9') {
-//					coordinates.get(goals[i][j])[2] = i;
-//					coordinates.get(goals[i][j])[3] = j;
-				if ('A' <= goals[i][j] && goals[i][j] <= 'Z') {
-					for (int[] arr : coordinates.get(goals[i][j])) {
-						if (arr[2] == -1) {
-							arr[2] = i;
-							arr[3] = j;
-						}
-					}
-				}
-			}
-		}
-		
-//		for (HashMap.Entry<Character, ArrayList<int[]>> set : this.coordinates.entrySet()) {
-//			for (int j = set.getValue().size() - 1; j >= 0; j--) {
-//				if(set.getValue().get(j)[2] == -1) {
-//					set.getValue().remove(j);
-//				}
-//			}
-//		}
-
-	}
+	}}
 }
 
 class EuclideanDistanceWithoutRoot extends Distances {
