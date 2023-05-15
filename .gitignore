@@ -30,3 +30,5 @@ hs_err_pid*
 ## OS X
 ##############################
 .DS_Store
+.history
+logs4.txt

@@ -58,7 +58,6 @@ public class Constraint {
 		result = result * prime + this.locationX;
 		result = result * prime + this.locationY;
 		result = result * prime + this.timestamp;
-
 		return result;
 	}
 

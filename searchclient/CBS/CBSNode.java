@@ -1,5 +1,4 @@
 package searchclient.CBS;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -15,6 +14,7 @@ import searchclient.GraphSearch;
 import searchclient.Heuristic;
 import searchclient.Logger;
 import searchclient.State;
+import searchclient.Color;
 
 public class CBSNode {
 	public State state;
@@ -23,6 +23,8 @@ public class CBSNode {
 	public int[] costs;
 	private int longestPath;
 	public int totalCost;
+	private InitialState initialStateForStorage;
+	private ArrayList<Integer> shiftedAgents;
 	private int hash = 0;
 	private ConstraintFrontier frontier;
 	private int numConflicts;
@@ -147,21 +149,102 @@ public class CBSNode {
 			this.longestPath = plan.length;
 		}
 
-		return plan;
+		individualPlans[agentIndex] = plan;
+		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
 
 	}
+
+	public void setNewIndividualPlanForAgent(int agentIndex) {
+		PlanStep[] plan = calculateIndividualPlanForAgent(agentIndex);
+		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
+
+		if (this.longestPath > plan.length) {
+			// just copy it there
+			for (int timestamp = 0; timestamp < this.longestPath; timestamp++) {
+				if (timestamp < plan.length) {
+					this.solution[timestamp][agentIndex] = plan[timestamp];
+				} else {
+					this.solution[timestamp][agentIndex] = new PlanStep(Action.NoOp, this.solution[timestamp-1][agentIndex].locationX, this.solution[timestamp-1][agentIndex].locationY, timestamp, this.solution[timestamp-1][agentIndex].locationX, this.solution[timestamp-1][agentIndex].locationY );
+				}
+
+			}
+
+		} else {
+			int prevLength = this.solution.length;
+			this.longestPath = plan.length;
+			
+			// SOLUTION: [timestamp][agentIndex]
+			PlanStep[][] newSolution = new PlanStep[this.longestPath][this.solution[0].length];
+
+			// The 0th actions are all NoOps
+			for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+					newSolution[0][agentInd] = new PlanStep(Action.NoOp, -1, -1, 0, -1, -1);
+			}
+
+			// The real action set starts from 1st timestamp
+			for (int timestamp = 0; timestamp < this.longestPath; timestamp++) { // for each timestamp
+				if (timestamp < prevLength  ) {
+					for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+						if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
+							newSolution[timestamp][agentInd] = plan[timestamp];
+						} else { // if it is one of the other agents
+							newSolution[timestamp][agentInd] = this.solution[timestamp][agentInd];
+						}
+					}
+				} else {
+					for (int agentInd = 0; agentInd < this.solution[0].length; agentInd++) { // for each agent
+						if (agentInd == agentIndex) { // if it is the agent we are calculating the plan for
+							newSolution[timestamp][agentInd] = plan[timestamp];
+						} else { // if it is one of the other agents
+							newSolution[timestamp][agentInd] = new PlanStep(Action.NoOp, newSolution[timestamp-1][agentIndex].locationX, newSolution[timestamp-1][agentIndex].locationY, timestamp, newSolution[timestamp-1][agentIndex].locationX, newSolution[timestamp-1][agentIndex].locationY );
+						}
+					}
+				}
+			}
+
+			this.solution = newSolution;
+		}
+
+		
+
+	}
+
+	private PlanStep[]  calculateIndividualPlanForAgent (int agentIndex) {
+
+		// Construct a state with the constructor that takes arguments
+		State searchSpecificState = createSpecificState(agentIndex);
+		System.out.println("Specific State: agentsLength: "+ searchSpecificState.agentRows.length + " boxesLength: " + searchSpecificState.boxes.length + " goalsLength: " + searchSpecificState.goals.length    );
+		this.state = searchSpecificState;
+
+		// Calculate teh shifted agent index that matches the real one in the searchSpecificState
+		int shiftedAgentIndex = this.shiftedAgents.indexOf(agentIndex);
+
+		ConstraintState constraintState = new ConstraintState(searchSpecificState, shiftedAgentIndex, this.constraints, 0); // we create a state here
+		// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+
+		// // we need to create the specific maps here since we have the index here 
+		// // and call search on it
+		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, shiftedAgentIndex);
+
+		return plan;
+	}
+
 
 	public PlanStep[][] findPlan() {
 		int numberOfAgents = state.agentRows.length;
 		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
+//		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
 
 		for (int i = 0; i < numberOfAgents; i++) {
-			PlanStep[] currentPlan = individualPlans[i];
-			PlanStep[] newPlan = findIndividualPlan(i);
 
-			if (currentPlan == null || (newPlan != null && newPlan.length < currentPlan.length)) {
-				individualPlans[i] = newPlan;
-			}
+			findIndividualPlan(i, individualPlans);
+			//			System.out.println("THE PLAN FOR: " + i);
+			//			for (PlanStep step : plan) {
+			//				System.out.println("Step: " + step.toString());
+			//			}
+			// TODO: Add search with constraint
+
 		}
 
 		return PlanStep.mergePlans(individualPlans);
@@ -213,7 +296,7 @@ public class CBSNode {
 		// this.solution.equals(other.solution);
 		return false;
 	}
-}
+
 
 class Conflict implements GenericConflict {
 	public int[] agentIndexes;
@@ -243,4 +326,5 @@ class Conflict implements GenericConflict {
 		return s.toString();
 	}
 
+	}
 }

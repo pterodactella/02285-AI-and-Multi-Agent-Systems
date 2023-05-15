@@ -15,6 +15,7 @@ import searchclient.Logger;
 import searchclient.Memory;
 import searchclient.State;
 import searchclient.CBS.Constraint;
+import searchclient.CBS.CBSNode.Conflict;;
 
 public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
