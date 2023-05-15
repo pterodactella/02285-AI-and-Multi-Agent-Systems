@@ -126,26 +126,6 @@ public class State {
 
                 case Pull:
 
-                    // System.out.println(action.agentRowDelta + " " + action.agentColDelta + "
-                    // ACTIONS");
-                    // System.out.println(action.boxRowDelta + " " + action.boxColDelta + " BOXES
-                    // ACTION");
-                    //
-                    // System.out.println(this.agentRows[agent] + " " + this.agentCols[agent] +
-                    // "Coordinates");
-                    //
-                    // for (int i = 0; i < this.boxes.length; i++) {
-                    //
-                    // // Loop through all elements of current row
-                    // for (int j = 0; j < this.boxes[i].length; j++)
-                    //
-                    // System.out.print((int)this.boxes[i][j] + " " );
-                    // System.out.println("");
-                    // }
-                    //
-                    // System.out.println((this.agentRows[agent] - action.boxRowDelta) + " " +
-                    // (this.agentCols[agent] - action.boxColDelta) + "BOX COORDINATES Before
-                    // ACTION");
 
                     boxRow = this.agentRows[agent];
                     boxCol = this.agentCols[agent];
@@ -159,18 +139,6 @@ public class State {
 
                     this.agentRows[agent] += action.agentRowDelta;
                     this.agentCols[agent] += action.agentColDelta;
-
-                    // System.out.println(this.agentRows[agent] + " " + this.agentCols[agent] +
-                    // "Coordinates");
-                    //
-                    // for (int i = 0; i < this.boxes.length; i++) {
-                    //
-                    // // Loop through all elements of current row
-                    // for (int j = 0; j < this.boxes[i].length; j++)
-                    //
-                    // System.out.print((int)this.boxes[i][j] + " " );
-                    // System.out.println("");
-                    // }
 
                     break;
 
