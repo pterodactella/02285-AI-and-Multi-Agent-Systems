@@ -243,13 +243,13 @@ public class ConstraintState {
 				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
 				return true;
 			}
-			// if (
-			// 	this.timestamp -1 == constraint.timestamp && constraint.locationX == agentCol
-			// 		&& constraint.locationY == agentRow //&& constraint.agentIndex == this.agent 
-			// 		) {
-			// 	System.err.println("VIOLATES CONSTRAINT: " + constraint);
-			// 	return true;
-			// }
+			if (
+				this.timestamp -1 == constraint.timestamp && constraint.locationX == agentCol
+					&& constraint.locationY == agentRow //&& constraint.agentIndex == this.agent 
+					) {
+				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
+				return true;
+			}
 		}
 		return false;
 
@@ -281,6 +281,11 @@ public class ConstraintState {
 			if (violatesConstraints(destinationCol, destinationRow)) {
 				return false;
 			}
+			// extra	=========================================================
+			if (violatesConstraints(agentRow, agentCol)) {
+				return false;
+			}
+			// extra	=========================================================
 			return true;
 
 		case Push:
@@ -303,6 +308,14 @@ public class ConstraintState {
 			if (violatesConstraints(destinationCol, destinationRow)) {
 				return false;
 			}
+			// extra	=========================================================
+			if (violatesConstraints(agentCol, agentRow)) {
+				return false;
+			}
+			if (violatesConstraints(boxCol, boxRow)) {
+				return false;
+			}
+			// extra	=========================================================
 			return true;
 
 		case Pull:
@@ -314,6 +327,8 @@ public class ConstraintState {
 
 			destinationRow = agentRow + action.agentRowDelta;
 			destinationCol = agentCol + action.agentColDelta;
+			boxRow = destinationRow + action.boxRowDelta;
+			boxCol = destinationCol + action.boxColDelta;
 
 			if (destinationRow < 0 || destinationCol < 0 || destinationRow >= this.boxes.length
 					|| destinationCol >= this.boxes[0].length) {
@@ -326,6 +341,14 @@ public class ConstraintState {
 			if (violatesConstraints(destinationCol, destinationRow)) {
 				return false;
 			}
+			// extra	=========================================================
+			if (violatesConstraints(boxCol, boxRow)) {
+				return false;
+			}
+			if (violatesConstraints(agentCol, agentRow)) {
+				return false;
+			}
+			// extra	=========================================================
 			return true;
 
 		}

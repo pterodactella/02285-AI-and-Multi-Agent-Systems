@@ -14,8 +14,8 @@ public abstract class ConstraintHeuristic implements Comparator<ConstraintState>
 
 	public int h(ConstraintState s) {
 		Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
-		// return d.calculate() + d.calculateAgentBoxDistance();
-		return d.calculate();
+		return d.calculate() + d.calculateAgentBoxDistance();
+		// return d.calculate();
 		
 		
 		//System.out.println("d=" );
