@@ -11,6 +11,7 @@ public abstract class Distances {
 	public char[][] goals;
 	private char[][] boxes;
 	protected HashMap<Character, ArrayList<int[]>> coordinates;
+	protected HashMap<Character, int[]> agentCoordinates;
 
 	public Distances(int[] agentRows, int[] agentCols, char[][] goals, char[][] boxes) {
 		this.agentRows = agentRows.clone();
@@ -23,6 +24,12 @@ public abstract class Distances {
 		for (int i = 0; i < boxes.length; i++) {
 			this.boxes[i] = boxes[i].clone();
 		}
+		
+		this.agentCoordinates = new HashMap<>();
+		for(int i = 0; i < this.agentRows.length; i++) {
+			this.agentCoordinates.put((char)('0' + i), new int[] { this.agentRows[i], this.agentCols[i], 0, 0 });
+		}
+		
 //		this.goals = goals;
 //		this.boxes = boxes;
 
@@ -52,7 +59,10 @@ public abstract class Distances {
         }
 
         for (int i = 0; i < goals.length; i++) {
+        	
             for (int j = 0; j < goals[i].length; j++) {
+//                System.err.print(Character.toString(goals[i][j]));
+
                 if ('A' <= goals[i][j] && goals[i][j] <= 'Z') {
                     char goalChar = goals[i][j];
                     if (coordinates.containsKey(goalChar)) {
@@ -65,10 +75,17 @@ public abstract class Distances {
                             }
                         }
                     }
+                } else if('0' <= goals[i][j] && goals[i][j] <= '9'){
+                    this.agentCoordinates.get(goals[i][j])[2] = i;
+                    this.agentCoordinates.get(goals[i][j])[3] = j;
                 }
             }
 
-	}}
+	}
+        
+
+        
+	}
 }
 
 class EuclideanDistanceWithoutRoot extends Distances {

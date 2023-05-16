@@ -421,19 +421,41 @@ public class State {
 		return true;
 
 	}
+	
+	public boolean isUsedCell(int boxRow, int boxCol, int agentIndex) {
 
-	// public boolean isBoxAt(int boxRow, int boxCol) {
+		// check for out of boundaries
+		if (boxRow < 0 || boxCol < 0) {
+			return false;
+		}
+		// check for character
+		if (this.boxes[boxRow][boxCol] == 0) {
+			return false;
+		}
+		
+		if (this.agentAt(boxRow, boxCol) == 0 || this.agentAt(boxRow, boxCol) == agentIndex) {
+			return false;
+		}
+		// check color of box to match the agent
+		
+		return true;
 
-	// 	// check for out of boundaries
-	// 	if (boxRow < 0 || boxCol < 0) {
-	// 		return false;
-	// 	}
-	// 	// check for character
-	// 	if (this.boxes[boxRow][boxCol] == 0) {
-	// 		return false;
-	// 	}
-	// 	return true;
-	// }
+	}
+	
+	
+
+	public boolean isBoxAt(int boxRow, int boxCol) {
+
+		// check for out of boundaries
+		if (boxRow < 0 || boxCol < 0) {
+			return false;
+		}
+		// check for character
+		if (this.boxes[boxRow][boxCol] == 0) {
+			return false;
+		}
+		return true;
+	}
 
 	private boolean isConflicting(Action[] jointAction) {
 		int numAgents = this.agentRows.length;

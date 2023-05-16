@@ -17,13 +17,11 @@ import searchclient.CBS.Conflicts.BoxOrderedConflict;
 import searchclient.CBS.Conflicts.Conflict;
 import searchclient.CBS.Conflicts.GenericConflict;
 import searchclient.CBS.Conflicts.OrderedConflict;
-import searchclient.CBS.Conflicts.SymmetryConflict;
-import searchclient.CBS.Conflicts.SymmetryType;
 
 public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
 	private static int triedTimes = 0;
-	private static final int MAX_DEBUG_TRIALS = 4;
+	private static final int MAX_DEBUG_TRIALS = 1400;
 
 	public PathFinder(State initialState) {
 		this.initialState = initialState;
@@ -31,7 +29,7 @@ public class PathFinder implements Comparator<CBSNode> {
 
 	public PlanStep[][] solveCBS() {
 		CBSNode root = new CBSNode(this.initialState);
-		root.solution = root.findPlan();
+		root.solution = root.findPlan(true, 0);
 		root.totalCost = root.sumCosts();
 
 		// TODO: Replace with priority qyueyue

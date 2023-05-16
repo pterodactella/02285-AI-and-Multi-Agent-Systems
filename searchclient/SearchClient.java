@@ -15,6 +15,10 @@ import searchclient.CBS.CBSNode;
 import searchclient.CBS.PathFinder;
 import searchclient.CBS.PlanStep;
 
+import searchclient.CBS.CBSNode;
+import searchclient.CBS.PathFinder;
+import searchclient.CBS.PlanStep;
+
 public class SearchClient {
 	public static State parseLevel(BufferedReader serverMessages) throws IOException {
 		// We can assume that the level file is conforming to specification, since the
@@ -83,6 +87,8 @@ public class SearchClient {
 		}
 		agentRows = Arrays.copyOf(agentRows, numAgents);
 		agentCols = Arrays.copyOf(agentCols, numAgents);
+		
+
 
 		// Read goal state
 		// line is currently "#goal"
@@ -117,10 +123,8 @@ public class SearchClient {
 				SearchClient.replaceBoxWithWall(walls, boxes, (char) ('A' + boxCol));
 			}
 		}
-		// SearchClient.printMatrix(walls);
+//		SearchClient.printMatrix(walls);
 
-		// ArrayList<MetaAgent> partitionlevel = partitionAgents(
-		// 		new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals));
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
 
@@ -148,10 +152,9 @@ public class SearchClient {
 
 	public static PlanStep[][] search(State initialState, Frontier frontier) {
 		System.err.format("Starting %s.\n", frontier.getName());
-		
 		PathFinder solver = new PathFinder(initialState);
 
-		// return GraphSearch.search(initialState, frontier);
+//		return GraphSearch.search(initialState, frontier);
 		return solver.solveCBS();
 	}
 
@@ -202,7 +205,8 @@ public class SearchClient {
 					frontier = new FrontierBFS();
 					System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
 							+ "-greedy to set the search strategy.");
-			}
+					break;
+				}
 		} else {
 			frontier = new FrontierBFS();
 			System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or -greedy to "
@@ -226,22 +230,23 @@ public class SearchClient {
 			System.err.format("Found solution of length %,d.\n", plan.length);
 
 			for (PlanStep[] jointAction : plan) {
-				// System.err.print(jointAction[0].action.name);
-				// for (int action = 1; action < jointAction.length; ++action) {
-				// System.err.print("|");
-				// System.err.println(jointAction[action].action.name);
-				// }
-				// System.err.println();
+//				System.err.print(jointAction[0].action.name);
+//				for (int action = 1; action < jointAction.length; ++action) {
+//					System.err.print("|");
+//					System.err.println(jointAction[action].action.name);
+//				}
+//				System.err.println();
 				StringBuilder sb = new StringBuilder();
 				sb.append(jointAction[0].action.name);
-
+				
 				for (int action = 1; action < jointAction.length; ++action) {
-
+	
 					sb.append("|");
 					sb.append(jointAction[action].action.name);
 				}
-
+				
 				System.out.println(sb.toString());
+				System.err.println(sb.toString());
 				// We must read the server's response to not fill up the stdin buffer and block
 				// the server.
 				serverMessages.readLine();

@@ -3,7 +3,7 @@ package searchclient.CBS;
 import java.util.Comparator;
 
 import searchclient.Distances;
-
+import searchclient.EnhancedHammingDistance;
 import searchclient.ManhattanDistance;
 
 
@@ -13,9 +13,9 @@ public abstract class ConstraintHeuristic implements Comparator<ConstraintState>
 	}
 
 	public int h(ConstraintState s) {
-		Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
+		Distances d = new EnhancedHammingDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
 //System.out.println("d=" );
-//System.out.println(d.calculate());
+//System.err.println(d.calculate());
 		return d.calculate();
 	}
 

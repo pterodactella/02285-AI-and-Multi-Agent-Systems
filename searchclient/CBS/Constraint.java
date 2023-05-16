@@ -13,7 +13,6 @@ public class Constraint {
 		this.locationX = locationX;
 		this.locationY = locationY;
 		this.timestamp = timestamp;
-
 	}
 	
 	public Constraint(Constraint copy) {
