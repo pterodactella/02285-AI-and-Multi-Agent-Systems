@@ -3681,3 +3681,419 @@ Step: action: PullSE; locationX: 15; locationY: 12; timestamp: 79; originalX: 15
  movingBox: 
  prevX: 14; prevY: 12; currX: 15; currY: 11; 
 
+^^^^^ .... ^^^^^
+THESE ARE THE CONSTRAINTS: 
+^^^^^ .... ^^^^^
+THE PLAN FOR: 0
+Step: action: MoveS; locationX: 5; locationY: 4; timestamp: 1; originalX: 5; originalY: 3; movingBox: null;
+Step: action: MoveE; locationX: 6; locationY: 4; timestamp: 2; originalX: 5; originalY: 4; movingBox: null;
+Step: action: MoveS; locationX: 6; locationY: 5; timestamp: 3; originalX: 6; originalY: 4; movingBox: null;
+Step: action: PushSE; locationX: 6; locationY: 6; timestamp: 4; originalX: 6; originalY: 5; 
+ movingBox: 
+ prevX: 6; prevY: 6; currX: 7; currY: 6; 
+Step: action: PushSE; locationX: 6; locationY: 7; timestamp: 5; originalX: 6; originalY: 6; 
+ movingBox: 
+ prevX: 6; prevY: 7; currX: 7; currY: 7; 
+Step: action: PushEE; locationX: 7; locationY: 7; timestamp: 6; originalX: 6; originalY: 7; 
+ movingBox: 
+ prevX: 7; prevY: 7; currX: 8; currY: 7; 
+Step: action: PushES; locationX: 8; locationY: 7; timestamp: 7; originalX: 7; originalY: 7; 
+ movingBox: 
+ prevX: 8; prevY: 7; currX: 8; currY: 8; 
+Step: action: PushSS; locationX: 8; locationY: 8; timestamp: 8; originalX: 8; originalY: 7; 
+ movingBox: 
+ prevX: 8; prevY: 8; currX: 8; currY: 9; 
+Step: action: PushSE; locationX: 8; locationY: 9; timestamp: 9; originalX: 8; originalY: 8; 
+ movingBox: 
+ prevX: 8; prevY: 9; currX: 9; currY: 9; 
+Step: action: PushEN; locationX: 9; locationY: 9; timestamp: 10; originalX: 8; originalY: 9; 
+ movingBox: 
+ prevX: 9; prevY: 9; currX: 9; currY: 8; 
+Step: action: PushNE; locationX: 9; locationY: 8; timestamp: 11; originalX: 9; originalY: 9; 
+ movingBox: 
+ prevX: 9; prevY: 8; currX: 10; currY: 8; 
+Step: action: PushEE; locationX: 10; locationY: 8; timestamp: 12; originalX: 9; originalY: 8; 
+ movingBox: 
+ prevX: 10; prevY: 8; currX: 11; currY: 8; 
+Step: action: PushEN; locationX: 11; locationY: 8; timestamp: 13; originalX: 10; originalY: 8; 
+ movingBox: 
+ prevX: 11; prevY: 8; currX: 11; currY: 7; 
+Step: action: PushNE; locationX: 11; locationY: 7; timestamp: 14; originalX: 11; originalY: 8; 
+ movingBox: 
+ prevX: 11; prevY: 7; currX: 12; currY: 7; 
+Step: action: PushEN; locationX: 12; locationY: 7; timestamp: 15; originalX: 11; originalY: 7; 
+ movingBox: 
+ prevX: 12; prevY: 7; currX: 12; currY: 6; 
+Step: action: PushNW; locationX: 12; locationY: 6; timestamp: 16; originalX: 12; originalY: 7; 
+ movingBox: 
+ prevX: 12; prevY: 6; currX: 11; currY: 6; 
+Step: action: PushWS; locationX: 11; locationY: 6; timestamp: 17; originalX: 12; originalY: 6; 
+ movingBox: 
+ prevX: 11; prevY: 6; currX: 11; currY: 7; 
+Step: action: MoveW; locationX: 10; locationY: 6; timestamp: 18; originalX: 11; originalY: 6; movingBox: null;
+Step: action: MoveW; locationX: 9; locationY: 6; timestamp: 19; originalX: 10; originalY: 6; movingBox: null;
+Step: action: MoveW; locationX: 8; locationY: 6; timestamp: 20; originalX: 9; originalY: 6; movingBox: null;
+Step: action: PullEE; locationX: 9; locationY: 6; timestamp: 21; originalX: 8; originalY: 6; 
+ movingBox: 
+ prevX: 8; prevY: 6; currX: 8; currY: 6; 
+Step: action: PushWN; locationX: 8; locationY: 6; timestamp: 22; originalX: 9; originalY: 6; 
+ movingBox: 
+ prevX: 8; prevY: 6; currX: 8; currY: 5; 
+Step: action: PushNE; locationX: 8; locationY: 5; timestamp: 23; originalX: 8; originalY: 6; 
+ movingBox: 
+ prevX: 8; prevY: 5; currX: 9; currY: 5; 
+Step: action: PushEN; locationX: 9; locationY: 5; timestamp: 24; originalX: 8; originalY: 5; 
+ movingBox: 
+ prevX: 9; prevY: 5; currX: 9; currY: 4; 
+Step: action: PushNW; locationX: 9; locationY: 4; timestamp: 25; originalX: 9; originalY: 5; 
+ movingBox: 
+ prevX: 9; prevY: 4; currX: 8; currY: 4; 
+Step: action: PushWS; locationX: 8; locationY: 4; timestamp: 26; originalX: 9; originalY: 4; 
+ movingBox: 
+ prevX: 8; prevY: 4; currX: 8; currY: 5; 
+Step: action: PushSS; locationX: 8; locationY: 5; timestamp: 27; originalX: 8; originalY: 4; 
+ movingBox: 
+ prevX: 8; prevY: 5; currX: 8; currY: 6; 
+Step: action: PushSS; locationX: 8; locationY: 6; timestamp: 28; originalX: 8; originalY: 5; 
+ movingBox: 
+ prevX: 8; prevY: 6; currX: 8; currY: 7; 
+Step: action: MoveW; locationX: 7; locationY: 6; timestamp: 29; originalX: 8; originalY: 6; movingBox: null;
+Step: action: MoveW; locationX: 6; locationY: 6; timestamp: 30; originalX: 7; originalY: 6; movingBox: null;
+Step: action: PullSE; locationX: 6; locationY: 7; timestamp: 31; originalX: 6; originalY: 6; 
+ movingBox: 
+ prevX: 5; prevY: 7; currX: 6; currY: 6; 
+Step: action: PullES; locationX: 7; locationY: 7; timestamp: 32; originalX: 6; originalY: 7; 
+ movingBox: 
+ prevX: 7; prevY: 6; currX: 6; currY: 7; 
+Step: action: PushWS; locationX: 6; locationY: 7; timestamp: 33; originalX: 7; originalY: 7; 
+ movingBox: 
+ prevX: 6; prevY: 7; currX: 6; currY: 8; 
+Step: action: PushWS; locationX: 5; locationY: 7; timestamp: 34; originalX: 6; originalY: 7; 
+ movingBox: 
+ prevX: 5; prevY: 7; currX: 5; currY: 8; 
+Step: action: PushSS; locationX: 5; locationY: 8; timestamp: 35; originalX: 5; originalY: 7; 
+ movingBox: 
+ prevX: 5; prevY: 8; currX: 5; currY: 9; 
+Step: action: PushSE; locationX: 5; locationY: 9; timestamp: 36; originalX: 5; originalY: 8; 
+ movingBox: 
+ prevX: 5; prevY: 9; currX: 6; currY: 9; 
+Step: action: PushEE; locationX: 6; locationY: 9; timestamp: 37; originalX: 5; originalY: 9; 
+ movingBox: 
+ prevX: 6; prevY: 9; currX: 7; currY: 9; 
+Step: action: PushNE; locationX: 6; locationY: 8; timestamp: 38; originalX: 6; originalY: 9; 
+ movingBox: 
+ prevX: 6; prevY: 8; currX: 7; currY: 8; 
+Step: action: PushEE; locationX: 7; locationY: 8; timestamp: 39; originalX: 6; originalY: 8; 
+ movingBox: 
+ prevX: 7; prevY: 8; currX: 8; currY: 8; 
+Step: action: PushSE; locationX: 7; locationY: 9; timestamp: 40; originalX: 7; originalY: 8; 
+ movingBox: 
+ prevX: 7; prevY: 9; currX: 8; currY: 9; 
+Step: action: PushES; locationX: 8; locationY: 9; timestamp: 41; originalX: 7; originalY: 9; 
+ movingBox: 
+ prevX: 8; prevY: 9; currX: 8; currY: 10; 
+Step: action: PushNE; locationX: 8; locationY: 8; timestamp: 42; originalX: 8; originalY: 9; 
+ movingBox: 
+ prevX: 8; prevY: 8; currX: 9; currY: 8; 
+Step: action: PushNE; locationX: 8; locationY: 7; timestamp: 43; originalX: 8; originalY: 8; 
+ movingBox: 
+ prevX: 8; prevY: 7; currX: 9; currY: 7; 
+Step: action: PushEE; locationX: 9; locationY: 7; timestamp: 44; originalX: 8; originalY: 7; 
+ movingBox: 
+ prevX: 9; prevY: 7; currX: 10; currY: 7; 
+Step: action: PushES; locationX: 10; locationY: 7; timestamp: 45; originalX: 9; originalY: 7; 
+ movingBox: 
+ prevX: 10; prevY: 7; currX: 10; currY: 8; 
+Step: action: PushES; locationX: 11; locationY: 7; timestamp: 46; originalX: 10; originalY: 7; 
+ movingBox: 
+ prevX: 11; prevY: 7; currX: 11; currY: 8; 
+Step: action: PushSE; locationX: 11; locationY: 8; timestamp: 47; originalX: 11; originalY: 7; 
+ movingBox: 
+ prevX: 11; prevY: 8; currX: 12; currY: 8; 
+Step: action: PushWS; locationX: 10; locationY: 8; timestamp: 48; originalX: 11; originalY: 8; 
+ movingBox: 
+ prevX: 10; prevY: 8; currX: 10; currY: 9; 
+Step: action: PushWS; locationX: 9; locationY: 8; timestamp: 49; originalX: 10; originalY: 8; 
+ movingBox: 
+ prevX: 9; prevY: 8; currX: 9; currY: 9; 
+Step: action: PushSS; locationX: 9; locationY: 9; timestamp: 50; originalX: 9; originalY: 8; 
+ movingBox: 
+ prevX: 9; prevY: 9; currX: 9; currY: 10; 
+Step: action: PushSE; locationX: 9; locationY: 10; timestamp: 51; originalX: 9; originalY: 9; 
+ movingBox: 
+ prevX: 9; prevY: 10; currX: 10; currY: 10; 
+Step: action: PullNE; locationX: 9; locationY: 9; timestamp: 52; originalX: 9; originalY: 10; 
+ movingBox: 
+ prevX: 8; prevY: 9; currX: 9; currY: 10; 
+Step: action: PushEE; locationX: 10; locationY: 9; timestamp: 53; originalX: 9; originalY: 9; 
+ movingBox: 
+ prevX: 10; prevY: 9; currX: 11; currY: 9; 
+Step: action: PushSE; locationX: 10; locationY: 10; timestamp: 54; originalX: 10; originalY: 9; 
+ movingBox: 
+ prevX: 10; prevY: 10; currX: 11; currY: 10; 
+Step: action: PullNE; locationX: 10; locationY: 9; timestamp: 55; originalX: 10; originalY: 10; 
+ movingBox: 
+ prevX: 9; prevY: 9; currX: 10; currY: 10; 
+Step: action: PushEE; locationX: 11; locationY: 9; timestamp: 56; originalX: 10; originalY: 9; 
+ movingBox: 
+ prevX: 11; prevY: 9; currX: 12; currY: 9; 
+Step: action: PushSE; locationX: 11; locationY: 10; timestamp: 57; originalX: 11; originalY: 9; 
+ movingBox: 
+ prevX: 11; prevY: 10; currX: 12; currY: 10; 
+Step: action: PullNE; locationX: 11; locationY: 9; timestamp: 58; originalX: 11; originalY: 10; 
+ movingBox: 
+ prevX: 10; prevY: 9; currX: 11; currY: 10; 
+Step: action: PushEE; locationX: 12; locationY: 9; timestamp: 59; originalX: 11; originalY: 9; 
+ movingBox: 
+ prevX: 12; prevY: 9; currX: 13; currY: 9; 
+Step: action: PushES; locationX: 13; locationY: 9; timestamp: 60; originalX: 12; originalY: 9; 
+ movingBox: 
+ prevX: 13; prevY: 9; currX: 13; currY: 10; 
+Step: action: PushSE; locationX: 13; locationY: 10; timestamp: 61; originalX: 13; originalY: 9; 
+ movingBox: 
+ prevX: 13; prevY: 10; currX: 14; currY: 10; 
+Step: action: PushWS; locationX: 12; locationY: 10; timestamp: 62; originalX: 13; originalY: 10; 
+ movingBox: 
+ prevX: 12; prevY: 10; currX: 12; currY: 11; 
+Step: action: PullNE; locationX: 12; locationY: 9; timestamp: 63; originalX: 12; originalY: 10; 
+ movingBox: 
+ prevX: 11; prevY: 9; currX: 12; currY: 10; 
+Step: action: PullWS; locationX: 11; locationY: 9; timestamp: 64; originalX: 12; originalY: 9; 
+ movingBox: 
+ prevX: 11; prevY: 8; currX: 12; currY: 9; 
+Step: action: PushEE; locationX: 12; locationY: 9; timestamp: 65; originalX: 11; originalY: 9; 
+ movingBox: 
+ prevX: 12; prevY: 9; currX: 13; currY: 9; 
+Step: action: PushSE; locationX: 12; locationY: 10; timestamp: 66; originalX: 12; originalY: 9; 
+ movingBox: 
+ prevX: 12; prevY: 10; currX: 13; currY: 10; 
+Step: action: PushSE; locationX: 12; locationY: 11; timestamp: 67; originalX: 12; originalY: 10; 
+ movingBox: 
+ prevX: 12; prevY: 11; currX: 13; currY: 11; 
+Step: action: PushEE; locationX: 13; locationY: 11; timestamp: 68; originalX: 12; originalY: 11; 
+ movingBox: 
+ prevX: 13; prevY: 11; currX: 14; currY: 11; 
+Step: action: PushEE; locationX: 14; locationY: 11; timestamp: 69; originalX: 13; originalY: 11; 
+ movingBox: 
+ prevX: 14; prevY: 11; currX: 15; currY: 11; 
+Step: action: PushNE; locationX: 14; locationY: 10; timestamp: 70; originalX: 14; originalY: 11; 
+ movingBox: 
+ prevX: 14; prevY: 10; currX: 15; currY: 10; 
+Step: action: PushWS; locationX: 13; locationY: 10; timestamp: 71; originalX: 14; originalY: 10; 
+ movingBox: 
+ prevX: 13; prevY: 10; currX: 13; currY: 11; 
+Step: action: PullES; locationX: 14; locationY: 10; timestamp: 72; originalX: 13; originalY: 10; 
+ movingBox: 
+ prevX: 14; prevY: 9; currX: 13; currY: 10; 
+Step: action: PushEE; locationX: 15; locationY: 10; timestamp: 73; originalX: 14; originalY: 10; 
+ movingBox: 
+ prevX: 15; prevY: 10; currX: 16; currY: 10; 
+Step: action: PushSE; locationX: 15; locationY: 11; timestamp: 74; originalX: 15; originalY: 10; 
+ movingBox: 
+ prevX: 15; prevY: 11; currX: 16; currY: 11; 
+Step: action: MoveW; locationX: 14; locationY: 11; timestamp: 75; originalX: 15; originalY: 11; movingBox: null;
+Step: action: PullNE; locationX: 14; locationY: 10; timestamp: 76; originalX: 14; originalY: 11; 
+ movingBox: 
+ prevX: 13; prevY: 10; currX: 14; currY: 11; 
+Step: action: PullEE; locationX: 15; locationY: 10; timestamp: 77; originalX: 14; originalY: 10; 
+ movingBox: 
+ prevX: 14; prevY: 10; currX: 14; currY: 10; 
+Step: action: PullSE; locationX: 15; locationY: 11; timestamp: 78; originalX: 15; originalY: 10; 
+ movingBox: 
+ prevX: 14; prevY: 11; currX: 15; currY: 10; 
+Step: action: PullSE; locationX: 15; locationY: 12; timestamp: 79; originalX: 15; originalY: 11; 
+ movingBox: 
+ prevX: 14; prevY: 12; currX: 15; currY: 11; 
+
+^^^^^ .... ^^^^^
+THESE ARE THE CONSTRAINTS: 
+^^^^^ .... ^^^^^
+THE PLAN FOR: 1
+Step: action: MoveS; locationX: 12; locationY: 4; timestamp: 1; originalX: 12; originalY: 3; movingBox: null;
+Step: action: MoveW; locationX: 11; locationY: 4; timestamp: 2; originalX: 12; originalY: 4; movingBox: null;
+Step: action: MoveS; locationX: 11; locationY: 5; timestamp: 3; originalX: 11; originalY: 4; movingBox: null;
+Step: action: MoveW; locationX: 10; locationY: 5; timestamp: 4; originalX: 11; originalY: 5; movingBox: null;
+Step: action: PushWS; locationX: 9; locationY: 5; timestamp: 5; originalX: 10; originalY: 5; 
+ movingBox: 
+ prevX: 9; prevY: 5; currX: 9; currY: 6; 
+Step: action: PushSS; locationX: 9; locationY: 6; timestamp: 6; originalX: 9; originalY: 5; 
+ movingBox: 
+ prevX: 9; prevY: 6; currX: 9; currY: 7; 
+Step: action: PushSS; locationX: 9; locationY: 7; timestamp: 7; originalX: 9; originalY: 6; 
+ movingBox: 
+ prevX: 9; prevY: 7; currX: 9; currY: 8; 
+Step: action: PushSS; locationX: 9; locationY: 8; timestamp: 8; originalX: 9; originalY: 7; 
+ movingBox: 
+ prevX: 9; prevY: 8; currX: 9; currY: 9; 
+Step: action: PushSW; locationX: 9; locationY: 9; timestamp: 9; originalX: 9; originalY: 8; 
+ movingBox: 
+ prevX: 9; prevY: 9; currX: 8; currY: 9; 
+Step: action: PushWN; locationX: 8; locationY: 9; timestamp: 10; originalX: 9; originalY: 9; 
+ movingBox: 
+ prevX: 8; prevY: 9; currX: 8; currY: 8; 
+Step: action: PushNW; locationX: 8; locationY: 8; timestamp: 11; originalX: 8; originalY: 9; 
+ movingBox: 
+ prevX: 8; prevY: 8; currX: 7; currY: 8; 
+Step: action: PushWW; locationX: 7; locationY: 8; timestamp: 12; originalX: 8; originalY: 8; 
+ movingBox: 
+ prevX: 7; prevY: 8; currX: 6; currY: 8; 
+Step: action: PushWN; locationX: 6; locationY: 8; timestamp: 13; originalX: 7; originalY: 8; 
+ movingBox: 
+ prevX: 6; prevY: 8; currX: 6; currY: 7; 
+Step: action: PushNW; locationX: 6; locationY: 7; timestamp: 14; originalX: 6; originalY: 8; 
+ movingBox: 
+ prevX: 6; prevY: 7; currX: 5; currY: 7; 
+Step: action: PushWN; locationX: 5; locationY: 7; timestamp: 15; originalX: 6; originalY: 7; 
+ movingBox: 
+ prevX: 5; prevY: 7; currX: 5; currY: 6; 
+Step: action: PushNE; locationX: 5; locationY: 6; timestamp: 16; originalX: 5; originalY: 7; 
+ movingBox: 
+ prevX: 5; prevY: 6; currX: 6; currY: 6; 
+Step: action: PushES; locationX: 6; locationY: 6; timestamp: 17; originalX: 5; originalY: 6; 
+ movingBox: 
+ prevX: 6; prevY: 6; currX: 6; currY: 7; 
+Step: action: MoveE; locationX: 7; locationY: 6; timestamp: 18; originalX: 6; originalY: 6; movingBox: null;
+Step: action: MoveN; locationX: 7; locationY: 5; timestamp: 19; originalX: 7; originalY: 6; movingBox: null;
+Step: action: PullNW; locationX: 7; locationY: 4; timestamp: 20; originalX: 7; originalY: 5; 
+ movingBox: 
+ prevX: 8; prevY: 4; currX: 7; currY: 5; 
+Step: action: PushES; locationX: 8; locationY: 4; timestamp: 21; originalX: 7; originalY: 4; 
+ movingBox: 
+ prevX: 8; prevY: 4; currX: 8; currY: 5; 
+Step: action: PullWW; locationX: 7; locationY: 4; timestamp: 22; originalX: 8; originalY: 4; 
+ movingBox: 
+ prevX: 8; prevY: 4; currX: 8; currY: 4; 
+Step: action: PushSW; locationX: 7; locationY: 5; timestamp: 23; originalX: 7; originalY: 4; 
+ movingBox: 
+ prevX: 7; prevY: 5; currX: 6; currY: 5; 
+Step: action: PushES; locationX: 8; locationY: 5; timestamp: 24; originalX: 7; originalY: 5; 
+ movingBox: 
+ prevX: 8; prevY: 5; currX: 8; currY: 6; 
+Step: action: PullWS; locationX: 7; locationY: 5; timestamp: 25; originalX: 8; originalY: 5; 
+ movingBox: 
+ prevX: 7; prevY: 4; currX: 8; currY: 5; 
+Step: action: PullSW; locationX: 7; locationY: 6; timestamp: 26; originalX: 7; originalY: 5; 
+ movingBox: 
+ prevX: 8; prevY: 6; currX: 7; currY: 5; 
+Step: action: PullSS; locationX: 7; locationY: 7; timestamp: 27; originalX: 7; originalY: 6; 
+ movingBox: 
+ prevX: 7; prevY: 6; currX: 7; currY: 6; 
+Step: action: PullES; locationX: 8; locationY: 7; timestamp: 28; originalX: 7; originalY: 7; 
+ movingBox: 
+ prevX: 8; prevY: 6; currX: 7; currY: 7; 
+Step: action: PushNW; locationX: 8; locationY: 6; timestamp: 29; originalX: 8; originalY: 7; 
+ movingBox: 
+ prevX: 8; prevY: 6; currX: 7; currY: 6; 
+Step: action: PushWW; locationX: 7; locationY: 6; timestamp: 30; originalX: 8; originalY: 6; 
+ movingBox: 
+ prevX: 7; prevY: 6; currX: 6; currY: 6; 
+Step: action: PushSS; locationX: 7; locationY: 7; timestamp: 31; originalX: 7; originalY: 6; 
+ movingBox: 
+ prevX: 7; prevY: 7; currX: 7; currY: 8; 
+Step: action: PushWS; locationX: 6; locationY: 7; timestamp: 32; originalX: 7; originalY: 7; 
+ movingBox: 
+ prevX: 6; prevY: 7; currX: 6; currY: 8; 
+Step: action: PushNW; locationX: 6; locationY: 6; timestamp: 33; originalX: 6; originalY: 7; 
+ movingBox: 
+ prevX: 6; prevY: 6; currX: 5; currY: 6; 
+Step: action: PullSS; locationX: 6; locationY: 7; timestamp: 34; originalX: 6; originalY: 6; 
+ movingBox: 
+ prevX: 6; prevY: 6; currX: 6; currY: 6; 
+Step: action: PullWS; locationX: 5; locationY: 7; timestamp: 35; originalX: 6; originalY: 7; 
+ movingBox: 
+ prevX: 5; prevY: 6; currX: 6; currY: 7; 
+Step: action: PullSS; locationX: 5; locationY: 8; timestamp: 36; originalX: 5; originalY: 7; 
+ movingBox: 
+ prevX: 5; prevY: 7; currX: 5; currY: 7; 
+Step: action: PushNW; locationX: 5; locationY: 7; timestamp: 37; originalX: 5; originalY: 8; 
+ movingBox: 
+ prevX: 5; prevY: 7; currX: 4; currY: 7; 
+Step: action: PullNW; locationX: 5; locationY: 6; timestamp: 38; originalX: 5; originalY: 7; 
+ movingBox: 
+ prevX: 6; prevY: 6; currX: 5; currY: 7; 
+Step: action: PushSS; locationX: 5; locationY: 7; timestamp: 39; originalX: 5; originalY: 6; 
+ movingBox: 
+ prevX: 5; prevY: 7; currX: 5; currY: 8; 
+Step: action: PushSS; locationX: 5; locationY: 8; timestamp: 40; originalX: 5; originalY: 7; 
+ movingBox: 
+ prevX: 5; prevY: 8; currX: 5; currY: 9; 
+Step: action: PushES; locationX: 6; locationY: 8; timestamp: 41; originalX: 5; originalY: 8; 
+ movingBox: 
+ prevX: 6; prevY: 8; currX: 6; currY: 9; 
+Step: action: PullWW; locationX: 5; locationY: 8; timestamp: 42; originalX: 6; originalY: 8; 
+ movingBox: 
+ prevX: 6; prevY: 8; currX: 6; currY: 8; 
+Step: action: PullNW; locationX: 5; locationY: 7; timestamp: 43; originalX: 5; originalY: 8; 
+ movingBox: 
+ prevX: 6; prevY: 7; currX: 5; currY: 8; 
+Step: action: PushWS; locationX: 4; locationY: 7; timestamp: 44; originalX: 5; originalY: 7; 
+ movingBox: 
+ prevX: 4; prevY: 7; currX: 4; currY: 8; 
+Step: action: PushSS; locationX: 4; locationY: 8; timestamp: 45; originalX: 4; originalY: 7; 
+ movingBox: 
+ prevX: 4; prevY: 8; currX: 4; currY: 9; 
+Step: action: PushSS; locationX: 4; locationY: 9; timestamp: 46; originalX: 4; originalY: 8; 
+ movingBox: 
+ prevX: 4; prevY: 9; currX: 4; currY: 10; 
+Step: action: PushES; locationX: 5; locationY: 9; timestamp: 47; originalX: 4; originalY: 9; 
+ movingBox: 
+ prevX: 5; prevY: 9; currX: 5; currY: 10; 
+Step: action: PullWW; locationX: 4; locationY: 9; timestamp: 48; originalX: 5; originalY: 9; 
+ movingBox: 
+ prevX: 5; prevY: 9; currX: 5; currY: 9; 
+Step: action: PushSW; locationX: 4; locationY: 10; timestamp: 49; originalX: 4; originalY: 9; 
+ movingBox: 
+ prevX: 4; prevY: 10; currX: 3; currY: 10; 
+Step: action: PullNW; locationX: 4; locationY: 9; timestamp: 50; originalX: 4; originalY: 10; 
+ movingBox: 
+ prevX: 5; prevY: 9; currX: 4; currY: 10; 
+Step: action: PullNW; locationX: 4; locationY: 8; timestamp: 51; originalX: 4; originalY: 9; 
+ movingBox: 
+ prevX: 5; prevY: 8; currX: 4; currY: 9; 
+Step: action: PushES; locationX: 5; locationY: 8; timestamp: 52; originalX: 4; originalY: 8; 
+ movingBox: 
+ prevX: 5; prevY: 8; currX: 5; currY: 9; 
+Step: action: PushSS; locationX: 5; locationY: 9; timestamp: 53; originalX: 5; originalY: 8; 
+ movingBox: 
+ prevX: 5; prevY: 9; currX: 5; currY: 10; 
+Step: action: PushSS; locationX: 5; locationY: 10; timestamp: 54; originalX: 5; originalY: 9; 
+ movingBox: 
+ prevX: 5; prevY: 10; currX: 5; currY: 11; 
+Step: action: PushSW; locationX: 5; locationY: 11; timestamp: 55; originalX: 5; originalY: 10; 
+ movingBox: 
+ prevX: 5; prevY: 11; currX: 4; currY: 11; 
+Step: action: PushWW; locationX: 4; locationY: 11; timestamp: 56; originalX: 5; originalY: 11; 
+ movingBox: 
+ prevX: 4; prevY: 11; currX: 3; currY: 11; 
+Step: action: PushWW; locationX: 3; locationY: 11; timestamp: 57; originalX: 4; originalY: 11; 
+ movingBox: 
+ prevX: 3; prevY: 11; currX: 2; currY: 11; 
+Step: action: PushNW; locationX: 3; locationY: 10; timestamp: 58; originalX: 3; originalY: 11; 
+ movingBox: 
+ prevX: 3; prevY: 10; currX: 2; currY: 10; 
+Step: action: PushES; locationX: 4; locationY: 10; timestamp: 59; originalX: 3; originalY: 10; 
+ movingBox: 
+ prevX: 4; prevY: 10; currX: 4; currY: 11; 
+Step: action: PullWS; locationX: 3; locationY: 10; timestamp: 60; originalX: 4; originalY: 10; 
+ movingBox: 
+ prevX: 3; prevY: 9; currX: 4; currY: 10; 
+Step: action: PullSW; locationX: 3; locationY: 11; timestamp: 61; originalX: 3; originalY: 10; 
+ movingBox: 
+ prevX: 4; prevY: 11; currX: 3; currY: 10; 
+Step: action: PushWW; locationX: 2; locationY: 11; timestamp: 62; originalX: 3; originalY: 11; 
+ movingBox: 
+ prevX: 2; prevY: 11; currX: 1; currY: 11; 
+Step: action: PushNW; locationX: 2; locationY: 10; timestamp: 63; originalX: 2; originalY: 11; 
+ movingBox: 
+ prevX: 2; prevY: 10; currX: 1; currY: 10; 
+Step: action: PullSW; locationX: 2; locationY: 11; timestamp: 64; originalX: 2; originalY: 10; 
+ movingBox: 
+ prevX: 3; prevY: 11; currX: 2; currY: 10; 
+Step: action: MoveE; locationX: 3; locationY: 11; timestamp: 65; originalX: 2; originalY: 11; movingBox: null;
+Step: action: PullNW; locationX: 3; locationY: 10; timestamp: 66; originalX: 3; originalY: 11; 
+ movingBox: 
+ prevX: 4; prevY: 10; currX: 3; currY: 11; 
+Step: action: PushSW; locationX: 3; locationY: 11; timestamp: 67; originalX: 3; originalY: 10; 
+ movingBox: 
+ prevX: 3; prevY: 11; currX: 2; currY: 11; 
+

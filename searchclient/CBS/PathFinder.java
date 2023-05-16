@@ -25,7 +25,6 @@ public class PathFinder implements Comparator<CBSNode> {
 
 	public PathFinder(State initialState) {
 		this.initialState = initialState;
-		this.initialStateForStorage =	new InitialState(initialState.agentRows, initialState.agentCols, initialState.agentColors, initialState.walls, initialState.boxes, initialState.boxColors, initialState.goals);
 	}
 
 	public PlanStep[][] solveCBS() {
