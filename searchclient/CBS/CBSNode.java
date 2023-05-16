@@ -12,6 +12,7 @@ import searchclient.Heuristic;
 import searchclient.Logger;
 import searchclient.State;
 import searchclient.Color;
+import searchclient.CBS.SameColoredAgentsAndBoxesObject;
 
 public class CBSNode {
 	public State state;
@@ -88,23 +89,29 @@ public class CBSNode {
 
 	}
 
+	public PlanStep[][] findPlan() {
+		int numberOfAgents = state.agentRows.length;
+		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
+//		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
+
+		for (int i = 0; i < numberOfAgents; i++) {
+
+			System.out.println("------------------ Find individul plan for: " + i + " ------------------");
+			findIndividualPlan(i, individualPlans);
+			//			System.out.println("THE PLAN FOR: " + i);
+			//			for (PlanStep step : plan) {
+			//				System.out.println("Step: " + step.toString());
+			//			}
+			// TODO: Add search with constraint
+
+		}
+
+		return PlanStep.mergePlans(individualPlans);
+	}
+
 	public void findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
 
-		// Construct a state with the constructor that takes arguments
-		State searchSpecificState = createSpecificState(agentIndex);
-		System.out.println("Specific State: agentsLength: "+ searchSpecificState.agentRows.length + " boxesLength: " + searchSpecificState.boxes.length + " goalsLength: " + searchSpecificState.goals.length    );
-		this.state = searchSpecificState;
-
-		// Calculate teh shifted agent index that matches the real one in the searchSpecificState
-		int shiftedAgentIndex = this.shiftedAgents.indexOf(agentIndex);
-
-		ConstraintState constraintState = new ConstraintState(searchSpecificState, shiftedAgentIndex, this.constraints, 0); // we create a state here
-		// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
-		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
-
-		// // we need to create the specific maps here since we have the index here 
-		// // and call search on it
-		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, shiftedAgentIndex);
+		PlanStep[] plan =calculateIndividualPlanForAgent(agentIndex);
 
 
 		//TODO: Instead of initializing the frontier again and again for evey agent, we need to modify so that it re-uses the same frontier. This will optimize a lot the run-speed.
@@ -118,6 +125,85 @@ public class CBSNode {
 		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
 
 	}
+
+	// This is wehre the whole path calculation goes on
+	private PlanStep[]  calculateIndividualPlanForAgent (int agentIndex) {
+
+		// Calculate how many boxes we have for the agent
+		SameColoredAgentsAndBoxesObject dataObject = calculateAttributesForSpecificStateCreation(agentIndex) ;
+		ArrayList<Integer> sameColoredAgents = dataObject.sameColoredAgents;
+		ArrayList<Integer> sameColoredBoxes = dataObject.sameColoredBoxes;
+		// int[] sameColoredBoxesInt = Arrays.stream(sameColoredBoxes.toArray(new Integer[sameColoredBoxes.size()])).mapToInt(Integer::intValue).toArray();
+
+
+		if (sameColoredAgents.size() != 1) {
+			System.err.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@----------- This is not one agent -----------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		}
+		
+		ArrayList<PlanStep> mergedPlans = new ArrayList<PlanStep>();
+		int[] agentPos = new int[]{-1, -1};
+		for (int boxIndex = 0; boxIndex < sameColoredBoxes.size(); boxIndex++) {
+			
+			int[] completedBoxes = new int[boxIndex];
+			for (int i = 0; i < boxIndex; i++) {
+				completedBoxes[i] = sameColoredBoxes.get(i);
+			}
+			// Construct a state with the constructor that takes arguments
+			State searchSpecificState = createSpecificState(agentIndex, sameColoredBoxes.get(boxIndex), completedBoxes, sameColoredBoxes, agentPos   );
+			System.out.println("Specific State: agentsLength: "+ searchSpecificState.agentRows.length + " boxesLength: " + searchSpecificState.boxes.length + " goalsLength: " + searchSpecificState.goals.length    );
+			this.state = searchSpecificState;
+	
+			// Calculate teh shifted agent index that matches the real one in the searchSpecificState
+			int shiftedAgentIndex = this.shiftedAgents.indexOf(agentIndex);
+	
+			// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+			ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
+	
+			// // we need to create the specific maps here since we have the index here 
+			// // and call search on it
+			PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, shiftedAgentIndex);
+			int timestampShift = mergedPlans.size();
+			for (PlanStep step : plan) {
+				mergedPlans.add( new PlanStep(step.action, step.locationX, step.locationY, timestampShift+step.timestamp, step.originalX, step.originalY) );
+			}
+			agentPos[0] = mergedPlans.get(mergedPlans.size() - 1).locationY;
+			agentPos[1] = mergedPlans.get(mergedPlans.size() - 1).locationX;
+
+		}
+
+		if( sameColoredBoxes.size() ==0 ) {
+			int completedBoxes[] = {-1};
+			
+			// Construct a state with the constructor that takes arguments
+			State searchSpecificState = createSpecificState(agentIndex, -1, completedBoxes, sameColoredBoxes, agentPos   );
+			System.out.println("Specific State: agentsLength: "+ searchSpecificState.agentRows.length + " boxesLength: " + searchSpecificState.boxes.length + " goalsLength: " + searchSpecificState.goals.length    );
+			this.state = searchSpecificState;
+	
+			// Calculate teh shifted agent index that matches the real one in the searchSpecificState
+			int shiftedAgentIndex = this.shiftedAgents.indexOf(agentIndex);
+	
+			// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
+			ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
+	
+			// // we need to create the specific maps here since we have the index here 
+			// // and call search on it
+			PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, shiftedAgentIndex);
+			int timestampShift = mergedPlans.size();
+			for (PlanStep step : plan) {
+				mergedPlans.add( new PlanStep(step.action, step.locationX, step.locationY, timestampShift+step.timestamp, step.originalX, step.originalY) );
+			}
+			agentPos[0] = mergedPlans.get(mergedPlans.size() - 1).locationY;
+			agentPos[1] = mergedPlans.get(mergedPlans.size() - 1).locationX;
+
+		}
+
+		// Convert ArrayList to an array of Person objects
+		PlanStep[] plan = mergedPlans.toArray(new PlanStep[mergedPlans.size()]);
+
+		return plan;
+	}
+
+	
 
 	public void setNewIndividualPlanForAgent(int agentIndex) {
 		PlanStep[] plan = calculateIndividualPlanForAgent(agentIndex);
@@ -174,80 +260,19 @@ public class CBSNode {
 
 	}
 
-	private PlanStep[]  calculateIndividualPlanForAgent (int agentIndex) {
 
-		// Construct a state with the constructor that takes arguments
-		State searchSpecificState = createSpecificState(agentIndex);
-		System.out.println("Specific State: agentsLength: "+ searchSpecificState.agentRows.length + " boxesLength: " + searchSpecificState.boxes.length + " goalsLength: " + searchSpecificState.goals.length    );
-		this.state = searchSpecificState;
-
-		// Calculate teh shifted agent index that matches the real one in the searchSpecificState
-		int shiftedAgentIndex = this.shiftedAgents.indexOf(agentIndex);
-
-		ConstraintState constraintState = new ConstraintState(searchSpecificState, shiftedAgentIndex, this.constraints, 0); // we create a state here
-		// ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar(constraintState));
-		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
-
-		// // we need to create the specific maps here since we have the index here 
-		// // and call search on it
-		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, shiftedAgentIndex);
-
-		return plan;
-	}
-
-
-	public PlanStep[][] findPlan() {
-		int numberOfAgents = state.agentRows.length;
-		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
-//		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
-
-		for (int i = 0; i < numberOfAgents; i++) {
-
-			findIndividualPlan(i, individualPlans);
-			//			System.out.println("THE PLAN FOR: " + i);
-			//			for (PlanStep step : plan) {
-			//				System.out.println("Step: " + step.toString());
-			//			}
-			// TODO: Add search with constraint
-
-		}
-
-		return PlanStep.mergePlans(individualPlans);
-	}
-
-	public PlanStep[][] findOnlyOneIndividualPlan() {
-		
-
-		int numberOfAgents = state.agentRows.length;
-		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
-		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
-
-		for (int i = 0; i < numberOfAgents; i++) {
-
-			findIndividualPlan(i, individualPlans);
-			//			System.out.println("THE PLAN FOR: " + i);
-			//			for (PlanStep step : plan) {
-			//				System.out.println("Step: " + step.toString());
-			//			}
-			// TODO: Add search with constraint
-
-		}
-
-		return PlanStep.mergePlans(individualPlans);
-	}
-
-	public State createSpecificState(  int agent) {
+	private SameColoredAgentsAndBoxesObject calculateAttributesForSpecificStateCreation(int agentIndex) {
 		initialStateForStorage = new InitialState();
 		InitialStateObject initialStateObject = initialStateForStorage.getInitialState();
 
-		System.out.println("++++++++++Creating specific state for agent: " + agent + "++++++++++");
+		System.out.println("++++++++++Creating specific state for agent: " + agentIndex + "++++++++++");
 		// Create a new state with only the appropriately colored agents
 		// Find the color of the agent  
-		Color agentColor = initialStateObject.agentColors[agent];
+		Color agentColor = initialStateObject.agentColors[agentIndex];
 		// Find everything from that color
 		ArrayList<Integer> sameColoredAgents = new ArrayList<>(initialStateObject.agentColors.length);
 		// agents
-		Color[] agentColors = initialStateObject.agentColors;
+		// Color[] agentColors = initialStateObject.agentColors;
 		for (int i = 0; i < initialStateObject.agentColors.length; i++) {
 			 if (initialStateObject.agentColors[i] == agentColor) {
 				  sameColoredAgents.add(i);
@@ -261,15 +286,27 @@ public class CBSNode {
 				  sameColoredBoxes.add(i);
 			 }
 		}
+		System.out.println("++++++++++ Index of agent: " + agentIndex +",  Color of agent: " + agentColor+ ", Agents with this color: " + sameColoredAgents + ",  Boxes with this color: " + sameColoredBoxes +"   ++++++++++");
 
-		System.out.println("++++++++++ Index of agent: " + agent +",  Color of agent: " + agentColor+ ", Agents with this color: " + sameColoredAgents + ",  Boxes with this color: " + sameColoredBoxes +"   ++++++++++");
+
+  		return new SameColoredAgentsAndBoxesObject(sameColoredAgents, sameColoredBoxes);	
+
+	}
+
+
+	private State createSpecificState(  int agent, int currentBoxIndexToMove, int[] boxesThatHaveBeenCompleted, ArrayList<Integer> allRelevantBoxes, int[] agentPositionToReturn) {
+		initialStateForStorage = new InitialState();
+		InitialStateObject initialStateObject = initialStateForStorage.getInitialState();
+
+		SameColoredAgentsAndBoxesObject dataObject = calculateAttributesForSpecificStateCreation(agent) ;
+		ArrayList<Integer> sameColoredAgents = dataObject.sameColoredAgents;
+		ArrayList<Integer> sameColoredBoxes = dataObject.sameColoredBoxes;
+
       // this.shiftedAgents = sameColoredAgents.stream().mapToInt(i -> i).toArray();
 		this.shiftedAgents = new ArrayList<>(sameColoredAgents.size());
       this.shiftedAgents = sameColoredAgents;
 
 
-
-		// TODO: Initialize these variables
 		int[] newAgentRows = new int[sameColoredAgents.size() ];
 		int[] newAgentCols =  new int[sameColoredAgents.size() ];
 		Color[] newAgentColors = new Color[sameColoredAgents.size() ]; 
@@ -279,25 +316,58 @@ public class CBSNode {
 		char[][] newGoals = new char[initialStateObject.goals.length] [initialStateObject.goals[0].length];
 
 		// Set the agent details
-		newAgentRows = setAgentRows(initialStateObject, sameColoredAgents);
-		newAgentCols = setAgentCols(initialStateObject, sameColoredAgents);
+		if(agentPositionToReturn[0]==-1){
+			newAgentRows = setAgentRows(initialStateObject, sameColoredAgents);
+			newAgentCols = setAgentCols(initialStateObject, sameColoredAgents);
+		}
+		else{
+			newAgentRows = new int[]{agentPositionToReturn[0]};
+			newAgentCols = new int[]{agentPositionToReturn[1]};
+		}
 		newAgentColors = setAgentColors(initialStateObject, sameColoredAgents);
 		newGoals = setGoals(initialStateObject, sameColoredAgents, sameColoredBoxes, initialStateObject.goals);
-		// newBoxes = initialStateObject.boxesInitial;
 		newBoxes = setBoxes(initialStateObject, sameColoredBoxes, initialStateObject.boxesInitial );
 		newBoxColors = setBoxColors(initialStateObject, sameColoredBoxes);
 
-		// System.out.println("newAgentRows: "+ Arrays.toString(newAgentRows));
-		
-		// TODO set box details
-		// TODO set extra walls
+		// Set the walls
 		newWalls = setExtraWalls(initialStateObject, sameColoredAgents, sameColoredBoxes);
 
-		// compareCharArrays( newBoxes,initialStateObject.boxesInitial );
+		if( currentBoxIndexToMove != -1) { // If we hve any boxes to move
+			for (Integer boxIndex : allRelevantBoxes) {
+				if( boxIndex == currentBoxIndexToMove) {
+					// This is the box that is being moved, no modification is required
+				} else if( boxIndex > currentBoxIndexToMove) {
+					// This is a box that has not been moved yet
+					// The StartingPos of the box has to be set as a wall and the box has to be removed
+					setInitialBoxPosAsWall(  newWalls, allRelevantBoxes.indexOf( boxIndex ),  newBoxes );
+
+					// The StartingPos of the box has to be removed
+					removeInitialBoxPosFromBoxes( allRelevantBoxes.indexOf( boxIndex ),  newBoxes );
+
+					// The goal of it has to be removed
+					removeGoalBoxPosFromGoals( allRelevantBoxes.indexOf( boxIndex ),  newGoals  );
+
+				}	else {
+					// This is a box that has already been moved
+					// The goalPosition of the box has to be set as a wall
+					setGoalBoxPosAsWall(  newWalls, allRelevantBoxes.indexOf( boxIndex ), newGoals ) ;
+
+					// The StartingPos of the box has to be removed
+					removeInitialBoxPosFromBoxes( allRelevantBoxes.indexOf( boxIndex ),  newBoxes );
+
+					// The goal of the box has to be removed
+					removeGoalBoxPosFromGoals( allRelevantBoxes.indexOf( boxIndex ),  newGoals  );
+				
+				} 	
+			}
+		}
+
+
 		// TODO: create new state, for this new spcificState class is rqeuired WITHOUT THE STATIC fields!
 		// Create a new state with only the appropriately colored elements
 		State newState = new State(newAgentRows, newAgentCols, newAgentColors, newWalls, newBoxes, newBoxColors, newGoals);
 
+		// NEW STATE PRINTING
 		// Printing out the new state from the specific state
 		System.out.println("==========Printing out the new state from the specific state============");
 		System.out.print(newState.toString() );
@@ -474,59 +544,18 @@ public class CBSNode {
 			break;
 
 
-
-
-
-
-
-
-
-
 		}
 
-		if (true){
-					// PushNN("Push(N,N)", ActionType.Push, -1, 0, -1, 0),
-					// PushNE("Push(N,E)", ActionType.Push, -1, 0, 0, 1),
-					// PushNW("Push(N,W)", ActionType.Push, -1, 0, 0, -1),
 
-					// PushSS("Push(S,S)", ActionType.Push, 1, 0, 1, 0),
-					// PushSE("Push(S,E)", ActionType.Push, 1, 0, 0, 1),
-					// PushSW("Push(S,W)", ActionType.Push, 1, 0, 0, -1),
-
-
-					// PushEN("Push(E,N)", ActionType.Push, 0, 1, -1, 0),
-					// PushES("Push(E,S)", ActionType.Push, 0, 1, 1, 0),
-					// PushEE("Push(E,E)", ActionType.Push, 0, 1, 0, 1),
-
-					// PushWN("Push(W,N)", ActionType.Push, 0, -1, -1, 0),
-					// PushWS("Push(W,S)", ActionType.Push, 0, -1, 1, 0),
-					// PushWW("Push(W,W)", ActionType.Push, 0, -1, 0, -1),
-
-					// PullNN("Pull(N,N)", ActionType.Pull, -1, 0, -1, 0),
-					// PullNE("Pull(N,E)", ActionType.Pull, -1, 0, 0, 1),
-					// PullNW("Pull(N,W)", ActionType.Pull, -1, 0, 0, -1),
-
-					// PullSS("Pull(S,S)", ActionType.Pull, 1, 0, 1, 0),
-					// PullSE("Pull(S,E)", ActionType.Pull, 1, 0, 0, 1),
-					// PullSW("Pull(S,W)", ActionType.Pull, 1, 0, 0, -1),
-
-					// PullEN("Pull(E,N)", ActionType.Pull, 0, 1, -1, 0),
-					// PullES("Pull(E,S)", ActionType.Pull, 0, 1, 1, 0),
-					// PullEE("Pull(E,E)", ActionType.Pull, 0, 1, 0, 1),
-
-					// PullWN("Pull(W,N)", ActionType.Pull, 0, -1, -1, 0),
-					// PullWS("Pull(W,S)", ActionType.Pull, 0, -1, 1, 0),
-					// PullWW("Pull(W,W)", ActionType.Pull, 0, -1, 0, -1);
-			}
 
 
 
 		
 
 			// List all constratins
-			for (Constraint globalConstr2 : this.constraints) { 
-				System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
-			}
+			// for (Constraint globalConstr2 : this.constraints) { 
+			// 	System.out.println("globalConstr:  agentInde:" + globalConstr2.agentIndex + ", locationx: " + globalConstr2.locationX + ", locationy: " + globalConstr2.locationY + ", temistamp: " + globalConstr2.timestamp);
+			// }
 			System.out.println("");
 		// CONSTRAINT 
 		// public int agentIndex;
@@ -881,6 +910,67 @@ public class CBSNode {
 		}
 
 
+	private void setInitialBoxPosAsWall( boolean[][] walls, int boxIndex, char[][] newBoxes ) {
+		for (int row = 0; row < newBoxes.length; row++) { // rows =first dim
+			for(int col = 0; col < newBoxes[row].length; col++) { // cols =second dim
+				char box = newBoxes[row][col];
+				int val = box - 'A'; // The integer value of the character at place boxes[row][col]
+				
+				if( boxIndex == val  ){
+					// set the position of the box as a wall
+					walls[row] [col] = true;
+				}
+			}
+		}
+	}
+
+	private void removeInitialBoxPosFromBoxes(  int boxIndex, char[][] newBoxes ) {
+		for (int row = 0; row < newBoxes.length; row++) { // rows =first dim
+			for(int col = 0; col < newBoxes[row].length; col++) { // cols =second dim
+				char box = newBoxes[row][col];
+				int val = box - 'A'; // The integer value of the character at place boxes[row][col]
+				
+				if( boxIndex == val  ){
+					// set the position of the box as a wall
+					newBoxes[row][col] = '\0';
+				}
+			}
+		}
+	}
+
+	private void removeGoalBoxPosFromGoals(  int boxIndex, char[][] newGoals  ){
+		for (int row = 0; row < newGoals.length; row++) { // rows =first dim
+			for(int col = 0; col < newGoals[row].length; col++) { // cols =second dim
+				char box = newGoals[row][col];
+				int val = box - 'A'; // The integer value of the character at place boxes[row][col]
+				
+				if( boxIndex == val  ){
+					// set the position of the box as a wall
+					newGoals[row][col] = ' ';
+				}
+			}
+		}
+
+	}
+
+	private void setGoalBoxPosAsWall(  boolean[][] walls,  int boxIndex,  char[][] newGoals ) {
+		for (int row = 0; row < newGoals.length; row++) { // rows =first dim
+			for(int col = 0; col < newGoals[row].length; col++) { // cols =second dim
+				char box = newGoals[row][col];
+				int val = box - 'A'; // The integer value of the character at place boxes[row][col]
+				
+				if( boxIndex == val  ){
+					// set the position of the box as a wall
+					walls[row][col] = true;
+				}
+			}
+		}
+
+	}
+
+
+
+
 
 	public int sumCosts() {
 		int sum = 0;
@@ -956,3 +1046,4 @@ class Conflict implements GenericConflict {
 
 	}
 }
+

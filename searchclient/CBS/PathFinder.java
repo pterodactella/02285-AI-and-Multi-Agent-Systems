@@ -36,6 +36,9 @@ public class PathFinder implements Comparator<CBSNode> {
 
 		// // NOW: mergedPlans[timestamp][agent]
 		int agentInd = 0;
+		boolean ThereWasAtLeastOneConflict = false;
+
+		// Fisrt Check if there is a conflict
 		while (agentInd < root.solution[0].length){ // Every Agent
 			boolean needToReplan = false;
 
@@ -50,6 +53,7 @@ public class PathFinder implements Comparator<CBSNode> {
 			if( needToReplan ) {
 				// find individual plan for agentInd
 				root.setNewIndividualPlanForAgent( agentInd );
+				ThereWasAtLeastOneConflict=true;
 			} else {
 				// save plan to constraints
 				for (int timestamp = 1; timestamp < root.solution.length; timestamp++) { 	// Every Step
@@ -62,6 +66,43 @@ public class PathFinder implements Comparator<CBSNode> {
 				agentInd++;
 				
 			} 
+		}
+
+		// Extra Check if there is a conflict
+		while (ThereWasAtLeastOneConflict == false) {
+		ThereWasAtLeastOneConflict = false;
+			
+		while (agentInd < root.solution[0].length){ // Every Agent
+			boolean needToReplan = false;
+
+			for (int timestamp = 1; timestamp < root.solution.length; timestamp++) { 	// Every Step
+				// System.out.println(root.solution[timestamp][agentInd].toString());
+				if ( !root.isApplicableStep( root.solution[timestamp][agentInd], timestamp ) ){
+					needToReplan = true;
+					break;
+				}
+			}
+
+			if( needToReplan ) {
+				// find individual plan for agentInd
+				root.setNewIndividualPlanForAgent( agentInd );
+				ThereWasAtLeastOneConflict=true;
+			} else {
+				// save plan to constraints
+				for (int timestamp = 1; timestamp < root.solution.length; timestamp++) { 	// Every Step
+					root.addToConstraints( root.solution[timestamp][agentInd], timestamp, agentInd ); // original
+					try {
+						root.addToConstraints( root.solution[timestamp+1][agentInd], timestamp, agentInd ); 
+					} catch (Exception e) {}
+
+				}
+				agentInd++;
+				
+			} 
+		}
+
+
+
 		}
 
 
