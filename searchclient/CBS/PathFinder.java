@@ -80,189 +80,66 @@ public class PathFinder implements Comparator<CBSNode> {
 			// Determine the cardinality of the conflict
 			boolean isCardinal = false;
 			boolean isSemiCardinal = false;
-			// if (c instanceof SymmetryConflict) {
-			// 	if (((SymmetryConflict) c).type == SymmetryType.Rect) {
+			
+			if (c instanceof Conflict) {
 
-			// 		int agent1Index = ((SymmetryConflict) c).agent1;
-			// 		int agent2Index = ((SymmetryConflict) c).agent2;
-			// 		int agent1X = ((SymmetryConflict) c).agentIndexes[0][0];
-			// 		int agent1Y = ((SymmetryConflict) c).agentIndexes[0][1];
-			// 		int agent2X = ((SymmetryConflict) c).agentIndexes[1][0];
-			// 		int agent2Y = ((SymmetryConflict) c).agentIndexes[1][1];
+				int agent1Index = ((Conflict) c).agentIndexes[0];
+				int agent2Index = ((Conflict) c).agentIndexes[1];
 
-			// 		CBSNode a = new CBSNode(p);
-			// 		CBSNode b = new CBSNode(p);
+				// System.err.println("agent1 Index + " + agent1Index);
 
-			// 		// Add constraints to break rectangle symmetries
-			// 		// Force agent1 to move down and agent2 to move up
-			// 		a.constraints
-			// 				.add(new Constraint(agent1Index, agent1X, agent1Y + 1, ((SymmetryConflict) c).timestamp));
-			// 		a.constraints
-			// 				.add(new Constraint(agent2Index, agent2X, agent2Y - 1, ((SymmetryConflict) c).timestamp));
+				CBSNode a = new CBSNode(p);
+				a.constraints.add(new Constraint(agent1Index, ((Conflict) c).locationX,
+						((Conflict) c).locationY,
+						((Conflict) c).timestamp));
+				// a.solution = a.findPlan();
+				// // Recalculate only for one(agentIndex)
+				// PlanStep[][] individualPlans = a.findPlan();
+				// a.solution[agentIndex] = individualPlans[agentIndex];
+				// System.err.println("a.solution + " + a.solution.toString());
 
-			// 		// Add the constraints to the nodes
-			// 		a.solution = a.findPlan();
-			// 		a.totalCost = a.sumCosts();
+				a.solution[agent1Index] = a.findIndividualPlan(agent1Index, p.solution);
+				a.totalCost = a.sumCosts();
+				// a.totalCost = a.sumCosts();
+				// a.solution[agent2Index] = a.findIndividualPlan(agent2Index, p.solution);
 
-			// 		b.constraints
-			// 				.add(new Constraint(agent1Index, agent1X, agent1Y - 1, ((SymmetryConflict) c).timestamp));
-			// 		b.constraints
-			// 				.add(new Constraint(agent2Index, agent2X, agent2Y + 1, ((SymmetryConflict) c).timestamp));
+				CBSNode b = new CBSNode(p);
+				b.constraints.add(new Constraint(agent2Index, ((Conflict) c).locationX,
+						((Conflict) c).locationY,
+						((Conflict) c).timestamp));
 
-			// 		b.solution = b.findPlan();
-			// 		b.totalCost = b.sumCosts();
+				b.solution[agent2Index] = b.findIndividualPlan(agent2Index, p.solution);
 
-			// 		isCardinal = isCardinalConflict(p, a, b);
-			// 		isSemiCardinal = isSemiCardinalConflict(p, a, b);
+				b.totalCost = b.sumCosts();
 
-			// 		// Add the nodes to the open list based on the conflict type
-			// 		if (isCardinal) {
-			// 			if (!open.contains(a) && !expanded.contains(a)) {
-			// 				open.add(a);
-			// 			}
-			// 		} else if (isSemiCardinal) {
-			// 			if (!open.contains(a) && !expanded.contains(a)) {
-			// 				open.add(a);
-			// 			}
-			// 		} else {
-			// 			if (!open.contains(a) && !expanded.contains(a)) {
-			// 				open.add(a);
-			// 			}
-			// 			if (!open.contains(b) && !expanded.contains(b)) {
-			// 				open.add(b);
-			// 			}
-			// 		}
-			// 	} else if (((SymmetryConflict) c).type == SymmetryType.Corridor) {
-			// 		int agent1Index = ((SymmetryConflict) c).agent1;
-			// 		int agent2Index = ((SymmetryConflict) c).agent2;
-			// 		int agent1X = ((SymmetryConflict) c).agentIndexes[0][0];
-			// 		int agent1Y = ((SymmetryConflict) c).agentIndexes[0][1];
-			// 		int agent2X = ((SymmetryConflict) c).agentIndexes[1][0];
-			// 		int agent2Y = ((SymmetryConflict) c).agentIndexes[1][1];
-
-			// 		CBSNode a = new CBSNode(p);
-			// 		CBSNode b = new CBSNode(p);
-			// 		// Add constraints to break corridor symmetries
-			// 		if (agent1X == agent2X) {
-			// 			// Row symmetry
-			// 			// Force agent1 to move down and agent2 to move up
-			// 			a.constraints
-			// 					.add(new Constraint(agent1Index, agent1X, agent1Y + 1,
-			// 							((SymmetryConflict) c).timestamp));
-			// 			a.constraints
-			// 					.add(new Constraint(agent2Index, agent2X, agent2Y - 1,
-			// 							((SymmetryConflict) c).timestamp));
-
-			// 			b.constraints
-			// 					.add(new Constraint(agent1Index, agent1X, agent1Y - 1,
-			// 							((SymmetryConflict) c).timestamp));
-			// 			b.constraints
-			// 					.add(new Constraint(agent2Index, agent2X, agent2Y + 1,
-			// 							((SymmetryConflict) c).timestamp));
-			// 		} else {
-			// 			// Column symmetry
-			// 			// Customize the constraints based on your specific requirements for column
-			// 			// symmetry breaking
-			// 			// For example, you can force agent1 to move left and agent2 to move right
-			// 			a.constraints
-			// 					.add(new Constraint(agent1Index, agent1X - 1, agent1Y,
-			// 							((SymmetryConflict) c).timestamp));
-			// 			a.constraints
-			// 					.add(new Constraint(agent2Index, agent2X + 1, agent2Y,
-			// 							((SymmetryConflict) c).timestamp));
-
-			// 			b.constraints
-			// 					.add(new Constraint(agent1Index, agent1X + 1, agent1Y,
-			// 							((SymmetryConflict) c).timestamp));
-			// 			b.constraints
-			// 					.add(new Constraint(agent2Index, agent2X - 1, agent2Y,
-			// 							((SymmetryConflict) c).timestamp));
-			// 		}
-			// 		// Add the constraints to the nodes
-			// 		a.solution = a.findPlan();
-			// 		a.totalCost = a.sumCosts();
-
-			// 		b.solution = b.findPlan();
-			// 		b.totalCost = b.sumCosts();
-
-			// 		isCardinal = isCardinalConflict(p, a, b);
-			// 		isSemiCardinal = isSemiCardinalConflict(p, a, b);
-
-			// 		// Add the nodes to the open list based on the conflict type
-			// 		if (isCardinal) {
-			// 			if (!open.contains(a) && !expanded.contains(a)) {
-			// 				open.add(a);
-			// 			}
-			// 		} else if (isSemiCardinal) {
-			// 			if (!open.contains(a) && !expanded.contains(a)) {
-			// 				open.add(a);
-			// 			}
-			// 		} else {
-			// 			if (!open.contains(a) && !expanded.contains(a)) {
-			// 				open.add(a);
-			// 			}
-			// 			if (!open.contains(b) && !expanded.contains(b)) {
-			// 				open.add(b);
-			// 			}
-			// 		}
-					// else 
-					if (c instanceof Conflict) {
-
-					int agent1Index = ((Conflict) c).agentIndexes[0];
-					int agent2Index = ((Conflict) c).agentIndexes[1];
-
-					// System.err.println("agent1 Index + " + agent1Index);
-
-					CBSNode a = new CBSNode(p);
-					a.constraints.add(new Constraint(agent1Index, ((Conflict) c).locationX,
-					((Conflict) c).locationY,
-					((Conflict) c).timestamp));
-					a.solution = a.findPlan();
-					// // Recalculate only for one(agentIndex)
-					// PlanStep[][] individualPlans = a.findPlan();
-					// a.solution[agentIndex] = individualPlans[agentIndex];
-					// System.err.println("a.solution + " + a.solution.toString());
-
-					// a.solution[agent1Index] = a.findIndividualPlan(agent1Index, p.solution);
-					a.totalCost = a.sumCosts();
-					// a.totalCost = a.sumCosts();
-					// a.solution[agent2Index] = a.findIndividualPlan(agent2Index, p.solution);
-
-					CBSNode b = new CBSNode(p);
-					b.constraints.add(new Constraint(agent2Index, ((Conflict) c).locationX,
-					((Conflict) c).locationY,
-					((Conflict) c).timestamp));
-					b.solution = b.findPlan();
-					b.totalCost = b.sumCosts();
-
-					isCardinal = isCardinalConflict(p, a, b);
-					isSemiCardinal = isSemiCardinalConflict(p, a, b);
-					if (isCardinal) {
+				isCardinal = isCardinalConflict(p, a, b);
+				isSemiCardinal = isSemiCardinalConflict(p, a, b);
+				if (isCardinal) {
 					if (!open.contains(a) && !expanded.contains(a)) {
-					open.add(a);
+						open.add(a);
 					}
-					} else if (isSemiCardinal) {
+				} else if (isSemiCardinal) {
 					if (!open.contains(a) && !expanded.contains(a)) {
-					open.add(a);
+						open.add(a);
 					}
-					} else {
+				} else {
 					if (!open.contains(a) && !expanded.contains(a)) {
-					open.add(a);
+						open.add(a);
 					}
 					if (!open.contains(b) && !expanded.contains(b)) {
-					open.add(b);
+						open.add(b);
 					}
-					}
-
-					// if (!open.contains(a) && !expanded.contains(a)) {
-					// open.add(a);
-					// }
-					// if (!open.contains(b) && !expanded.contains(b)) {
-					// open.add(b);
-					// }
 				}
+
+				// if (!open.contains(a) && !expanded.contains(a)) {
+				// open.add(a);
+				// }
+				// if (!open.contains(b) && !expanded.contains(b)) {
+				// open.add(b);
+				// }
+			}
 			// }
-			 else if (c instanceof OrderedConflict) {
+			else if (c instanceof OrderedConflict) {
 				CBSNode a = new CBSNode(p);
 				a.constraints.add(
 						new Constraint(((OrderedConflict) c).followerIndex, ((OrderedConflict) c).forbiddenLocationX,

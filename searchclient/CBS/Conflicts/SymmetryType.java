@@ -2,5 +2,5 @@ package searchclient.CBS.Conflicts;
 
 public enum SymmetryType
 {
-    Rect, Corridor, Target
+    Rect, Corridor, Target, Row
 }

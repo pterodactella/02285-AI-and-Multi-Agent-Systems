@@ -125,9 +125,15 @@ public class CBSNode {
 					// continue;
 					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3] + 2) {
 						System.err.println("Corridor symmetry found ");
-						this.constraints.add(new SymmetryConstraint(j, k, agentsPositions[0], agentsPositions[1], agentsPositions[2],
-								agentsPositions[3], i, SymmetryType.Corridor));
+						this.constraints.add(
+								new SymmetryConstraint(j, k, agentsPositions[0], agentsPositions[1], agentsPositions[2],
+										agentsPositions[3], i, SymmetryType.Corridor));
 					}
+					// if (agentsPositions[1] == agentsPositions[3] && agentsPositions[0] == agentsPositions[2] + 2) {
+					// 	System.err.println("Row symmetry found");
+					// 	this.constraints.add(new SymmetryConstraint(j, k, agentsPositions[0], agentsPositions[1],
+					// 			agentsPositions[2], agentsPositions[3], i, SymmetryType.Row));
+					// }
 					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
 						return new Conflict(j, k, agentsPositions[0], agentsPositions[1], i);
 					}
@@ -198,7 +204,6 @@ public class CBSNode {
 		return null;
 
 	}
-
 
 	public PlanStep[] findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
 

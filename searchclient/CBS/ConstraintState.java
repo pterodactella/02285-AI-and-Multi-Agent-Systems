@@ -273,14 +273,6 @@ public class ConstraintState {
 				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
 				return true;
 			}
-			// Check for symmetry constraint violation
-			if (constraint instanceof SymmetryConstraint) {
-				SymmetryConstraint symmetryConstraint = (SymmetryConstraint) constraint;
-				if (symmetryConstraint.agent2 == this.agent &&
-						(symmetryConstraint.agent2Indexes[0] == agentCol && symmetryConstraint.agent2Indexes[1] == agentRow)) {
-					return true;
-				}
-			}
 		}
 		return false;
 
