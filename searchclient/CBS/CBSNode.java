@@ -228,7 +228,7 @@ public class CBSNode {
 
 	}
 
-	public void findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
+	public PlanStep[] findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
 
 		ConstraintState constraintState = new ConstraintState(this.state, agentIndex, this.constraints,
 				this.boxConstraints, 0);
@@ -269,7 +269,7 @@ public class CBSNode {
 
 		individualPlans[agentIndex] = plan;
 		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
-
+		return plan;
 	}
 
 	public PlanStep[][] findPlan(boolean allAgents, int agentIndex) {

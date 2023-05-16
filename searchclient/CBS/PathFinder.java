@@ -78,7 +78,7 @@ public class PathFinder implements Comparator<CBSNode> {
 			// Determine the cardinality of the conflict
 			boolean isCardinal = false;
 			boolean isSemiCardinal = false;
-			
+
 			if (c instanceof Conflict) {
 
 				int agent1Index = ((Conflict) c).agentIndexes[0];
@@ -96,7 +96,7 @@ public class PathFinder implements Comparator<CBSNode> {
 				// a.solution[agentIndex] = individualPlans[agentIndex];
 				// System.err.println("a.solution + " + a.solution.toString());
 
-				a.solution[agent1Index] = a.findIndividualPlan(agent1Index, p.solution);
+				a.solution = a.findPlan(false, agent1Index);
 				a.totalCost = a.sumCosts();
 				// a.totalCost = a.sumCosts();
 				// a.solution[agent2Index] = a.findIndividualPlan(agent2Index, p.solution);
@@ -106,7 +106,7 @@ public class PathFinder implements Comparator<CBSNode> {
 						((Conflict) c).locationY,
 						((Conflict) c).timestamp));
 
-				b.solution[agent2Index] = b.findIndividualPlan(agent2Index, p.solution);
+				b.solution = b.findPlan(false, agent2Index);
 
 				b.totalCost = b.sumCosts();
 
@@ -143,7 +143,7 @@ public class PathFinder implements Comparator<CBSNode> {
 						new Constraint(((OrderedConflict) c).followerIndex, ((OrderedConflict) c).forbiddenLocationX,
 								((OrderedConflict) c).forbiddenLocationY, ((OrderedConflict) c).timestamp));
 
-				a.solution = a.findPlan();
+				a.solution = a.findPlan(false, ((OrderedConflict) c).followerIndex);
 				a.totalCost = a.sumCosts();
 
 				if (!open.contains(a) && !expanded.contains(a)) {
@@ -155,42 +155,52 @@ public class PathFinder implements Comparator<CBSNode> {
 						new Constraint(((AgentInBoxConflict) c).agentIndex, ((AgentInBoxConflict) c).forbiddenLocationX,
 								((AgentInBoxConflict) c).forbiddenLocationY, ((AgentInBoxConflict) c).timestamp));
 
-				a.solution = a.findPlan();
+				a.solution = a.findPlan(false, ((AgentInBoxConflict) c).agentIndex);
 				a.totalCost = a.sumCosts();
 				if (!open.contains(a) && !expanded.contains(a)) {
 					open.add(a);
 				}
-
-			} else if (c instanceof AgentAlongBoxConflict) {
+			}
+			if (c instanceof AgentAlongBoxConflict) {
 				CBSNode a = new CBSNode(p);
 				a.constraints.add(new Constraint(((AgentAlongBoxConflict) c).agentWithoutBoxIndex,
 						((AgentAlongBoxConflict) c).agentWithoutBoxLocationX,
 						((AgentAlongBoxConflict) c).agentWithoutBoxLocationY, ((AgentAlongBoxConflict) c).timestamp));
 
-				a.solution = a.findPlan();
+				a.solution = a.findPlan(false, ((AgentAlongBoxConflict) c).agentWithoutBoxIndex);
 				a.totalCost = a.sumCosts();
-				if (!open.contains(a) && !expanded.contains(a)) {
-					open.add(a);
-				}
 
+				// Repeat the same logic for 'b'
 				CBSNode b = new CBSNode(p);
 				b.boxConstraints.add(new BoxConstraint(((AgentAlongBoxConflict) c).agentWithBoxIndex,
 						((AgentAlongBoxConflict) c).agentWithoutBoxLocationX,
 						((AgentAlongBoxConflict) c).agentWithoutBoxLocationY, ((AgentAlongBoxConflict) c).timestamp));
 
-				b.solution = b.findPlan();
+				b.solution = b.findPlan(false, ((AgentAlongBoxConflict) c).agentWithBoxIndex);
 				b.totalCost = b.sumCosts();
 				if (!open.contains(b) && !expanded.contains(b)) {
-					open.add(b);
+					if (isCardinalConflict(p, a, b)) { // Check if it is a cardinal conflict
+						// Apply your cardinal logic here
+						// Add 'b' to the open list or perform the necessary actions
+					} else if (isSemiCardinalConflict(p, a, b)) { // Check if it is a semi-cardinal conflict
+						// Apply your semi-cardinal logic here
+						// Add 'b' to the open list or perform the necessary actions
+					} else {
+						open.add(b); // Regular conflict, add 'b' to the open list
+					}
 				}
+			}
 
-			} else if (c instanceof BoxOrderedConflict) {
+			
+			
+			
+			else if (c instanceof BoxOrderedConflict) {
 				CBSNode a = new CBSNode(p);
 				a.boxConstraints.add(new BoxConstraint(((BoxOrderedConflict) c).followerWithBoxIndex,
 						((BoxOrderedConflict) c).forbiddenLocationX, ((BoxOrderedConflict) c).forbiddenLocationY,
 						((BoxOrderedConflict) c).timestamp));
 
-				a.solution = a.findPlan();
+				a.solution = a.findPlan(false, ((BoxOrderedConflict) c).followerWithBoxIndex);
 				a.totalCost = a.sumCosts();
 				if (!open.contains(a) && !expanded.contains(a)) {
 					open.add(a);
@@ -205,7 +215,7 @@ public class PathFinder implements Comparator<CBSNode> {
 					a.boxConstraints.add(new BoxConstraint(agentIndex, ((BoxConflict) c).boxLocationX,
 							((BoxConflict) c).boxLocationY, ((BoxConflict) c).timestamp));
 
-					a.solution = a.findPlan();
+					a.solution = a.findPlan(false, agentIndex);
 					a.totalCost = a.sumCosts();
 
 					if (!open.contains(a) && !expanded.contains(a)) {
