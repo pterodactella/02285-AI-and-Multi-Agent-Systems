@@ -180,6 +180,33 @@ public class ConstraintState {
 		}
 
 	}
+	
+	public boolean hasGoalState() {
+		for (int row = 1; row < this.goals.length - 1; row++) {
+			for (int col = 1; col < this.goals[row].length - 1; col++) {
+				char goal = this.goals[row][col];
+				char box = this.boxes[row][col];
+	
+				if ('A' <= goal && goal <= 'Z') {
+					Color boxColor = this.boxColors[goal - 'A'];
+					Color agentColor = this.agentColors[this.agent];
+	
+					// Check if the box color matches the agent color
+					if (boxColor == agentColor && box != goal) {
+						return true;
+					}
+				} else if (goal == this.agent + '0') {
+					// Check if the box is not at the goal position for the agent
+					if (!(this.agentRows[goal - '0'] == row && this.agentCols[goal - '0'] == col)) {
+						return false;
+					}
+				}
+			}
+		}
+		// System.err.println("Goal State for: " + this.agent + ":\n" + this.toString());
+		return false;
+	}
+	
 
 	public boolean isGoalState() {
 		for (int row = 1; row < this.goals.length - 1; row++) {
@@ -226,7 +253,7 @@ public class ConstraintState {
 		for (Action nextAction : applicableActions) {
 			expandedStates.add(new ConstraintState(this, nextAction));
 		}
-//		Collections.shuffle(expandedStates, ConstraintState.RNG);
+		Collections.shuffle(expandedStates, ConstraintState.RNG);
 		return expandedStates;
 	}
 

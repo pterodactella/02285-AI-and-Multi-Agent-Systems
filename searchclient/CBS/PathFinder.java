@@ -46,49 +46,67 @@ public class PathFinder implements Comparator<CBSNode> {
 			GenericConflict c = p.findFirstConflict();
 
 			if (c == null) {
-//				for (PlanStep[] plan : p.solution) {
-//					for (PlanStep step : plan) {
-//						logger.log("[ " + step.toString() + " ]");
-//					}
-//					logger.log("");
-//				}
+				// for (PlanStep[] plan : p.solution) {
+				// for (PlanStep step : plan) {
+				// logger.log("[ " + step.toString() + " ]");
+				// }
+				// logger.log("");
+				// }
 				return p.solution;
 			}
 
-//			for (PlanStep[] plan : p.solution) {
-//				for (PlanStep step : plan) {
-//					logger.log("[ " + step.toString() + " ]");
-//				}
-//				logger.log("");
-//			}
+			// for (PlanStep[] plan : p.solution) {
+			// for (PlanStep step : plan) {
+			// logger.log("[ " + step.toString() + " ]");
+			// }
+			// logger.log("");
+			// }
 
-			if (c instanceof Conflict) {
-//				logger.log("Conflict found: " + c.toString());
-			} else if (c instanceof OrderedConflict) {
-//				logger.log("OrderedConflict found: " + c.toString());
-			}
+			// if (c instanceof Conflict) {
+			// // logger.log("Conflict found: " + c.toString());
+			// } else if (c instanceof OrderedConflict) {
+			// // logger.log("OrderedConflict found: " + c.toString());
+			// }
 
 			PathFinder.triedTimes++;
 
-//			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
-//				System.exit(0);
-//			}
+			// if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
+			// System.exit(0);
+			// }
 
 			if (c instanceof Conflict) {
 
-				for (int agentIndex : ((Conflict) c).agentIndexes) {
-					CBSNode a = new CBSNode(p);
-					a.constraints.add(new Constraint(agentIndex, ((Conflict) c).locationX, ((Conflict) c).locationY,
-							((Conflict) c).timestamp));
+				int agent1Index = ((Conflict) c).agentIndexes[0];
+				System.err.println("agent1 Index + " + agent1Index);
+				int agent2Index = ((Conflict) c).agentIndexes[1];
 
-					a.solution = a.findPlan();
-					a.totalCost = a.sumCosts();
+				CBSNode a = new CBSNode(p);
+				a.constraints.add(new Constraint(agent1Index, ((Conflict) c).locationX, ((Conflict) c).locationY,
+						((Conflict) c).timestamp));
+				a.solution = a.findPlan();
+				// // Recalculate only for one(agentIndex)
+				// PlanStep[][] individualPlans = a.findPlan();
+				// a.solution[agentIndex] = individualPlans[agentIndex];
+				// System.err.println("a.solution + " + a.solution.toString());
 
-					// TODO: use a number instead of infinity
-					if (!open.contains(a) && !expanded.contains(a)) {
-						open.add(a);
-					}
+				// a.solution[agent1Index] = a.findIndividualPlan(agent1Index, p.solution);
+				a.totalCost = a.sumCosts();
+				// a.totalCost = a.sumCosts();
+				// a.solution[agent2Index] = a.findIndividualPlan(agent2Index, p.solution);
+
+				// CBSNode b = new CBSNode(p);
+				// b.constraints.add(new Constraint(agent2Index, ((Conflict) c).locationX,
+				// ((Conflict) c).locationY,
+				// ((Conflict) c).timestamp));
+				// b.solution[agent2Index] = b.findIndividualPlan(agent2Index,p.solution);
+				// b.totalCost = b.sumCosts();
+
+				if (!open.contains(a) && !expanded.contains(a)) {
+					open.add(a);
 				}
+				// if (!open.contains(b) && !expanded.contains(b)) {
+				// open.add(b);
+				// }
 			} else if (c instanceof OrderedConflict) {
 				CBSNode a = new CBSNode(p);
 				a.constraints.add(
@@ -98,7 +116,6 @@ public class PathFinder implements Comparator<CBSNode> {
 				a.solution = a.findPlan();
 				a.totalCost = a.sumCosts();
 
-				// TODO: use a number instead of infinity
 				if (!open.contains(a) && !expanded.contains(a)) {
 					open.add(a);
 				}
@@ -110,8 +127,6 @@ public class PathFinder implements Comparator<CBSNode> {
 
 				a.solution = a.findPlan();
 				a.totalCost = a.sumCosts();
-
-				// TODO: use a number instead of infinity
 				if (!open.contains(a) && !expanded.contains(a)) {
 					open.add(a);
 				}
@@ -124,8 +139,6 @@ public class PathFinder implements Comparator<CBSNode> {
 
 				a.solution = a.findPlan();
 				a.totalCost = a.sumCosts();
-
-				// TODO: use a number instead of infinity
 				if (!open.contains(a) && !expanded.contains(a)) {
 					open.add(a);
 				}
@@ -137,8 +150,6 @@ public class PathFinder implements Comparator<CBSNode> {
 
 				b.solution = b.findPlan();
 				b.totalCost = b.sumCosts();
-
-				// TODO: use a number instead of infinity
 				if (!open.contains(b) && !expanded.contains(b)) {
 					open.add(b);
 				}
@@ -151,8 +162,6 @@ public class PathFinder implements Comparator<CBSNode> {
 
 				a.solution = a.findPlan();
 				a.totalCost = a.sumCosts();
-
-				// TODO: use a number instead of infinity
 				if (!open.contains(a) && !expanded.contains(a)) {
 					open.add(a);
 				}
@@ -169,7 +178,6 @@ public class PathFinder implements Comparator<CBSNode> {
 					a.solution = a.findPlan();
 					a.totalCost = a.sumCosts();
 
-					// TODO: use a number instead of infinity
 					if (!open.contains(a) && !expanded.contains(a)) {
 						open.add(a);
 					}

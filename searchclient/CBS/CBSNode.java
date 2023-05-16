@@ -63,26 +63,26 @@ public class CBSNode {
 
 	public GenericConflict findFirstConflict() {
 
-//		State temporaryState = new State(this.state);
+		State temporaryState = new State(this.state);
 		int[] agentsPositions = null;
 		for (int i = 1; i <= this.longestPath; i++) {
 
 			for (int j = 0; j < this.solution[i].length; j++) {
 				if (this.solution[i][j].locationX == -1)
 					continue;
-//
-//				if(this.solution[i][j].movingBox == null && temporaryState.isBoxAt(this.solution[i][j].locationY, this.solution[i][j].locationX) ||
-//						(this.solution[i][j].movingBox != null && this.solution[i][j].locationX != this.solution[i][j].movingBox.prevX && this.solution[i][j].locationY != this.solution[i][j].movingBox.prevY && temporaryState.isBoxAt(this.solution[i][j].locationY, this.solution[i][j].locationX))) {
-//					return new AgentInBoxConflict(j, this.solution[i][j].locationX, this.solution[i][j].locationY, i);
-//				} 
-//				
+// //
+// 				if(this.solution[i][j].movingBox == null && temporaryState.isBoxAt(this.solution[i][j].locationY, this.solution[i][j].locationX) ||
+// 						(this.solution[i][j].movingBox != null && this.solution[i][j].locationX != this.solution[i][j].movingBox.prevX && this.solution[i][j].locationY != this.solution[i][j].movingBox.prevY && temporaryState.isBoxAt(this.solution[i][j].locationY, this.solution[i][j].locationX))) {
+// 					return new AgentInBoxConflict(j, this.solution[i][j].locationX, this.solution[i][j].locationY, i);
+// 				} 
+				
 
-//				if(this.solution[i][j].movingBox != null && !this.solution[i][j].action.equals(Action.NoOp) && temporaryState.isBoxAt(this.solution[i][j].movingBox.currY, this.solution[i][j].movingBox.currX)) {
-//					System.err.println("Found standing box conflict at position: " + this.solution[i][j].movingBox.currY + "; " + this.solution[i][j].movingBox.currX);
-//					System.err.println("Actions at time: " + i + ": Agent 0 = " + this.solution[i][0].action.toString() + "; Action 1: " + this.solution[i][1]);
-//					System.err.println(temporaryState.toString());
-//					return new BoxOrderedConflict(-1, j, this.solution[i][j].movingBox.currX, this.solution[i][j].movingBox.currY, i);
-//				}
+// 				if(this.solution[i][j].movingBox != null && !this.solution[i][j].action.equals(Action.NoOp) && temporaryState.isBoxAt(this.solution[i][j].movingBox.currY, this.solution[i][j].movingBox.currX)) {
+// 					System.err.println("Found standing box conflict at position: " + this.solution[i][j].movingBox.currY + "; " + this.solution[i][j].movingBox.currX);
+// 					System.err.println("Actions at time: " + i + ": Agent 0 = " + this.solution[i][0].action.toString() + "; Action 1: " + this.solution[i][1]);
+// 					System.err.println(temporaryState.toString());
+// 					return new BoxOrderedConflict(-1, j, this.solution[i][j].movingBox.currX, this.solution[i][j].movingBox.currY, i);
+// 				}
 
 				for (int k = j + 1; k < this.solution[i].length; k++) {
 					if (this.solution[i][k].locationX == -1)
@@ -109,12 +109,14 @@ public class CBSNode {
 					if (agentsPositions[0] == agentsPositions[6] && agentsPositions[1] == agentsPositions[7]) {
 						return new OrderedConflict(k, j, agentsPositions[6], agentsPositions[7], i);
 					}
-//					if(this.solution[i][k].movingBox != null && agentsPositions[0] == this.solution[i][k].movingBox.currX && agentsPositions[1] == this.solution[i][k].movingBox.currY ) {
-//						return new AgentAlongBoxConflict(j, agentsPositions[0], agentsPositions[1], k, i);
-//					}
-//					if(this.solution[i][j].movingBox != null && agentsPositions[2] == this.solution[i][j].movingBox.currX && agentsPositions[3] == this.solution[i][j].movingBox.currY ) {
-//						return new AgentAlongBoxConflict(k, agentsPositions[2], agentsPositions[3], j, i);
-//					}
+					if(this.solution[i][k].movingBox != null && agentsPositions[0] == this.solution[i][k].movingBox.currX && agentsPositions[1] == this.solution[i][k].movingBox.currY ) {
+						return new AgentAlongBoxConflict(j, agentsPositions[0], agentsPositions[1], k, i);
+					}
+					//add check for if box has no goal state, so its just a movable obstacle
+
+					if(this.solution[i][j].movingBox != null && agentsPositions[2] == this.solution[i][j].movingBox.currX && agentsPositions[3] == this.solution[i][j].movingBox.currY ) {
+						return new AgentAlongBoxConflict(k, agentsPositions[2], agentsPositions[3], j, i);
+					}
 //					if (this.solution[i][k].movingBox != null && agentsPositions[0] == this.solution[i][k].movingBox.prevX && agentsPositions[1] == this.solution[i][k].movingBox.prevY) {
 //						return new OrderedConflict(k, j, this.solution[i][k].movingBox.prevX, this.solution[i][k].movingBox.prevY, i);
 //					}
@@ -147,7 +149,7 @@ public class CBSNode {
 
 	}
 
-	public void findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
+	public PlanStep[] findIndividualPlan(int agentIndex, PlanStep[][] individualPlans) {
 
 		ConstraintState constraintState = new ConstraintState(this.state, agentIndex, this.constraints,
 				this.boxConstraints, 0);
@@ -160,35 +162,37 @@ public class CBSNode {
 //		ConstraintFrontier frontier = GlobalExpandsQueue.getInstance().getQueue();
 		ConstraintFrontier frontier = new ConstraintFrontierBestFirst(new ConstraintHeuristicAStar());
 		PlanStep[] plan = ConstraintGraphSearch.search(this, frontier, agentIndex);
-//		System.err.println("plan for agent " + agentIndex + " is: " + Arrays.toString(plan));
+	
+		Logger logger = Logger.getInstance();
+		logger.log("^^^^^ .... ^^^^^");
+		logger.log("THESE ARE THE CONSTRAINTS: ");
+		for (Constraint constr: this.constraints) {
+			logger.log(constr.toString());
+		}
+		logger.log("^^^^^ .... ^^^^^");
 
-//		Logger logger = Logger.getInstance();
-//		logger.log("^^^^^ .... ^^^^^");
-//		logger.log("THESE ARE THE CONSTRAINTS: ");
-//		for (Constraint constr: this.constraints) {
-//			logger.log(constr.toString());
-//		}
-//		logger.log("^^^^^ .... ^^^^^");
-//
-//		logger.log("THE PLAN FOR: " + agentIndex);
-//		for (PlanStep step : plan) {
-//			logger.log("Step: " + step.toString());
-//		}
-//		logger.log("");
+		logger.log("THE PLAN FOR: " + agentIndex);
+		for (PlanStep step : plan) {
+			logger.log("Step: " + step.toString());
+		}
+		logger.log("");
 		if (plan != null && plan.length > this.longestPath) {
 			this.longestPath = plan.length;
 		}
 
 		individualPlans[agentIndex] = plan;
-		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
+		// logger.log("THE COSTS FOR: " + plan[plan.length - 1].timestamp);
 
+		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
+		// logger.log("THE COSTS after being set FOR: " + this.costs[agentIndex]);
+
+		return plan;
 	}
 
 	public PlanStep[][] findPlan() {
-		int numberOfAgents = state.agentRows.length;
+		int numberOfAgents = this.state.agentRows.length;
 		PlanStep[][] individualPlans = new PlanStep[numberOfAgents][];
 //		System.err.println("NUMBER OF AGENTS" + numberOfAgents);
-
 		for (int i = 0; i < numberOfAgents; i++) {
 
 			findIndividualPlan(i, individualPlans);
@@ -199,8 +203,8 @@ public class CBSNode {
 			// TODO: Add search with constraint
 
 		}
-
-		return PlanStep.mergePlans(individualPlans);
+		this.solution = PlanStep.mergePlans(individualPlans);
+		return this.solution;
 	}
 
 	public int sumCosts() {
