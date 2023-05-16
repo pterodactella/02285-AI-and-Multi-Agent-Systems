@@ -1,5 +1,6 @@
 package searchclient;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -9,61 +10,65 @@ public abstract class Distances {
 	private int[] agentCols;
 	private char[][] goals;
 	private char[][] boxes;
-	protected HashMap<Character, int[]> coordinates;
+	protected HashMap<Character, ArrayList<int[]>> coordinates;
 
 	public Distances(int[] agentRows, int[] agentCols, char[][] goals, char[][] boxes) {
-		this.agentRows = agentRows;
-		this.agentCols = agentCols;
-		this.goals = goals;
-		this.boxes = boxes;
+		this.agentRows = agentRows.clone();
+		this.agentCols = agentCols.clone();
+		this.goals = new char[goals.length][];
+		for (int i = 0; i < goals.length; i++) {
+			this.goals[i] = goals[i].clone();
+		}
+		this.boxes = new char[boxes.length][];
+		for (int i = 0; i < boxes.length; i++) {
+			this.boxes[i] = boxes[i].clone();
+		}
+//		this.goals = goals;
+//		this.boxes = boxes;
 
 		parseCoordinates();
 
-		// for (HashMap.Entry<Character, int[]> set :
-		// this.coordinates.entrySet()) {
-		// System.out.println(set.getKey() + " = "
-		// + Arrays.toString(set.getValue()));
-		// }
+//		for (HashMap.Entry<Character, int[]> set :
+//            this.coordinates.entrySet()) {
+//			System.out.println(set.getKey() + " = "
+//                    + Arrays.toString(set.getValue()));
+//       }
 	}
 
 	public abstract int calculate();
 
 	public void parseCoordinates() {
 		this.coordinates = new HashMap<>();
-		//
-		// for(int i=0; i<agentRows.length; i++) {
-		// coordinates.put((char) ('0' + i), new int[] {agentRows[i], agentCols[i], 0,
-		// 0});
-		// }
+        for (int i = 0; i < boxes.length; i++) {
+            for (int j = 0; j < boxes[i].length; j++) {
+                if ('A' <= boxes[i][j] && boxes[i][j] <= 'Z') {
+                    char boxChar = boxes[i][j];
+                    if (!coordinates.containsKey(boxChar)) {
+                        coordinates.put(boxChar, new ArrayList<>());
+                    }
+                    coordinates.get(boxChar).add(new int[]{i, j, -1, -1});
+                }
+            }
+        }
 
-		for (int i = 0; i < boxes.length; i++) {
-			for (int j = 0; j < boxes[i].length; j++) {
-				if ('A' <= boxes[i][j] && boxes[i][j] <= 'Z') {
-					coordinates.put((char) boxes[i][j], new int[] { i, j, 0, 0 });
-				}
-			}
-		}
+        for (int i = 0; i < goals.length; i++) {
+            for (int j = 0; j < goals[i].length; j++) {
+                if ('A' <= goals[i][j] && goals[i][j] <= 'Z') {
+                    char goalChar = goals[i][j];
+                    if (coordinates.containsKey(goalChar)) {
+                        ArrayList<int[]> boxCoordinates = coordinates.get(goalChar);
+                        for (int[] arr : boxCoordinates) {
+                            if (arr[2] == -1) {
+                                arr[2] = i;
+                                arr[3] = j;
+                                break; 
+                            }
+                        }
+                    }
+                }
+            }
 
-		for (int i = 0; i < goals.length; i++) {
-			for (int j = 0; j < goals[i].length; j++) {
-				// if ('0' <= goals[i][j] && goals[i][j] <= '9') {
-				// coordinates.get(goals[i][j])[2] = i;
-				// coordinates.get(goals[i][j])[3] = j;
-				if ('A' <= goals[i][j] && goals[i][j] <= 'Z') {
-
-					int[] values = coordinates.get(goals[i][j]);
-					if (values == null) {
-						values = new int[] { 0, 0, i, j };
-						coordinates.put(goals[i][j], values);
-					} else {
-						values[2] = i;
-						values[3] = j;
-					}
-				}
-			}
-		}
-
-	}
+	}}
 }
 
 class EuclideanDistanceWithoutRoot extends Distances {
@@ -74,9 +79,10 @@ class EuclideanDistanceWithoutRoot extends Distances {
 	@Override
 	public int calculate() {
 		int sum = 0;
-		for (HashMap.Entry<Character, int[]> set : this.coordinates.entrySet()) {
-			int[] location = set.getValue();
-			sum += Math.pow(location[2] - location[0], 2) + Math.pow(location[3] - location[1], 2);
+		for (HashMap.Entry<Character, ArrayList<int[]>> set : this.coordinates.entrySet()) {
+			for (int[] location : set.getValue()) {
+				sum += Math.pow(location[2] - location[0], 2) + Math.pow(location[3] - location[1], 2);
+			}
 		}
 		return sum;
 	}

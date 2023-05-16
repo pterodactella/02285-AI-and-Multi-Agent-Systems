@@ -30,6 +30,6 @@ Memory settings:
     The -Xmx option sets the maximum size of the heap, i.e. how much memory your program can allocate.
     The -Xms option sets the initial size of the heap.
     To set the max heap size to 4GB:
-        $ java -jar mavis.jar -l levels/MAShrooms.lvl -c "java -Xmx4g searchclient.SearchClient" -g -s 150 -t 180
+        $ java -jar mavis.jar -l complevels/Persian.lvl -c "java -Xmx4g searchclient.SearchClient -cbs" -g -s 150 -t 180
     Note that this option is set for the *client*.
     Avoid setting max heap size too high, since it will lead to your OS doing memory swapping which is terribly slow.

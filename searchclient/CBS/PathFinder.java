@@ -2,11 +2,6 @@ package searchclient.CBS;
 
 import java.util.PriorityQueue;
 import java.util.Stack;
-
-import searchclient.Color;
-import searchclient.State;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 
@@ -15,13 +10,18 @@ import searchclient.Logger;
 import searchclient.Memory;
 import searchclient.State;
 import searchclient.CBS.Constraint;
-import searchclient.CBS.CBSNode.Conflict;;
+import searchclient.CBS.Conflicts.AgentAlongBoxConflict;
+import searchclient.CBS.Conflicts.AgentInBoxConflict;
+import searchclient.CBS.Conflicts.BoxConflict;
+import searchclient.CBS.Conflicts.BoxOrderedConflict;
+import searchclient.CBS.Conflicts.Conflict;
+import searchclient.CBS.Conflicts.GenericConflict;
+import searchclient.CBS.Conflicts.OrderedConflict;
 
 public class PathFinder implements Comparator<CBSNode> {
 	private State initialState;
 	private static int triedTimes = 0;
 	private static final int MAX_DEBUG_TRIALS = 4;
-	private InitialState initialStateForStorage;
 
 	public PathFinder(State initialState) {
 		this.initialState = initialState;
@@ -33,84 +33,159 @@ public class PathFinder implements Comparator<CBSNode> {
 		root.solution = root.findPlan();
 		root.totalCost = root.sumCosts();
 
-		// 		// TODO: Replace with priority qyueyue
-				PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
-				HashSet<CBSNode> expanded = new HashSet<>();
+		// TODO: Replace with priority qyueyue
+		PriorityQueue<CBSNode> open = new PriorityQueue<>(this);
+		HashSet<CBSNode> expanded = new HashSet<>();
 
-				open.add(root);
-				Logger logger = Logger.getInstance();
+		open.add(root);
+		Logger logger = Logger.getInstance();
 
-				while (!open.isEmpty()) {
-					logger.log("#########################################");
-					CBSNode p = open.poll();
-					expanded.add(p);
-					GenericConflict c = p.findFirstConflict();
+		while (!open.isEmpty()) {
+			logger.log("#########################################");
+			CBSNode p = open.poll();
+			expanded.add(p);
+			GenericConflict c = p.findFirstConflict();
 
-					if (c == null) {
-		//				for (PlanStep[] plan : p.solution) {
-		//					for (PlanStep step : plan) {
-		//						logger.log("[ " + step.toString() + " ]");
-		//					}
-		//					logger.log("");
-		//				}
-						return p.solution;
-					}
+			if (c == null) {
+				// for (PlanStep[] plan : p.solution) {
+				// for (PlanStep step : plan) {
+				// logger.log("[ " + step.toString() + " ]");
+				// }
+				// logger.log("");
+				// }
+				return p.solution;
+			}
 
-		//			for (PlanStep[] plan : p.solution) {
-		//				for (PlanStep step : plan) {
-		//					logger.log("[ " + step.toString() + " ]");
-		//				}
-		//				logger.log("");
-		//			}
+			// for (PlanStep[] plan : p.solution) {
+			// for (PlanStep step : plan) {
+			// logger.log("[ " + step.toString() + " ]");
+			// }
+			// logger.log("");
+			// }
 
-					if (c instanceof Conflict) {
-		//				logger.log("Conflict found: " + c.toString());
-					} else if (c instanceof OrderedConflict) {
-		//				logger.log("OrderedConflict found: " + c.toString());
-					}
+			// if (c instanceof Conflict) {
+			// // logger.log("Conflict found: " + c.toString());
+			// } else if (c instanceof OrderedConflict) {
+			// // logger.log("OrderedConflict found: " + c.toString());
+			// }
 
-					PathFinder.triedTimes++;
+			PathFinder.triedTimes++;
 
-		//			if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
-		//				System.exit(0);
-		//			}
+			// if (PathFinder.triedTimes >= PathFinder.MAX_DEBUG_TRIALS) {
+			// System.exit(0);
+			// }
 
-					if (c instanceof Conflict) {
+			if (c instanceof Conflict) {
 
-						for (int agentIndex : ((Conflict) c).agentIndexes) {
-							CBSNode a = new CBSNode(p);
-							a.constraints.add(new Constraint(agentIndex, ((Conflict) c).locationX, ((Conflict) c).locationY,
-									((Conflict) c).timestamp));
+				int agent1Index = ((Conflict) c).agentIndexes[0];
+				System.err.println("agent1 Index + " + agent1Index);
+				int agent2Index = ((Conflict) c).agentIndexes[1];
 
-							a.solution = a.findPlan();
-							a.totalCost = a.sumCosts();
+				CBSNode a = new CBSNode(p);
+				a.constraints.add(new Constraint(agent1Index, ((Conflict) c).locationX, ((Conflict) c).locationY,
+						((Conflict) c).timestamp));
+				a.solution = a.findPlan();
+				// // Recalculate only for one(agentIndex)
+				// PlanStep[][] individualPlans = a.findPlan();
+				// a.solution[agentIndex] = individualPlans[agentIndex];
+				// System.err.println("a.solution + " + a.solution.toString());
 
-							// TODO: use a number instead of infinity
-							if (!open.contains(a) && !expanded.contains(a)) {
-								open.add(a);
-							}
-						}
-					} else if (c instanceof OrderedConflict) {
-						CBSNode a = new CBSNode(p);
-						a.constraints.add(
-								new Constraint(((OrderedConflict) c).followerIndex, ((OrderedConflict) c).forbiddenLocationX,
-										((OrderedConflict) c).forbiddenLocationY, ((OrderedConflict) c).timestamp));
+				// a.solution[agent1Index] = a.findIndividualPlan(agent1Index, p.solution);
+				a.totalCost = a.sumCosts();
+				// a.totalCost = a.sumCosts();
+				// a.solution[agent2Index] = a.findIndividualPlan(agent2Index, p.solution);
 
-						a.solution = a.findPlan();
-						a.totalCost = a.sumCosts();
+				// CBSNode b = new CBSNode(p);
+				// b.constraints.add(new Constraint(agent2Index, ((Conflict) c).locationX,
+				// ((Conflict) c).locationY,
+				// ((Conflict) c).timestamp));
+				// b.solution[agent2Index] = b.findIndividualPlan(agent2Index,p.solution);
+				// b.totalCost = b.sumCosts();
 
-						// TODO: use a number instead of infinity
-						if (!open.contains(a) && !expanded.contains(a)) {
-							open.add(a);
-						}
-					}
-					 if (PathFinder.triedTimes % 100 == 0) {
-		                 printSearchStatus(expanded, open);
-		             }
+				if (!open.contains(a) && !expanded.contains(a)) {
+					open.add(a);
 				}
-		// OLD VERSION
+				// if (!open.contains(b) && !expanded.contains(b)) {
+				// open.add(b);
+				// }
+			} else if (c instanceof OrderedConflict) {
+				CBSNode a = new CBSNode(p);
+				a.constraints.add(
+						new Constraint(((OrderedConflict) c).followerIndex, ((OrderedConflict) c).forbiddenLocationX,
+								((OrderedConflict) c).forbiddenLocationY, ((OrderedConflict) c).timestamp));
 
-		return root.solution;
+				a.solution = a.findPlan();
+				a.totalCost = a.sumCosts();
+
+				if (!open.contains(a) && !expanded.contains(a)) {
+					open.add(a);
+				}
+			} else if (c instanceof AgentInBoxConflict) {
+				CBSNode a = new CBSNode(p);
+				a.constraints.add(
+						new Constraint(((AgentInBoxConflict) c).agentIndex, ((AgentInBoxConflict) c).forbiddenLocationX,
+								((AgentInBoxConflict) c).forbiddenLocationY, ((AgentInBoxConflict) c).timestamp));
+
+				a.solution = a.findPlan();
+				a.totalCost = a.sumCosts();
+				if (!open.contains(a) && !expanded.contains(a)) {
+					open.add(a);
+				}
+
+			} else if (c instanceof AgentAlongBoxConflict) {
+				CBSNode a = new CBSNode(p);
+				a.constraints.add(new Constraint(((AgentAlongBoxConflict) c).agentWithoutBoxIndex,
+						((AgentAlongBoxConflict) c).agentWithoutBoxLocationX,
+						((AgentAlongBoxConflict) c).agentWithoutBoxLocationY, ((AgentAlongBoxConflict) c).timestamp));
+
+				a.solution = a.findPlan();
+				a.totalCost = a.sumCosts();
+				if (!open.contains(a) && !expanded.contains(a)) {
+					open.add(a);
+				}
+
+				CBSNode b = new CBSNode(p);
+				b.boxConstraints.add(new BoxConstraint(((AgentAlongBoxConflict) c).agentWithBoxIndex,
+						((AgentAlongBoxConflict) c).agentWithoutBoxLocationX,
+						((AgentAlongBoxConflict) c).agentWithoutBoxLocationY, ((AgentAlongBoxConflict) c).timestamp));
+
+				b.solution = b.findPlan();
+				b.totalCost = b.sumCosts();
+				if (!open.contains(b) && !expanded.contains(b)) {
+					open.add(b);
+				}
+
+			} else if (c instanceof BoxOrderedConflict) {
+				CBSNode a = new CBSNode(p);
+				a.boxConstraints.add(new BoxConstraint(((BoxOrderedConflict) c).followerWithBoxIndex,
+						((BoxOrderedConflict) c).forbiddenLocationX, ((BoxOrderedConflict) c).forbiddenLocationY,
+						((BoxOrderedConflict) c).timestamp));
+
+				a.solution = a.findPlan();
+				a.totalCost = a.sumCosts();
+				if (!open.contains(a) && !expanded.contains(a)) {
+					open.add(a);
+				}
+				if (PathFinder.triedTimes % 100 == 0) {
+					printSearchStatus(expanded, open);
+				}
+			} else if (c instanceof BoxConflict) {
+
+				for (int agentIndex : ((BoxConflict) c).agentIndexes) {
+					CBSNode a = new CBSNode(p);
+					a.boxConstraints.add(new BoxConstraint(agentIndex, ((BoxConflict) c).boxLocationX,
+							((BoxConflict) c).boxLocationY, ((BoxConflict) c).timestamp));
+
+					a.solution = a.findPlan();
+					a.totalCost = a.sumCosts();
+
+					if (!open.contains(a) && !expanded.contains(a)) {
+						open.add(a);
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -119,11 +194,12 @@ public class PathFinder implements Comparator<CBSNode> {
 	}
 
 	private static long startTime = System.nanoTime();
+
 	private static void printSearchStatus(HashSet<CBSNode> expanded, PriorityQueue<CBSNode> open) {
 		String statusTemplate = "#Expanded: %,8d, #Frontier: %,8d, #Generated: %,8d, Time: %3.3f s\n%s\n";
 		double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000d;
-		System.err.format(statusTemplate, expanded.size(), open.size(), expanded.size() + open.size(),
-				elapsedTime, Memory.stringRep());
+		System.err.format(statusTemplate, expanded.size(), open.size(), expanded.size() + open.size(), elapsedTime,
+				Memory.stringRep());
 	}
 
 }

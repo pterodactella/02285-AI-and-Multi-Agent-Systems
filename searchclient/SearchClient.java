@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Locale;
 
 import searchclient.CBS.CBSNode;
-import searchclient.CBS.InitialState;
 import searchclient.CBS.PathFinder;
 import searchclient.CBS.PlanStep;
 
@@ -118,9 +117,7 @@ public class SearchClient {
 				SearchClient.replaceBoxWithWall(walls, boxes, (char) ('A' + boxCol));
 			}
 		}
-		//I DONT WANT TRIE FALSE FALSE TRUE TRUE
 		// SearchClient.printMatrix(walls);
-
 
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
@@ -225,12 +222,12 @@ public class SearchClient {
 			System.err.format("Found solution of length %,d.\n", plan.length);
 
 			for (PlanStep[] jointAction : plan) {
-				// System.err.print(jointAction[0].action.name);
-				// for (int action = 1; action < jointAction.length; ++action) {
-				// 	System.err.print("|");
-				// 	System.err.println(jointAction[action].action.name);
-				// }
-				// System.err.println();
+//				System.err.print(jointAction[0].action.name);
+//				for (int action = 1; action < jointAction.length; ++action) {
+//					System.err.print("|");
+//					System.err.println(jointAction[action].action.name);
+//				}
+//				System.err.println();
 				StringBuilder sb = new StringBuilder();
 				sb.append(jointAction[0].action.name);
 				

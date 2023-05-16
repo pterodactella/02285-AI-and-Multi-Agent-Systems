@@ -13,14 +13,17 @@ public class PlanStep {
 	int timestamp;
 	int originalX;
 	int originalY;
+	MovingBox movingBox;
 
-	public PlanStep(Action action, int locationX, int locationY, int timestamp, int originalX, int originalY) {
+	public PlanStep(Action action, int locationX, int locationY, int timestamp, int originalX, int originalY,
+			MovingBox movingBox) {
 		this.action = action;
 		this.locationX = locationX;
 		this.locationY = locationY;
 		this.timestamp = timestamp;
 		this.originalX = originalX;
 		this.originalY = originalY;
+		this.movingBox = movingBox;
 	}
 
 	public PlanStep(PlanStep copy) {
@@ -30,6 +33,12 @@ public class PlanStep {
 		this.timestamp = copy.timestamp;
 		this.originalX = copy.originalX;
 		this.originalY = copy.originalY;
+		
+		if (copy.movingBox == null) {
+			this.movingBox = null;
+		} else {
+			this.movingBox = new MovingBox(copy.movingBox.prevX, copy.movingBox.prevY, copy.movingBox.currX, copy.movingBox.currY);
+		}
 	}
 
 	@Override
@@ -41,6 +50,13 @@ public class PlanStep {
 		s.append("timestamp: " + timestamp + "; ");
 		s.append("originalX: " + originalX + "; ");
 		s.append("originalY: " + originalY + "; ");
+		if(movingBox == null) {
+			s.append("movingBox: null;");
+			
+		}else {
+			s.append("\n movingBox: \n ");
+			s.append(movingBox.toString());
+		}
 		return s.toString();
 	}
 
@@ -57,7 +73,7 @@ public class PlanStep {
 		PlanStep[][] mergedPlans = new PlanStep[maxTimestamp + 1][numAgents];
 		for (int t = 0; t <= maxTimestamp; t++) {
 			for (int agent = 0; agent < numAgents; agent++) {
-				mergedPlans[t][agent] = new PlanStep(Action.NoOp, -1, -1, t, -1, -1);
+				mergedPlans[t][agent] = new PlanStep(Action.NoOp, -1, -1, t, -1, -1, null);
 			}
 		}
 
@@ -77,11 +93,21 @@ public class PlanStep {
 					mergedPlans[trailing][agent].locationY = lastPositions[1];
 					mergedPlans[trailing][agent].originalX = lastPositions[2];
 					mergedPlans[trailing][agent].originalY = lastPositions[3];
+					if (lastStep.movingBox != null) {
+						mergedPlans[trailing][agent].movingBox = new MovingBox(lastStep.movingBox);
+					}
 				}
 			}
 
 		}
 
+//		for (int i = 0; i < mergedPlans.length; i++) {
+//			for (int j = 0; j < mergedPlans[i].length; j++) {
+//				System.err.print("[" + mergedPlans[i][j].toString() + "]" + " ");
+//				
+//			}
+//			System.err.println();
+//		}
 
 		return mergedPlans;
 	}
@@ -115,4 +141,36 @@ public class PlanStep {
 				&& this.locationY == other.locationY && this.originalX == other.originalX
 				&& this.originalY == other.originalY && this.timestamp == other.timestamp;
 	}
+}
+
+class MovingBox {
+	int prevX;
+	int prevY;
+	int currX;
+	int currY;
+
+	public MovingBox(int prevX, int prevY, int currX, int currY) {
+		this.prevX = prevX;
+		this.prevY = prevY;
+		this.currX = currX;
+		this.currY = currY;
+	}
+
+	public MovingBox(MovingBox copy) {
+		this.prevX = copy.prevX;
+		this.prevY = copy.prevY;
+		this.currX = copy.currX;
+		this.currY = copy.currY;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		s.append("prevX: " + prevX + "; ");
+		s.append("prevY: " + prevY + "; ");
+		s.append("currX: " + currX + "; ");
+		s.append("currY: " + currY + "; ");
+		return s.toString();
+	}
+
 }
