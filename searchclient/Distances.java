@@ -8,7 +8,7 @@ import java.util.HashMap;
 public abstract class Distances {
 	private int[] agentRows;
 	private int[] agentCols;
-	private char[][] goals;
+	public char[][] goals;
 	private char[][] boxes;
 	protected HashMap<Character, ArrayList<int[]>> coordinates;
 

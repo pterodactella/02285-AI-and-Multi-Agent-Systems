@@ -82,7 +82,7 @@ public class ConstraintState {
 		this.agent = agent;
 		this.movingBox = null;
 
-//		this.preProcessMaps();
+		// this.preProcessMaps();
 
 	}
 
@@ -115,51 +115,51 @@ public class ConstraintState {
 		int boxCol;
 
 		switch (agentAction.type) {
-		case NoOp:
-			this.movingBox = null;
-			break;
+			case NoOp:
+				this.movingBox = null;
+				break;
 
-		case Move:
-			this.agentRows[agent] += agentAction.agentRowDelta;
-			this.agentCols[agent] += agentAction.agentColDelta;
-			this.movingBox = null;
-			break;
+			case Move:
+				this.agentRows[agent] += agentAction.agentRowDelta;
+				this.agentCols[agent] += agentAction.agentColDelta;
+				this.movingBox = null;
+				break;
 
-		case Push:
-			this.agentRows[agent] = this.agentRows[agent] + agentAction.agentRowDelta;
-			this.agentCols[agent] = this.agentCols[agent] + agentAction.agentColDelta;
+			case Push:
+				this.agentRows[agent] = this.agentRows[agent] + agentAction.agentRowDelta;
+				this.agentCols[agent] = this.agentCols[agent] + agentAction.agentColDelta;
 
-			boxRow = this.agentRows[agent] + agentAction.boxRowDelta;
-			boxCol = this.agentCols[agent] + agentAction.boxColDelta;
-			// delete previous state
-			box = this.boxes[this.agentRows[agent]][this.agentCols[agent]];
+				boxRow = this.agentRows[agent] + agentAction.boxRowDelta;
+				boxCol = this.agentCols[agent] + agentAction.boxColDelta;
+				// delete previous state
+				box = this.boxes[this.agentRows[agent]][this.agentCols[agent]];
 
-			this.boxes[this.agentRows[agent]][this.agentCols[agent]] = 0;
+				this.boxes[this.agentRows[agent]][this.agentCols[agent]] = 0;
 
-			this.boxes[boxRow][boxCol] = box;
-			this.movingBox = new MovingBox(this.agentCols[agent], this.agentRows[agent], boxCol, boxRow);
+				this.boxes[boxRow][boxCol] = box;
+				this.movingBox = new MovingBox(this.agentCols[agent], this.agentRows[agent], boxCol, boxRow);
 
-			break;
+				break;
 
-		case Pull:
+			case Pull:
 
-			boxRow = this.agentRows[agent];
-			boxCol = this.agentCols[agent];
-//                	System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
+				boxRow = this.agentRows[agent];
+				boxCol = this.agentCols[agent];
+				// System.out.println(boxRow + " " + boxCol + "BOX COORDINATES AFTER ACTION");
 
-			box = this.boxes[this.agentRows[agent] - agentAction.boxRowDelta][this.agentCols[agent]
-					- agentAction.boxColDelta];
-			this.boxes[this.agentRows[agent] - agentAction.boxRowDelta][this.agentCols[agent]
-					- agentAction.boxColDelta] = 0;
-			this.boxes[boxRow][boxCol] = box;
+				box = this.boxes[this.agentRows[agent] - agentAction.boxRowDelta][this.agentCols[agent]
+						- agentAction.boxColDelta];
+				this.boxes[this.agentRows[agent] - agentAction.boxRowDelta][this.agentCols[agent]
+						- agentAction.boxColDelta] = 0;
+				this.boxes[boxRow][boxCol] = box;
 
-			this.agentRows[agent] += agentAction.agentRowDelta;
-			this.agentCols[agent] += agentAction.agentColDelta;
+				this.agentRows[agent] += agentAction.agentRowDelta;
+				this.agentCols[agent] += agentAction.agentColDelta;
 
-			this.movingBox = new MovingBox(this.agentCols[agent] - agentAction.boxColDelta,
-					this.agentRows[agent] - agentAction.boxRowDelta, boxCol, boxRow);
+				this.movingBox = new MovingBox(this.agentCols[agent] - agentAction.boxColDelta,
+						this.agentRows[agent] - agentAction.boxRowDelta, boxCol, boxRow);
 
-			break;
+				break;
 
 		}
 	}
@@ -168,29 +168,30 @@ public class ConstraintState {
 		return this.g;
 	}
 
-	public void preProcessMaps() {
-		Color agentColor = this.agentColors[this.agent];
-		for (int i = 0; i < this.boxes.length; i++) {
-			for (int j = 0; j < this.boxes[i].length; j++) {
-				char onLocation = this.boxes[i][j];
-				if (onLocation != 0 && !this.boxColors[onLocation - 'A'].equals(agentColor)) {
-					this.boxes[i][j] = 0;
-				}
-			}
-		}
+	// public void preProcessMaps() {
+	// Color agentColor = this.agentColors[this.agent];
+	// for (int i = 0; i < this.boxes.length; i++) {
+	// for (int j = 0; j < this.boxes[i].length; j++) {
+	// char onLocation = this.boxes[i][j];
+	// if (onLocation != 0 && !this.boxColors[onLocation - 'A'].equals(agentColor))
+	// {
+	// this.boxes[i][j] = 0;
+	// }
+	// }
+	// }
 
-	}
-	
+	// }
+
 	public boolean hasGoalState() {
 		for (int row = 1; row < this.goals.length - 1; row++) {
 			for (int col = 1; col < this.goals[row].length - 1; col++) {
 				char goal = this.goals[row][col];
 				char box = this.boxes[row][col];
-	
+
 				if ('A' <= goal && goal <= 'Z') {
 					Color boxColor = this.boxColors[goal - 'A'];
 					Color agentColor = this.agentColors[this.agent];
-	
+
 					// Check if the box color matches the agent color
 					if (boxColor == agentColor && box != goal) {
 						return true;
@@ -203,10 +204,10 @@ public class ConstraintState {
 				}
 			}
 		}
-		// System.err.println("Goal State for: " + this.agent + ":\n" + this.toString());
+		// System.err.println("Goal State for: " + this.agent + ":\n" +
+		// this.toString());
 		return false;
 	}
-	
 
 	public boolean isGoalState() {
 		for (int row = 1; row < this.goals.length - 1; row++) {
@@ -223,12 +224,13 @@ public class ConstraintState {
 				}
 			}
 		}
-//		System.err.println("Goal State for: " + this.agent + ":\n" + this.toString());
+		// System.err.println("Goal State for: " + this.agent + ":\n" +
+		// this.toString());
 		return true;
 	}
 
 	public ArrayList<ConstraintState> getExpandedStates() {
-//		int numAgents = this.agentRows.length;
+		// int numAgents = this.agentRows.length;
 
 		// Determine list of applicable actions for each individual agent.
 
@@ -240,14 +242,14 @@ public class ConstraintState {
 			}
 		}
 		Action[] applicableActions = agentActions.toArray(new Action[0]);
-//		for (Action a: applicableActions) {
-//			System.err.print(a + "; ");
-//		}
-//		System.err.println();
+		// for (Action a: applicableActions) {
+		// System.err.print(a + "; ");
+		// }
+		// System.err.println();
 
 		// Iterate over joint actions, check conflict and generate child states.
-//		Action[] jointAction = new Action[numAgents];
-//		int[] actionsPermutation = new int[numAgents];
+		// Action[] jointAction = new Action[numAgents];
+		// int[] actionsPermutation = new int[numAgents];
 		ArrayList<ConstraintState> expandedStates = new ArrayList<>(16);
 
 		for (Action nextAction : applicableActions) {
@@ -258,17 +260,26 @@ public class ConstraintState {
 	}
 
 	private boolean violatesConstraints(int agentCol, int agentRow) {
-//		System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " + this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
-//		for (Constraint constr: this.constraints) {
-//			System.err.print(constr.toString() + "; ");
-//		}
-//		System.err.println("\n");
+		// System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " +
+		// this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
+		// for (Constraint constr: this.constraints) {
+		// System.err.print(constr.toString() + "; ");
+		// }
+		// System.err.println("\n");
 
 		for (Constraint constraint : this.constraints) {
 			if (this.timestamp + 1 == constraint.timestamp && constraint.locationX == agentCol
 					&& constraint.locationY == agentRow && constraint.agentIndex == this.agent) {
-//				System.err.println("VIOLATES CONSTRAINT: " + constraint);
+				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
 				return true;
+			}
+			// Check for symmetry constraint violation
+			if (constraint instanceof SymmetryConstraint) {
+				SymmetryConstraint symmetryConstraint = (SymmetryConstraint) constraint;
+				if (symmetryConstraint.agent2 == this.agent &&
+						(symmetryConstraint.agent2Indexes[0] == agentCol && symmetryConstraint.agent2Indexes[1] == agentRow)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -276,16 +287,17 @@ public class ConstraintState {
 	}
 
 	private boolean violatesBoxConstraints(int agentBoxCol, int agentBoxRow) {
-//		System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " + this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
-//		for (Constraint constr: this.constraints) {
-//			System.err.print(constr.toString() + "; ");
-//		}
-//		System.err.println("\n");
+		// System.err.println("HERE FOR: " + this.agent + ". TIMESTAMP: " +
+		// this.timestamp + ". Agent row: " + agentRow + " ;AGENT COL: " + agentCol);
+		// for (Constraint constr: this.constraints) {
+		// System.err.print(constr.toString() + "; ");
+		// }
+		// System.err.println("\n");
 
 		for (BoxConstraint boxConstraint : this.boxConstraints) {
 			if (this.timestamp + 1 == boxConstraint.timestamp && boxConstraint.boxLocationX == agentBoxCol
 					&& boxConstraint.boxLocationY == agentBoxRow && boxConstraint.agentIndex == this.agent) {
-//				System.err.println("VIOLATES CONSTRAINT: " + constraint);
+				// System.err.println("VIOLATES CONSTRAINT: " + constraint);
 				return true;
 			}
 		}
@@ -302,74 +314,74 @@ public class ConstraintState {
 		int destinationRow;
 		int destinationCol;
 		switch (action.type) {
-		case NoOp:
-			if (violatesConstraints(agentCol, agentRow)) {
-				return false;
-			}
-			return true;
+			case NoOp:
+				if (violatesConstraints(agentCol, agentRow)) {
+					return false;
+				}
+				return true;
 
-		case Move:
-			destinationRow = agentRow + action.agentRowDelta;
-			destinationCol = agentCol + action.agentColDelta;
+			case Move:
+				destinationRow = agentRow + action.agentRowDelta;
+				destinationCol = agentCol + action.agentColDelta;
 
-			if (!this.cellIsFree(destinationRow, destinationCol, false)) {
-				return false;
-			}
-			if (violatesConstraints(destinationCol, destinationRow)) {
-				return false;
-			}
-			return true;
+				if (!this.cellIsFree(destinationRow, destinationCol, false)) {
+					return false;
+				}
+				if (violatesConstraints(destinationCol, destinationRow)) {
+					return false;
+				}
+				return true;
 
-		case Push:
-			destinationRow = agentRow + action.agentRowDelta;
-			destinationCol = agentCol + action.agentColDelta;
+			case Push:
+				destinationRow = agentRow + action.agentRowDelta;
+				destinationCol = agentCol + action.agentColDelta;
 
-			if (!isBoxAt(destinationRow, destinationCol, agentColor)) {
-				return false;
-			}
-			boxRow = destinationRow + action.boxRowDelta;
-			boxCol = destinationCol + action.boxColDelta;
+				if (!isBoxAt(destinationRow, destinationCol, agentColor)) {
+					return false;
+				}
+				boxRow = destinationRow + action.boxRowDelta;
+				boxCol = destinationCol + action.boxColDelta;
 
-			if (boxRow < 0 || boxCol < 0 || boxRow >= this.boxes.length || boxCol >= this.boxes[0].length) {
-				return false;
-			}
+				if (boxRow < 0 || boxCol < 0 || boxRow >= this.boxes.length || boxCol >= this.boxes[0].length) {
+					return false;
+				}
 
-			if (!this.cellIsFree(boxRow, boxCol, false)) {
-				return false;
-			}
-			if (violatesConstraints(destinationCol, destinationRow)) {
-				return false;
-			}
-			if (violatesBoxConstraints(boxCol, boxRow)) {
-				return false;
-			}
-			return true;
+				if (!this.cellIsFree(boxRow, boxCol, false)) {
+					return false;
+				}
+				if (violatesConstraints(destinationCol, destinationRow)) {
+					return false;
+				}
+				if (violatesBoxConstraints(boxCol, boxRow)) {
+					return false;
+				}
+				return true;
 
-		case Pull:
+			case Pull:
 
-			// check for box location on the map
-			if (!this.isBoxAt(agentRow - action.boxRowDelta, agentCol - action.boxColDelta, agentColor)) {
-				return false;
-			}
+				// check for box location on the map
+				if (!this.isBoxAt(agentRow - action.boxRowDelta, agentCol - action.boxColDelta, agentColor)) {
+					return false;
+				}
 
-			destinationRow = agentRow + action.agentRowDelta;
-			destinationCol = agentCol + action.agentColDelta;
+				destinationRow = agentRow + action.agentRowDelta;
+				destinationCol = agentCol + action.agentColDelta;
 
-			if (destinationRow < 0 || destinationCol < 0 || destinationRow >= this.boxes.length
-					|| destinationCol >= this.boxes[0].length) {
-				return false;
-			}
+				if (destinationRow < 0 || destinationCol < 0 || destinationRow >= this.boxes.length
+						|| destinationCol >= this.boxes[0].length) {
+					return false;
+				}
 
-			if (!this.cellIsFree(destinationRow, destinationCol, false)) {
-				return false;
-			}
-			if (violatesConstraints(destinationCol, destinationRow)) {
-				return false;
-			}
-			if (violatesBoxConstraints(agentCol, agentRow)) {
-				return false;
-			}
-			return true;
+				if (!this.cellIsFree(destinationRow, destinationCol, false)) {
+					return false;
+				}
+				if (violatesConstraints(destinationCol, destinationRow)) {
+					return false;
+				}
+				if (violatesBoxConstraints(agentCol, agentRow)) {
+					return false;
+				}
+				return true;
 
 		}
 
@@ -394,72 +406,76 @@ public class ConstraintState {
 		}
 		return true;
 
-	}	
-	
+	}
 
-//    private boolean isConflicting(Action[] jointAction)
-//    {
-//        int numAgents = this.agentRows.length;
-//
-//        int[] destinationRows = new int[numAgents]; // row of new cell to become occupied by action
-//        int[] destinationCols = new int[numAgents]; // column of new cell to become occupied by action
-//        int[] boxRows = new int[numAgents]; // current row of box moved by action
-//        int[] boxCols = new int[numAgents]; // current column of box moved by action
-//        int[] destinationBoxRows = new int[numAgents]; // destination row of box moved by action
-//        int[] destinationBoxCols = new int[numAgents]; // destination column of box moved by action
-//
-//        // Collect cells to be occupied and boxes to be moved
-//        for (int agent = 0; agent < numAgents; ++agent)
-//        {
-//            Action action = jointAction[agent];
-//            int agentRow = this.agentRows[agent];
-//            int agentCol = this.agentCols[agent];
-//            int boxRow;
-//            int boxCol;
-//
-//            switch (action.type)
-//            {
-//                case NoOp:
-//                    break;
-//
-//                case Move:
-//                    destinationRows[agent] = agentRow + action.agentRowDelta;
-//                    destinationCols[agent] = agentCol + action.agentColDelta;
-//                    boxRows[agent] = agentRow; // Distinct dummy value
-//                    boxCols[agent] = agentCol; // Distinct dummy value
-//                    destinationBoxRows[agent] = agentRow + action.agentRowDelta;
-//                    destinationBoxCols[agent] = agentCol + action.agentColDelta;
-//                    break;
-//                   
-//                    
-//                    
-//           }
-//        }
-//
-//        for (int a1 = 0; a1 < numAgents; ++a1)
-//        {
-//            if (jointAction[a1] == Action.NoOp)
-//            {
-//                continue;
-//            }
-//
-//            for (int a2 = a1 + 1; a2 < numAgents; ++a2)
-//            {
-//                if (jointAction[a2] == Action.NoOp)
-//                {
-//                    continue;
-//                }
-//
-//                // Moving into same cell?
-//                if (destinationRows[a1] == destinationRows[a2] && destinationCols[a1] == destinationCols[a2])
-//                {
-//                    return true;
-//                }
-//            }
-//        }
-//
-//        return false;
-//    }
+	// private boolean isConflicting(Action[] jointAction)
+	// {
+	// int numAgents = this.agentRows.length;
+	//
+	// int[] destinationRows = new int[numAgents]; // row of new cell to become
+	// occupied by action
+	// int[] destinationCols = new int[numAgents]; // column of new cell to become
+	// occupied by action
+	// int[] boxRows = new int[numAgents]; // current row of box moved by action
+	// int[] boxCols = new int[numAgents]; // current column of box moved by action
+	// int[] destinationBoxRows = new int[numAgents]; // destination row of box
+	// moved by action
+	// int[] destinationBoxCols = new int[numAgents]; // destination column of box
+	// moved by action
+	//
+	// // Collect cells to be occupied and boxes to be moved
+	// for (int agent = 0; agent < numAgents; ++agent)
+	// {
+	// Action action = jointAction[agent];
+	// int agentRow = this.agentRows[agent];
+	// int agentCol = this.agentCols[agent];
+	// int boxRow;
+	// int boxCol;
+	//
+	// switch (action.type)
+	// {
+	// case NoOp:
+	// break;
+	//
+	// case Move:
+	// destinationRows[agent] = agentRow + action.agentRowDelta;
+	// destinationCols[agent] = agentCol + action.agentColDelta;
+	// boxRows[agent] = agentRow; // Distinct dummy value
+	// boxCols[agent] = agentCol; // Distinct dummy value
+	// destinationBoxRows[agent] = agentRow + action.agentRowDelta;
+	// destinationBoxCols[agent] = agentCol + action.agentColDelta;
+	// break;
+	//
+	//
+	//
+	// }
+	// }
+	//
+	// for (int a1 = 0; a1 < numAgents; ++a1)
+	// {
+	// if (jointAction[a1] == Action.NoOp)
+	// {
+	// continue;
+	// }
+	//
+	// for (int a2 = a1 + 1; a2 < numAgents; ++a2)
+	// {
+	// if (jointAction[a2] == Action.NoOp)
+	// {
+	// continue;
+	// }
+	//
+	// // Moving into same cell?
+	// if (destinationRows[a1] == destinationRows[a2] && destinationCols[a1] ==
+	// destinationCols[a2])
+	// {
+	// return true;
+	// }
+	// }
+	// }
+	//
+	// return false;
+	// }
 
 	private boolean cellIsFree(int row, int col, boolean includeOtherBoxes) {
 		if (includeOtherBoxes) {
@@ -478,7 +494,8 @@ public class ConstraintState {
 				return false;
 			}
 		}
-//		return !this.walls[row][col] && this.boxes[row][col] == 0 && this.agentAt(row, col) == 0;
+		// return !this.walls[row][col] && this.boxes[row][col] == 0 &&
+		// this.agentAt(row, col) == 0;
 	}
 
 	private char agentAt(int row, int col) {
@@ -508,10 +525,10 @@ public class ConstraintState {
 					state.parent.agentRows[state.agent], movingBox);
 			state = state.parent;
 		}
-		System.err.println("Plan for agent: " + this.agent);
-		for(PlanStep step : plan) {
-			System.err.println(step.toString());
-		}
+		// System.err.println("Plan for agent: " + this.agent);
+		// for(PlanStep step : plan) {
+		// System.err.println(step.toString());
+		// }
 		return plan;
 	}
 
@@ -561,16 +578,19 @@ public class ConstraintState {
 				&& Arrays.deepEquals(this.goals, other.goals) && this.agent == other.agent
 				&& this.constraints.equals(other.constraints) && this.timestamp == other.timestamp
 				&& this.boxConstraints.equals(other.boxConstraints)) {
-//			System.err.println("EQUALS FROM STATE WORKS");
+			// System.err.println("EQUALS FROM STATE WORKS");
 			return true;
 		}
 		return false;
-//		return Arrays.equals(this.agentRows, other.agentRows) && Arrays.equals(this.agentCols, other.agentCols)
-//				&& Arrays.equals(this.agentColors, other.agentColors) && Arrays.deepEquals(this.walls, other.walls)
-//				&& Arrays.deepEquals(this.boxes, other.boxes) && Arrays.equals(this.boxColors, other.boxColors)
-//				&& Arrays.deepEquals(this.goals, other.goals) && this.agent == other.agent
-//				&& this.constraints.equals(other.constraints)
-//				&& this.timestamp == other.timestamp;
+		// return Arrays.equals(this.agentRows, other.agentRows) &&
+		// Arrays.equals(this.agentCols, other.agentCols)
+		// && Arrays.equals(this.agentColors, other.agentColors) &&
+		// Arrays.deepEquals(this.walls, other.walls)
+		// && Arrays.deepEquals(this.boxes, other.boxes) &&
+		// Arrays.equals(this.boxColors, other.boxColors)
+		// && Arrays.deepEquals(this.goals, other.goals) && this.agent == other.agent
+		// && this.constraints.equals(other.constraints)
+		// && this.timestamp == other.timestamp;
 
 	}
 

@@ -422,18 +422,18 @@ public class State {
 
 	}
 
-	public boolean isBoxAt(int boxRow, int boxCol) {
+	// public boolean isBoxAt(int boxRow, int boxCol) {
 
-		// check for out of boundaries
-		if (boxRow < 0 || boxCol < 0) {
-			return false;
-		}
-		// check for character
-		if (this.boxes[boxRow][boxCol] == 0) {
-			return false;
-		}
-		return true;
-	}
+	// 	// check for out of boundaries
+	// 	if (boxRow < 0 || boxCol < 0) {
+	// 		return false;
+	// 	}
+	// 	// check for character
+	// 	if (this.boxes[boxRow][boxCol] == 0) {
+	// 		return false;
+	// 	}
+	// 	return true;
+	// }
 
 	private boolean isConflicting(Action[] jointAction) {
 		int numAgents = this.agentRows.length;
