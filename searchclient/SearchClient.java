@@ -239,7 +239,7 @@ public class SearchClient {
 				}
 				
 				System.out.println(sb.toString());
-				System.err.println(sb.toString());
+//				System.err.println(sb.toString());
 				// We must read the server's response to not fill up the stdin buffer and block
 				// the server.
 				serverMessages.readLine();

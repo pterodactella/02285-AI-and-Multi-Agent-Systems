@@ -470,6 +470,16 @@ public class ConstraintState {
 	public PlanStep[] extractPlan() {
 		PlanStep[] plan = new PlanStep[this.timestamp];
 		ConstraintState state = this;
+		
+//		System.err.println("THESE ARE THE CONSTRAINTS: ");
+//		for (Constraint constr : this.constraints) {
+//			System.err.println(constr.toString());
+//		}
+//
+//		System.err.println("THESE ARE THE BOX CONSTRAINTS: ");
+//		for (BoxConstraint constr : this.boxConstraints) {
+//			System.err.println(constr.toString());
+//		}
 		while (state.agentAction != null) {
 
 			MovingBox movingBox;

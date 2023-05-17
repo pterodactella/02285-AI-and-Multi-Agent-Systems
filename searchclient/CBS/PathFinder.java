@@ -48,9 +48,9 @@ public class PathFinder implements Comparator<CBSNode> {
 			if (c == null) {
 //				for (PlanStep[] plan : p.solution) {
 //					for (PlanStep step : plan) {
-//						logger.log("[ " + step.toString() + " ]");
+//						System.err.println("[ " + step.toString() + " ]");
 //					}
-//					logger.log("");
+//					System.err.println("");
 //				}
 				return p.solution;
 			}
@@ -175,7 +175,7 @@ public class PathFinder implements Comparator<CBSNode> {
 				}
 			}
 			
-			if (PathFinder.triedTimes % 10 == 0) {
+			if (PathFinder.triedTimes % 2 == 0) {
 				printSearchStatus(expanded, open);
 			}
 		}
