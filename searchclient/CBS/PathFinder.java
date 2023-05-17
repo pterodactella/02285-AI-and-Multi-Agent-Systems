@@ -101,37 +101,37 @@ public class PathFinder implements Comparator<CBSNode> {
 				// a.totalCost = a.sumCosts();
 				// a.solution[agent2Index] = a.findIndividualPlan(agent2Index, p.solution);
 
-				CBSNode b = new CBSNode(p);
-				b.constraints.add(new Constraint(agent2Index, ((Conflict) c).locationX,
-						((Conflict) c).locationY,
-						((Conflict) c).timestamp));
+				// CBSNode b = new CBSNode(p);
+				// b.constraints.add(new Constraint(agent2Index, ((Conflict) c).locationX,
+				// 		((Conflict) c).locationY,
+				// 		((Conflict) c).timestamp));
 
-				b.solution = b.findPlan(false, agent2Index);
+				// b.solution = b.findPlan(false, agent2Index);
 
-				b.totalCost = b.sumCosts();
+				// b.totalCost = b.sumCosts();
 
-				isCardinal = isCardinalConflict(p, a, b);
-				isSemiCardinal = isSemiCardinalConflict(p, a, b);
-				if (isCardinal) {
-					if (!open.contains(a) && !expanded.contains(a)) {
-						open.add(a);
-					}
-				} else if (isSemiCardinal) {
-					if (!open.contains(a) && !expanded.contains(a)) {
-						open.add(a);
-					}
-				} else {
-					if (!open.contains(a) && !expanded.contains(a)) {
-						open.add(a);
-					}
-					if (!open.contains(b) && !expanded.contains(b)) {
-						open.add(b);
-					}
-				}
-
-				// if (!open.contains(a) && !expanded.contains(a)) {
-				// open.add(a);
+				// isCardinal = isCardinalConflict(p, a, b);
+				// isSemiCardinal = isSemiCardinalConflict(p, a, b);
+				// if (isCardinal) {
+				// 	if (!open.contains(a) && !expanded.contains(a)) {
+				// 		open.add(a);
+				// 	}
+				// } else if (isSemiCardinal) {
+				// 	if (!open.contains(a) && !expanded.contains(a)) {
+				// 		open.add(a);
+				// 	}
+				// } else {
+				// 	if (!open.contains(a) && !expanded.contains(a)) {
+				// 		open.add(a);
+				// 	}
+				// 	if (!open.contains(b) && !expanded.contains(b)) {
+				// 		open.add(b);
+				// 	}
 				// }
+
+				if (!open.contains(a) && !expanded.contains(a)) {
+				open.add(a);
+				}
 				// if (!open.contains(b) && !expanded.contains(b)) {
 				// open.add(b);
 				// }

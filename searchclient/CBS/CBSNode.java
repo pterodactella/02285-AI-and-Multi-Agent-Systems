@@ -81,7 +81,7 @@ public class CBSNode {
 
 	public GenericConflict findFirstConflict() {
 
-		Logger logger = Logger.getInstance();
+		// logger // logger = // logger.getInstance();
 		State temporaryState = new State(this.state);
 		int[] agentsPositions = null;
 		for (int i = 1; i <= this.longestPath; i++) {
@@ -101,8 +101,8 @@ public class CBSNode {
 					// this.solution[i][1]);
 					// System.err.println(temporaryState.toString());
 
-					logger.log("FOUND CONFLICT Box WITH STANDING BOX: " + j + " " + this.solution[i][j].movingBox.currX
-							+ " " + this.solution[i][j].movingBox.currY + " " + i);
+					// logger.log("FOUND CONFLICT Box WITH STANDING BOX: " + j + " " + this.solution[i][j].movingBox.currX
+							// + " " + this.solution[i][j].movingBox.currY + " " + i);
 					return new BoxOrderedConflict(-1, j, this.solution[i][j].movingBox.currX,
 							this.solution[i][j].movingBox.currY, i);
 				}
@@ -114,8 +114,8 @@ public class CBSNode {
 								&& this.solution[i][j].locationY != this.solution[i][j].movingBox.prevY
 								&& temporaryState.isUsedCell(this.solution[i][j].locationY,
 										this.solution[i][j].locationX, j))) {
-					logger.log("FOUND CONFLICT AGENT WITH STANDING BOX: " + j + " " + this.solution[i][j].locationX
-							+ " " + this.solution[i][j].locationY + " " + i);
+					// logger.log("FOUND CONFLICT AGENT WITH STANDING BOX: " + j + " " + this.solution[i][j].locationX
+							// + " " + this.solution[i][j].locationY + " " + i);
 					return new AgentInBoxConflict(j, this.solution[i][j].locationX, this.solution[i][j].locationY, i);
 
 				}
@@ -132,32 +132,32 @@ public class CBSNode {
 					// System.err.println("The agents positions are: ")
 					// if(agentsPositions[0] == -1 || agentsPositions[1] == -1)
 					// continue;
-					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3] + 2) {
-						System.err.println("Corridor symmetry found ");
-						this.constraints.add(
-								new SymmetryConstraint(j, k, agentsPositions[0], agentsPositions[1], agentsPositions[2],
-										agentsPositions[3], i, SymmetryType.Corridor));
-					}
+					// if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3] + 2) {
+					// 	System.err.println("Corridor symmetry found ");
+					// 	this.constraints.add(
+					// 			new SymmetryConstraint(j, k, agentsPositions[0], agentsPositions[1], agentsPositions[2],
+					// 					agentsPositions[3], i, SymmetryType.Corridor));
+					// }
 					if (this.solution[i][k].movingBox != null
 							&& agentsPositions[0] == this.solution[i][k].movingBox.currX
 							&& agentsPositions[1] == this.solution[i][k].movingBox.currY) {
-						logger.log("FOUND AGENTS and BOX MOVING CONFLICT1 : " + " " + j + " " + agentsPositions[0] + " "
-								+ agentsPositions[1] + " " + k + " " + i);
+						// logger.log("FOUND AGENTS and BOX MOVING CONFLICT1 : " + " " + j + " " + agentsPositions[0] + " "
+								// + agentsPositions[1] + " " + k + " " + i);
 						return new AgentAlongBoxConflict(j, agentsPositions[0], agentsPositions[1], k, i);
 					}
 					if (this.solution[i][j].movingBox != null
 							&& agentsPositions[2] == this.solution[i][j].movingBox.currX
 							&& agentsPositions[3] == this.solution[i][j].movingBox.currY) {
-						logger.log("FOUND AGENTS and BOX MOVING CONFLICT2 : " + " " + k + " " + agentsPositions[2] + " "
-								+ agentsPositions[3] + " " + j + " " + i);
+						// logger.log("FOUND AGENTS and BOX MOVING CONFLICT2 : " + " " + k + " " + agentsPositions[2] + " "
+								// + agentsPositions[3] + " " + j + " " + i);
 						return new AgentAlongBoxConflict(k, agentsPositions[2], agentsPositions[3], j, i);
 					}
 					if (this.solution[i][k].movingBox != null
 							&& agentsPositions[0] == this.solution[i][k].movingBox.prevX
 							&& agentsPositions[1] == this.solution[i][k].movingBox.prevY) {
-						logger.log("FOUND AGENTS Ordered CONFLICT3 : " + k + " " + j + " "
-								+ this.solution[i][k].movingBox.prevX + " " + this.solution[i][k].movingBox.prevY + " "
-								+ i);
+						// logger.log("FOUND AGENTS Ordered CONFLICT3 : " + k + " " + j + " "
+								// // + this.solution[i][k].movingBox.prevX + " " + this.solution[i][k].movingBox.prevY + " "
+								// + i);
 						return new OrderedConflict(k, j, this.solution[i][k].movingBox.prevX,
 								this.solution[i][k].movingBox.prevY, i);
 					}
@@ -165,25 +165,25 @@ public class CBSNode {
 					if (this.solution[i][k].movingBox != null
 							&& agentsPositions[4] == this.solution[i][k].movingBox.currX
 							&& agentsPositions[5] == this.solution[i][k].movingBox.currY) {
-						logger.log("FOUND BOX Ordered CONFLICT 1 : " + j + " " + k + " " + agentsPositions[4] + " "
-								+ agentsPositions[5] + " " + i);
+						// logger.log("FOUND BOX Ordered CONFLICT 1 : " + j + " " + k + " " + agentsPositions[4] + " "
+								// + agentsPositions[5] + " " + i);
 						return new BoxOrderedConflict(j, k, agentsPositions[4], agentsPositions[5], i);
 					}
 					
 					if (this.solution[i][j].movingBox != null
 							&& agentsPositions[6] == this.solution[i][j].movingBox.currX
 							&& agentsPositions[7] == this.solution[i][j].movingBox.currY) {
-						logger.log("FOUND BOX Ordered CONFLICT 1 : " + k + " " + j + " " + agentsPositions[6] + " "
-								+ agentsPositions[7] + " " + i);
+						// logger.log("FOUND BOX Ordered CONFLICT 1 : " + k + " " + j + " " + agentsPositions[6] + " "
+								// + agentsPositions[7] + " " + i);
 						return new BoxOrderedConflict(k, j, agentsPositions[6], agentsPositions[7], i);
 					}
 
 					if (this.solution[i][j].movingBox != null && this.solution[i][k].movingBox != null
 							&& this.solution[i][j].movingBox.currX == this.solution[i][k].movingBox.prevX
 							&& this.solution[i][j].movingBox.currY == this.solution[i][k].movingBox.prevY) {
-						logger.log("FOUND Box Ordered CONFLICT 2 : " + k + " " + j + " "
-								+ this.solution[i][k].movingBox.prevX + " " + this.solution[i][k].movingBox.prevY + " "
-								+ i);
+						// logger.log("FOUND Box Ordered CONFLICT 2 : " + k + " " + j + " "
+								// + this.solution[i][k].movingBox.prevX + " " + this.solution[i][k].movingBox.prevY + " "
+								// + i);
 						return new BoxOrderedConflict(k, j, this.solution[i][k].movingBox.prevX,
 								this.solution[i][k].movingBox.prevY, i);
 					}
@@ -191,36 +191,36 @@ public class CBSNode {
 					if (this.solution[i][k].movingBox != null && this.solution[i][j].movingBox != null
 							&& this.solution[i][k].movingBox.currX == this.solution[i][j].movingBox.prevX
 							&& this.solution[i][k].movingBox.currY == this.solution[i][j].movingBox.prevY) {
-						logger.log("FOUND Box Ordered CONFLICT 3 : " + j + " " + k + " "
-								+ this.solution[i][j].movingBox.prevX + " " + this.solution[i][j].movingBox.prevY + " "
-								+ i);
+						// logger.log("FOUND Box Ordered CONFLICT 3 : " + j + " " + k + " "
+								// + this.solution[i][j].movingBox.prevX + " " + this.solution[i][j].movingBox.prevY + " "
+								// + i);
 						return new BoxOrderedConflict(j, k, this.solution[i][j].movingBox.prevX,
 								this.solution[i][j].movingBox.prevY, i);
 					}
 					if (this.solution[i][k].movingBox != null && this.solution[i][j].movingBox != null
 							&& this.solution[i][k].movingBox.currX == this.solution[i][j].movingBox.currX
 							&& this.solution[i][k].movingBox.currY == this.solution[i][j].movingBox.currY) {
-						logger.log("FOUND Box  CONFLICT: " + j + " " + k + " " + this.solution[i][k].movingBox.currX
-								+ " " + this.solution[i][k].movingBox.currY + " " + i);
+						// // logger.log("FOUND Box  CONFLICT: " + j + " " + k + " " + this.solution[i][k].movingBox.currX
+						// 		+ " " + this.solution[i][k].movingBox.currY + " " + i);
 						return new BoxConflict(j, k, this.solution[i][k].movingBox.currX,
 								this.solution[i][k].movingBox.currY, i);
 					}
 
 //					System.err.println("I AM HERE!!!!!: " + i + " " + this.longestPath + " " + Arrays.toString(agentsPositions));
 					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
-						logger.log("FOUND AGENTS CONFLICT: " + j + " " + k + " " + agentsPositions[0] + " "
-								+ agentsPositions[1] + " " + i);
+						// // logger.log("FOUND AGENTS CONFLICT: " + j + " " + k + " " + agentsPositions[0] + " "
+								// + agentsPositions[1] + " " + i);
 						return new Conflict(j, k, agentsPositions[0], agentsPositions[1], i);
 
 					}
 					if (agentsPositions[2] == agentsPositions[4] && agentsPositions[3] == agentsPositions[5]) {
-						logger.log("FOUND AGENTS Ordered CONFLICT1 : " + j + " " + k + " " + agentsPositions[4] + " "
-								+ agentsPositions[5] + " " + i);
+						// // logger.log("FOUND AGENTS Ordered CONFLICT1 : " + j + " " + k + " " + agentsPositions[4] + " "
+						// 		+ agentsPositions[5] + " " + i);
 						return new OrderedConflict(j, k, agentsPositions[4], agentsPositions[5], i);
 					}
 					if (agentsPositions[0] == agentsPositions[6] && agentsPositions[1] == agentsPositions[7]) {
-						logger.log("FOUND AGENTS Ordered CONFLICT2 : " + k + " " + j + " " + agentsPositions[6] + " "
-								+ agentsPositions[7] + " " + i);
+						// // logger.log("FOUND AGENTS Ordered CONFLICT2 : " + k + " " + j + " " + agentsPositions[6] + " "
+						// 		+ agentsPositions[7] + " " + i);
 						return new OrderedConflict(k, j, agentsPositions[6], agentsPositions[7], i);
 					}
 
@@ -254,34 +254,35 @@ public class CBSNode {
 		// System.err.println("plan for agent " + agentIndex + " is: " +
 		// Arrays.toString(plan));
 
-		Logger logger = Logger.getInstance();
-		logger.log("^^^^^ .... ^^^^^");
-		logger.log("THESE ARE THE CONSTRAINTS: ");
-		for (Constraint constr : this.constraints) {
-			logger.log(constr.toString());
-		}
+		// // logger // logger = // logger.getInstance();
+		// // logger.log("^^^^^ .... ^^^^^");
+		// // logger.log("THESE ARE THE CONSTRAINTS: ");
+		// for (Constraint constr : this.constraints) {
+		// 	// logger.log(constr.toString());
+		// }
 
-		logger.log("THESE ARE THE BOX CONSTRAINTS: ");
-		for (BoxConstraint constr : this.boxConstraints) {
-			logger.log(constr.toString());
-		}
+		// // logger.log("THESE ARE THE BOX CONSTRAINTS: ");
+		// for (BoxConstraint constr : this.boxConstraints) {
+		// 	// logger.log(constr.toString());
+		// }
 
-		logger.log("^^^^^ .... ^^^^^");
+		// // logger.log("^^^^^ .... ^^^^^");
 
-		logger.log("THE PLAN FOR: " + agentIndex);
-		for (PlanStep step : plan) {
-			logger.log("Step: " + step.toString());
-		}
-		logger.log("");
-		if (plan != null && plan.length > this.longestPath) {
-			this.longestPath = plan.length;
-		}
+		// // logger.log("THE PLAN FOR: " + agentIndex);
+		// for (PlanStep step : plan) {
+		// 	// logger.log("Step: " + step.toString());
+		// }
+		// // logger.log("");
+		// if (plan != null && plan.length > this.longestPath) {
+		// 	this.longestPath = plan.length;
+		// }
 
 		individualPlans[agentIndex] = plan;
 		if (plan.length > 0) {
 			this.costs[agentIndex] = plan[plan.length - 1].timestamp;
 		}
 
+		return plan;
 	}
 
 	public PlanStep[][] findPlan(boolean allAgents, int agentIndex) {
