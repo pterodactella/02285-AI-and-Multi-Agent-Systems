@@ -75,6 +75,7 @@ public class CBSNode {
 		}
 
 		this.costs = parent.costs.clone();
+		this.longestPath = parent.longestPath;
 		this.totalCost = 0;
 	}
 
@@ -161,12 +162,20 @@ public class CBSNode {
 								this.solution[i][k].movingBox.prevY, i);
 					}
 
-					if (this.solution[i][j].movingBox != null
-							&& agentsPositions[4] == this.solution[i][j].movingBox.currX
-							&& agentsPositions[5] == this.solution[i][j].movingBox.currY) {
+					if (this.solution[i][k].movingBox != null
+							&& agentsPositions[4] == this.solution[i][k].movingBox.currX
+							&& agentsPositions[5] == this.solution[i][k].movingBox.currY) {
 						logger.log("FOUND BOX Ordered CONFLICT 1 : " + j + " " + k + " " + agentsPositions[4] + " "
 								+ agentsPositions[5] + " " + i);
 						return new BoxOrderedConflict(j, k, agentsPositions[4], agentsPositions[5], i);
+					}
+					
+					if (this.solution[i][j].movingBox != null
+							&& agentsPositions[6] == this.solution[i][j].movingBox.currX
+							&& agentsPositions[7] == this.solution[i][j].movingBox.currY) {
+						logger.log("FOUND BOX Ordered CONFLICT 1 : " + k + " " + j + " " + agentsPositions[6] + " "
+								+ agentsPositions[7] + " " + i);
+						return new BoxOrderedConflict(k, j, agentsPositions[6], agentsPositions[7], i);
 					}
 
 					if (this.solution[i][j].movingBox != null && this.solution[i][k].movingBox != null
@@ -197,6 +206,7 @@ public class CBSNode {
 								this.solution[i][k].movingBox.currY, i);
 					}
 
+//					System.err.println("I AM HERE!!!!!: " + i + " " + this.longestPath + " " + Arrays.toString(agentsPositions));
 					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
 						logger.log("FOUND AGENTS CONFLICT: " + j + " " + k + " " + agentsPositions[0] + " "
 								+ agentsPositions[1] + " " + i);
@@ -268,8 +278,10 @@ public class CBSNode {
 		}
 
 		individualPlans[agentIndex] = plan;
-		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
-		return plan;
+		if (plan.length > 0) {
+			this.costs[agentIndex] = plan[plan.length - 1].timestamp;
+		}
+
 	}
 
 	public PlanStep[][] findPlan(boolean allAgents, int agentIndex) {
