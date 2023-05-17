@@ -88,6 +88,34 @@ public class PathFinder implements Comparator<CBSNode> {
 					if (!open.contains(a) && !expanded.contains(a)) {
 						open.add(a);
 					}
+
+					// CBSNode b = new CBSNode(p);
+				// b.constraints.add(new Constraint(agent2Index, ((Conflict) c).locationX,
+				// 		((Conflict) c).locationY,
+				// 		((Conflict) c).timestamp));
+
+				// b.solution = b.findPlan(false, agent2Index);
+
+				// b.totalCost = b.sumCosts();
+
+				// isCardinal = isCardinalConflict(p, a, b);
+				// isSemiCardinal = isSemiCardinalConflict(p, a, b);
+				// if (isCardinal) {
+				// 	if (!open.contains(a) && !expanded.contains(a)) {
+				// 		open.add(a);
+				// 	}
+				// } else if (isSemiCardinal) {
+				// 	if (!open.contains(a) && !expanded.contains(a)) {
+				// 		open.add(a);
+				// 	}
+				// } else {
+				// 	if (!open.contains(a) && !expanded.contains(a)) {
+				// 		open.add(a);
+				// 	}
+				// 	if (!open.contains(b) && !expanded.contains(b)) {
+				// 		open.add(b);
+				// 	}
+				// }
 				}
 			} else if (c instanceof OrderedConflict) {
 				CBSNode a = new CBSNode(p);
@@ -197,4 +225,17 @@ public class PathFinder implements Comparator<CBSNode> {
 				Memory.stringRep());
 	}
 
+	private boolean isCardinalConflict(CBSNode parent, CBSNode agent1Node, CBSNode agent2Node) {
+		int costN = parent.totalCost;
+		int costA = agent1Node.totalCost;
+		int costB = agent2Node.totalCost;
+		return costA > costN && costB > costN;
+	}
+
+	private boolean isSemiCardinalConflict(CBSNode parent, CBSNode agent1Node, CBSNode agent2Node) {
+		int costN = parent.totalCost;
+		int costA = agent1Node.totalCost;
+		int costB = agent2Node.totalCost;
+		return (costA > costN && costB == costN) || (costA == costN && costB > costN);
+	}
 }
