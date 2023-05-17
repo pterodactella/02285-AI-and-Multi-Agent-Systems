@@ -13,7 +13,7 @@ public abstract class ConstraintHeuristic implements Comparator<ConstraintState>
 	}
 
 	public int h(ConstraintState s) {
-		Distances d = new ManhattanDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
+		Distances d = new EnhancedHammingDistance(s.agentRows, s.agentCols, s.goals, s.boxes);
 //System.out.println("d=" );
 //System.err.println(d.calculate());
 		return d.calculate();

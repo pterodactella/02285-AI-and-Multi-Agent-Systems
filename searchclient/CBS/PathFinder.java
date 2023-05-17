@@ -224,7 +224,7 @@ public class PathFinder implements Comparator<CBSNode> {
 				}
 			}
 			
-			if (PathFinder.triedTimes % 2 == 0) {
+			if (PathFinder.triedTimes % 10 == 0) {
 				printSearchStatus(expanded, open);
 			}
 		}

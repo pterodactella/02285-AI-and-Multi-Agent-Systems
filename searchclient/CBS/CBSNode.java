@@ -75,7 +75,6 @@ public class CBSNode {
 		}
 
 		this.costs = parent.costs.clone();
-		this.longestPath = parent.longestPath;
 		this.totalCost = 0;
 	}
 
@@ -206,7 +205,6 @@ public class CBSNode {
 								this.solution[i][k].movingBox.currY, i);
 					}
 
-//					System.err.println("I AM HERE!!!!!: " + i + " " + this.longestPath + " " + Arrays.toString(agentsPositions));
 					if (agentsPositions[0] == agentsPositions[2] && agentsPositions[1] == agentsPositions[3]) {
 						// // logger.log("FOUND AGENTS CONFLICT: " + j + " " + k + " " + agentsPositions[0] + " "
 								// + agentsPositions[1] + " " + i);
@@ -278,9 +276,7 @@ public class CBSNode {
 		// }
 
 		individualPlans[agentIndex] = plan;
-		if (plan.length > 0) {
-			this.costs[agentIndex] = plan[plan.length - 1].timestamp;
-		}
+		this.costs[agentIndex] = plan[plan.length - 1].timestamp;
 
 		return plan;
 	}
