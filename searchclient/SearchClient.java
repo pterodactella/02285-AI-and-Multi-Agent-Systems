@@ -22,10 +22,11 @@ public class SearchClient {
 		serverMessages.readLine(); // hospital
 
 		// Read Level name
-		Logger logger = Logger.getInstance();
-		logger.log(serverMessages.readLine()); // #levelname
+		// Logger logger = Logger.getInstance();
 		serverMessages.readLine(); // #levelname
+
 		serverMessages.readLine(); // <name>
+		// logger.log("Level name: " + levelname); // #levelname
 
 		// Read colors
 		serverMessages.readLine(); // #colors
@@ -83,8 +84,6 @@ public class SearchClient {
 		}
 		agentRows = Arrays.copyOf(agentRows, numAgents);
 		agentCols = Arrays.copyOf(agentCols, numAgents);
-		
-
 
 		// Read goal state
 		// line is currently "#goal"
@@ -119,7 +118,7 @@ public class SearchClient {
 				SearchClient.replaceBoxWithWall(walls, boxes, (char) ('A' + boxCol));
 			}
 		}
-//		SearchClient.printMatrix(walls);
+		// SearchClient.printMatrix(walls);
 
 		return new State(agentRows, agentCols, agentColors, walls, boxes, boxColors, goals);
 	}
@@ -149,7 +148,7 @@ public class SearchClient {
 		System.err.format("Starting %s.\n", frontier.getName());
 		PathFinder solver = new PathFinder(initialState);
 
-//		return GraphSearch.search(initialState, frontier);
+		// return GraphSearch.search(initialState, frontier);
 		return solver.solveCBS();
 	}
 
@@ -171,36 +170,36 @@ public class SearchClient {
 		Frontier frontier;
 		if (args.length > 0) {
 			switch (args[0].toLowerCase(Locale.ROOT)) {
-			case "-cbs":
-				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
-				break;
-			case "-bfs":
-				frontier = new FrontierBFS();
-				break;
-			case "-dfs":
-				frontier = new FrontierDFS();
-				break;
-			case "-astar":
-				frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
-				break;
-			case "-wastar":
-				int w = 5;
-				if (args.length > 1) {
-					try {
-						w = Integer.parseUnsignedInt(args[1]);
-					} catch (NumberFormatException e) {
-						System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
+				case "-cbs":
+					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					break;
+				case "-bfs":
+					frontier = new FrontierBFS();
+					break;
+				case "-dfs":
+					frontier = new FrontierDFS();
+					break;
+				case "-astar":
+					frontier = new FrontierBestFirst(new HeuristicAStar(initialState));
+					break;
+				case "-wastar":
+					int w = 5;
+					if (args.length > 1) {
+						try {
+							w = Integer.parseUnsignedInt(args[1]);
+						} catch (NumberFormatException e) {
+							System.err.println("Couldn't parse weight argument to -wastar as integer, using default.");
+						}
 					}
-				}
-				frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
-				break;
-			case "-greedy":
-				frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
-				break;
-			default:
-				frontier = new FrontierBFS();
-				System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
-						+ "-greedy to set the search strategy.");
+					frontier = new FrontierBestFirst(new HeuristicWeightedAStar(initialState, w));
+					break;
+				case "-greedy":
+					frontier = new FrontierBestFirst(new HeuristicGreedy(initialState));
+					break;
+				default:
+					frontier = new FrontierBFS();
+					System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or "
+							+ "-greedy to set the search strategy.");
 			}
 		} else {
 			frontier = new FrontierBFS();
@@ -225,27 +224,32 @@ public class SearchClient {
 			System.err.format("Found solution of length %,d.\n", plan.length);
 
 			for (PlanStep[] jointAction : plan) {
-//				System.err.print(jointAction[0].action.name);
-//				for (int action = 1; action < jointAction.length; ++action) {
-//					System.err.print("|");
-//					System.err.println(jointAction[action].action.name);
-//				}
-//				System.err.println();
+				// System.err.print(jointAction[0].action.name);
+				// for (int action = 1; action < jointAction.length; ++action) {
+				// System.err.print("|");
+				// System.err.println(jointAction[action].action.name);
+				// }
+				// System.err.println();
 				StringBuilder sb = new StringBuilder();
 				sb.append(jointAction[0].action.name);
-				
+
 				for (int action = 1; action < jointAction.length; ++action) {
-	
+
 					sb.append("|");
 					sb.append(jointAction[action].action.name);
 				}
-				Logger logger = Logger.getInstance();
-				logger.log(sb.toString());
+				// Logger logger = Logger.getInstance();
+				// logger.log(sb.toString());
 				System.out.println(sb.toString());
-//				System.err.println(sb.toString());
+				// System.err.println(sb.toString());
 				// We must read the server's response to not fill up the stdin buffer and block
 				// the server.
+				// Waiting for client process
 				serverMessages.readLine();
+				// if (message.contains("Time to solve")) {
+				// 	logger.log(message);
+				// }
+
 			}
 		}
 	}

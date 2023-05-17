@@ -40,7 +40,7 @@ public class PathFinder implements Comparator<CBSNode> {
 		Logger logger = Logger.getInstance();
 
 		while (!open.isEmpty()) {
-			logger.log("#########################################");
+			// logger.log("#########################################");
 			CBSNode p = open.poll();
 			expanded.add(p);
 			GenericConflict c = p.findFirstConflict();
@@ -190,6 +190,7 @@ public class PathFinder implements Comparator<CBSNode> {
 	private static long startTime = System.nanoTime();
 
 	private static void printSearchStatus(HashSet<CBSNode> expanded, PriorityQueue<CBSNode> open) {
+		Logger logger = Logger.getInstance();
 		String statusTemplate = "#Expanded: %,8d, #Frontier: %,8d, #Generated: %,8d, Time: %3.3f s\n%s\n";
 		double elapsedTime = (System.nanoTime() - startTime) / 1_000_000_000d;
 		System.err.format(statusTemplate, expanded.size(), open.size(), expanded.size() + open.size(), elapsedTime,
