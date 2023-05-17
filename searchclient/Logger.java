@@ -11,7 +11,7 @@ public class Logger {
     private static FileWriter logWriter;
  
     private Logger() {
-        logFile = new File("logs4.txt");
+        logFile = new File("NHL.txt");
         try {
             logWriter = new FileWriter(logFile, true);
         } catch (IOException e) {

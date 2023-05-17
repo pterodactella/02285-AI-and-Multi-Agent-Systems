@@ -22,6 +22,8 @@ public class SearchClient {
 		serverMessages.readLine(); // hospital
 
 		// Read Level name
+		Logger logger = Logger.getInstance();
+		logger.log(serverMessages.readLine()); // #levelname
 		serverMessages.readLine(); // #levelname
 		serverMessages.readLine(); // <name>
 
@@ -237,7 +239,8 @@ public class SearchClient {
 					sb.append("|");
 					sb.append(jointAction[action].action.name);
 				}
-				
+				Logger logger = Logger.getInstance();
+				logger.log(sb.toString());
 				System.out.println(sb.toString());
 //				System.err.println(sb.toString());
 				// We must read the server's response to not fill up the stdin buffer and block
