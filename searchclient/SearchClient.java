@@ -147,7 +147,7 @@ public class SearchClient {
 		System.err.format("Starting %s.\n", frontier.getName());
 		PathFinder solver = new PathFinder(initialState);
 
-//		return GraphSearch.search(initialState, frontier);
+//		return GraphSearch.searches(initialState, frontier);
 		return solver.solveCBS();
 	}
 

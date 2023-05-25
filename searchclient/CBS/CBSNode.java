@@ -881,6 +881,7 @@ public class CBSNode {
 			}
 		}
 
+		// Find the boxes that are not in the sameColoredBoxes array and save them in an boxesToSetAsWall
 		ArrayList<Character> boxesToSetAsWall = new ArrayList<>();
 		for (int i = 0; i < initialStateObject.boxColors.length; i++) {
 			if ( initialStateObject.boxColors[i] != null && !sameColoredBoxes.contains(i)  ) {
@@ -888,16 +889,23 @@ public class CBSNode {
 			}
 		}
 
+		// Set the walls to true for boxes that are in boxesToSetAsWall
 		for (int row = 0; row < copiedWalls.length; row++) {
 			for (int col = 0; col < copiedWalls[0].length; col++) {
-				if ( boxesToSetAsWall.contains( initialStateObject.boxesInitial[row][col] ) ) {
+				if ( boxesToSetAsWall.contains( initialStateObject.boxesInitial[row][col] ) && initialStateObject.goals[row][col] == '\0' ) {
 					copiedWalls[row][col] = true;
 				};
-				
 			}
-			
 		}
 
+		// set the walls to true for the goals that are in the boxesToSetAsWall
+		for (int row = 0; row < copiedWalls.length; row++) {
+			for (int col = 0; col < copiedWalls[0].length; col++) {
+				if ( boxesToSetAsWall.contains( initialStateObject.goals[row][col] ) ) {
+					copiedWalls[row][col] = true;
+				};
+			}
+		}
 
 
 		return copiedWalls;
@@ -910,7 +918,7 @@ public class CBSNode {
 		}
 
 
-	private void setInitialBoxPosAsWall( boolean[][] walls, int boxIndex, char[][] newBoxes ) {
+	private void setInitialBoxPosAsWall( boolean[][] walls,  int boxIndex, char[][] newBoxes ) {
 		for (int row = 0; row < newBoxes.length; row++) { // rows =first dim
 			for(int col = 0; col < newBoxes[row].length; col++) { // cols =second dim
 				char box = newBoxes[row][col];
@@ -920,6 +928,8 @@ public class CBSNode {
 					// set the position of the box as a wall
 					walls[row] [col] = true;
 				}
+
+
 			}
 		}
 	}
